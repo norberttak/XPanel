@@ -116,15 +116,16 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WINVER=0x0601;_WIN32_WINNT=0x0601;_WIN32_WINDOWS=0x0601;WIN32;_DEBUG;_WINDOWS;_USRDLL;SIMDATA_EXPORTS;IBM=1;XPLM200=1;XPLM210=1;XPLM300=1;XPLM301=1;XPLM302=1;XPLM303=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\SDK\CHeaders\XPLM;$(SolutionDir)\SDK\CHeaders\Widgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\hidapi\headers;$(SolutionDir)\LUA\include;$(SolutionDir)\SDK\CHeaders\XPLM;$(SolutionDir)\SDK\CHeaders\Widgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\SDK\Libraries\Win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;XPLM_64.lib;XPWidgets_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\hidapi\lib;$(SolutionDir)\LUA;$(SolutionDir)\SDK\Libraries\Win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;XPLM_64.lib;XPWidgets_64.lib;liblua54.a;hidapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -144,7 +145,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="xpanel.cpp" />
+    <ClCompile Include="src\configuration.cpp" />
+    <ClCompile Include="src\Action.cpp" />
+    <ClCompile Include="src\Device.cpp" />
+    <ClCompile Include="src\configparser.cpp" />
+    <ClCompile Include="src\SaitekMultiPanel.cpp" />
+    <ClCompile Include="src\xpanel.cpp" />
+    <ClCompile Include="src\UsbHidDevice.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="config\device-generic.ini">
+      <FileType>Text</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\configuration.h" />
+    <ClInclude Include="src\Action.h" />
+    <ClInclude Include="src\Device.h" />
+    <ClInclude Include="src\configparser.h" />
+    <ClInclude Include="src\SaitekMultiPanel.h" />
+    <ClInclude Include="src\UsbHidDevice.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
