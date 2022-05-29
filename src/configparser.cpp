@@ -6,19 +6,33 @@
 
 int Configparser::parse_file(std::string file_name, std::vector<Configuration>& config)
 {
+    last_error_message = "";
     std::ifstream input_file(file_name);
     if (!input_file.is_open()) {
         return EXIT_FAILURE;
     }
 
     std::string line;
+    int current_line_nr = 1;
+    std::stringstream error_details;
     while (std::getline(input_file, line)) {
+        current_line_nr++;
         if (parse_line(line, config) != EXIT_SUCCESS)
+        {
+            error_message("Error in file:", line);
             return EXIT_FAILURE;
+        }
     }
 
     input_file.close();
     return EXIT_SUCCESS;
+}
+
+void Configparser::error_message(std::string detail, std::string line)
+{
+    std::stringstream error_details;
+    error_details << "XPanel<configparser>:" << detail << " :[line:" << current_line_nr << "]: " << line;
+    error_details >> last_error_message;
 }
 
 int Configparser::parse_line(std::string line, std::vector<Configuration>& config)
@@ -54,8 +68,10 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         else if (section_id == DEVICE_TYPE_ARDUINO_HOME_COCKPIT)
             config.back().device_type = HOME_COCKPIT;
         else
+        {
+            error_message("Uknown device type", line);
             return EXIT_FAILURE;
-
+        }
         return EXIT_SUCCESS;
     }
  
@@ -104,6 +120,11 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_PUSH_DATAREF)))
 	{
         XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+        if (dataRef == NULL)
+        {
+            error_message("Invalid data ref", line);
+            return EXIT_FAILURE;
+        }
         Action *push_action = new Action(dataRef, stoi(m[2]));
 		config.back().push_actions[section_id] = *push_action;
         return EXIT_SUCCESS;
@@ -112,6 +133,11 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_RELEASE_DATAREF)))
     {
         XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+        if (dataRef == NULL)
+        {
+            error_message("Invalid data ref", line);
+            return EXIT_FAILURE;
+        }
         Action* release_action = new Action(dataRef, stoi(m[2]));
         config.back().release_actions[section_id] = *release_action;
         return EXIT_SUCCESS;
@@ -120,6 +146,11 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_PUSH_COMMANDREF)))
     {
         XPLMCommandRef commandRef = XPLMFindCommand(m[1].str().c_str());
+        if (commandRef == NULL)
+        {
+            error_message("Invalid command ref", line);
+            return EXIT_FAILURE;
+        }
         CommandType command_type = CommandType::NONE;
 
         if (m.size() >= 3)
@@ -138,6 +169,11 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_RELEASE_COMMANDREF)))
     {
         XPLMCommandRef commandRef = XPLMFindCommand(m[1].str().c_str());
+        if (commandRef == NULL)
+        {
+            error_message("Invalid command ref", line);
+            return EXIT_FAILURE;
+        }
         CommandType command_type = CommandType::ONCE;
 
         if (m.size() >= 3)
@@ -153,5 +189,11 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         return EXIT_SUCCESS;
     }
 
+    error_message("Unknown error", line);
     return EXIT_FAILURE;
+}
+
+std::string Configparser::get_last_error_message()
+{
+    return last_error_message;
 }

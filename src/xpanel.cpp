@@ -59,7 +59,11 @@ PLUGIN_API int XPluginStart(
 	std::filesystem::path init_path = std::filesystem::path(aircraft_path);
 	init_path /= "xpanel.ini";
 	int result = p->parse_file(init_path.string(), config);
-	// TODO: Handle parser error
+	if (result != EXIT_SUCCESS)
+	{
+		XPLMDebugString(p->get_last_error_message().c_str());
+		return 0;
+	}
 
 	Device* device;
 
@@ -89,6 +93,8 @@ PLUGIN_API int XPluginStart(
 			t_home = new std::thread(&ArduinoHomeCockpit::thread_func, (ArduinoHomeCockpit*)device);
 			break;
 		default:
+			XPLMDebugString("XPanel:Unknown device type");
+			return 0;
 			break;
 		}
 	}

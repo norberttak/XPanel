@@ -35,10 +35,13 @@ private:
 	const std::string TOKEN_TRIGGER_BLINK = "trigger_blink=";
 	*/
 //	parser_state state = INIT;
-	std::string section_id;
-	
+	std::string section_id = "";
+	std::string last_error_message = "";
+	int current_line_nr;
+	void error_message(std::string detail, std::string line);
 	int parse_line(std::string line, std::vector<Configuration>& config);
 public:
 	int parse_file(std::string file_name, std::vector<Configuration>& config);
+	std::string get_last_error_message();
 };
 
