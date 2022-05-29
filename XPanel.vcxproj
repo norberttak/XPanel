@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ArduinoHomeCockpit.cpp" />
     <ClCompile Include="src\configuration.cpp" />
     <ClCompile Include="src\Action.cpp" />
     <ClCompile Include="src\Device.cpp" />
@@ -159,6 +160,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ArduinoHomeCockpit.h" />
     <ClInclude Include="src\configuration.h" />
     <ClInclude Include="src\Action.h" />
     <ClInclude Include="src\Device.h" />

@@ -8,7 +8,9 @@
 #include "lua.hpp"
 #include "XPLMGraphics.h"
 #include "XPLMPlanes.h"
+#include "UsbHidDevice.h"
 #include "SaitekMultiPanel.h"
+#include "ArduinoHomeCockpit.h"
 #include "configuration.h"
 #include "configparser.h"
 
@@ -30,6 +32,9 @@
 lua_State* lua;
 std::vector<Configuration> config;
 Configparser* p = NULL;
+std::vector<Device*> devices;
+std::thread* t_multi = NULL;
+std::thread* t_home = NULL;
 
 PLUGIN_API int XPluginStart(
 	char* outName,
@@ -56,7 +61,6 @@ PLUGIN_API int XPluginStart(
 	int result = p->parse_file(init_path.string(), config);
 	// TODO: Handle parser error
 
-	std::vector<Device*> devices;
 	Device* device;
 
 	for (auto it : config)
@@ -65,15 +69,28 @@ PLUGIN_API int XPluginStart(
 		case DeviceType::SAITEK_MULTI:
 			// set default vid & pid if it's not set in config file
 			if (it.vid == 0)
-				it.vid = 0x6a3;
+				it.vid = 0x06a3;
 			if (it.pid == 0)
 				it.pid = 0x0d06;
 
 			device = new SaitekMultiPanel(it);
 			devices.push_back(device);
-			std::thread t(&SaitekMultiPanel::thread_func, *(SaitekMultiPanel*)device);
+			t_multi = new std::thread(&SaitekMultiPanel::thread_func, (SaitekMultiPanel*)device);
 			break;
-		}				
+		case DeviceType::HOME_COCKPIT:
+			// set default vid & pid if it's not set in config file
+			if (it.vid == 0)
+				it.vid = 0x2341;
+			if (it.pid == 0)
+				it.pid = 0x8036;
+
+			device = new ArduinoHomeCockpit(it);
+			devices.push_back(device);
+			t_home = new std::thread(&ArduinoHomeCockpit::thread_func, (ArduinoHomeCockpit*)device);
+			break;
+		default:
+			break;
+		}
 	}
 
 	return 1;

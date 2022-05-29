@@ -29,7 +29,7 @@ namespace test
 			device = new SaitekMultiPanel(config[0]);
 			device->connect();
 			device->start();
-			t = new std::thread(&SaitekMultiPanel::thread_func, *(SaitekMultiPanel*)device);
+			t = new std::thread(&SaitekMultiPanel::thread_func, (SaitekMultiPanel*)device);
 		}
 
 		TEST_METHOD(Test_VID_PID)
