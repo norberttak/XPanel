@@ -104,6 +104,11 @@ PLUGIN_API int XPluginStart(
 
 PLUGIN_API void	XPluginStop(void)
 {
+	for (auto dev : devices)
+	{
+		dev->stop(0);
+	}
+
 	lua_close(lua);
 }
 
