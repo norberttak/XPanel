@@ -1,4 +1,6 @@
 #include "Action.h"
+#include "XPLMUtilities.h"
+#include "XPLMProcessing.h"
 
 Action::Action()
 {
@@ -31,9 +33,9 @@ Action::~Action()
 	dataref = NULL;
 }
 
-void Action::activate() 
+void Action::activate()
 {
-	if (dataref != NULL) 
+	if (dataref != NULL)
 	{
 		XPLMSetDatai(dataref, data);
 	}
@@ -41,17 +43,17 @@ void Action::activate()
 	if (commandref != NULL)
 	{
 		switch (command_type) {
-			case CommandType::BEGIN:
-				XPLMCommandBegin(commandref);
-				break;
+		case CommandType::BEGIN:
+			XPLMCommandBegin(commandref);
+			break;
 
-			case CommandType::END:
-				XPLMCommandEnd(commandref);
-				break;
+		case CommandType::END:
+			XPLMCommandEnd(commandref);
+			break;
 
-			case CommandType::ONCE:
-				XPLMCommandOnce(commandref);
-				break;		
+		case CommandType::ONCE:
+			XPLMCommandOnce(commandref);
+			break;
 		}
 	}
 
@@ -59,4 +61,41 @@ void Action::activate()
 	{
 		//
 	}
+}
+
+// ---------------------- ActionQueue ------------------
+// ---------- a thread safe queue implementation -------
+ActionQueue* ActionQueue::current = NULL;
+
+ActionQueue::ActionQueue()
+{
+//
+}
+
+ActionQueue* ActionQueue::get_instance()
+{
+	if (current == NULL)
+		current = new ActionQueue();
+
+	return current;
+}
+
+void ActionQueue::push(Action* action)
+{
+	guard.lock();
+	action_queue.push(action);	
+	guard.unlock();
+}
+
+void ActionQueue::activate_actions_in_queue()
+{
+	guard.lock();
+
+	while (!action_queue.empty())
+	{
+		action_queue.front()->activate();
+		action_queue.pop();
+	}
+
+	guard.unlock();
 }

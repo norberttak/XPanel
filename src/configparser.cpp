@@ -9,6 +9,7 @@ int Configparser::parse_file(std::string file_name, std::vector<Configuration>& 
     last_error_message = "";
     std::ifstream input_file(file_name);
     if (!input_file.is_open()) {
+        error_message("Error open config file:", file_name);
         return EXIT_FAILURE;
     }
 
@@ -74,7 +75,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         }
         return EXIT_SUCCESS;
     }
- 
+
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_VID)))
 	{
 		std::stringstream ss;
@@ -100,14 +101,6 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ACF)))
 	{
 		config.back().aircraft_acf = m[1];
-        return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_VID)))
-	{
-		std::stringstream ss;
-		ss << std::hex << m[1];
-		ss >> config.back().vid;
         return EXIT_SUCCESS;
 	}
 

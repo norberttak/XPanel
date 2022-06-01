@@ -1,7 +1,12 @@
-#include "pch.h"
+#include "XPLMDefs.h"
+#include "XPLMGraphics.h"
+#include "XPLMPlugin.h"
+#include "XPLMPlanes.h"
+#include "XPLMDisplay.h"
+
 #include "CppUnitTest.h"
-#include "..\src\ArduinoHomeCockpit.h"
-#include "..\src\configparser.h"
+#include "ArduinoHomeCockpit.h"
+#include "configparser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -10,6 +15,7 @@ int test_get_dataref_value(const char* datarefstr);
 int test_hid_get_vid();
 int test_hid_get_pid();
 std::string test_get_last_command();
+int test_get_command_queue_size();
 
 namespace test
 {
@@ -23,13 +29,16 @@ namespace test
 	public:
 		TEST_METHOD_INITIALIZE(TestArduinoHomeCockpitInit)
 		{
-			p = new Configparser();
-			int result = p->parse_file("../../test/test-arduino-home.ini", config);
-			Assert::AreEqual(0, result);
-			device = new ArduinoHomeCockpit(config[0]);
-			device->connect();
-			device->start();
-			t = new std::thread(&ArduinoHomeCockpit::thread_func, (ArduinoHomeCockpit*)device);
+			if (p == NULL) 
+			{
+				p = new Configparser();
+				int result = p->parse_file("../../test/test-arduino-home.ini", config);
+				Assert::AreEqual(0, result);
+				device = new ArduinoHomeCockpit(config[0]);
+				device->connect();
+				device->start();
+				t = new std::thread(&ArduinoHomeCockpit::thread_func, (ArduinoHomeCockpit*)device);
+			}
 		}
 
 		TEST_METHOD(Test_VID_PID)
@@ -41,15 +50,35 @@ namespace test
 		//Test a button with DataRef action
 		TEST_METHOD(TestStrobeLightButton)
 		{
-			unsigned char buffer[9] = { 1,0,0,0,0,0,0,0,0 };
+			unsigned char buffer[9] = { 0,1,0,0,0,0,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(50ms);
+			std::this_thread::sleep_for(150ms);
+			ActionQueue::get_instance()->activate_actions_in_queue();
 			Assert::AreEqual(1, test_get_dataref_value("sim/cockpit/electrical/strobe_lights_on"));
 
-			buffer[0] = 0;
+			memset(buffer, 0, sizeof(buffer));
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(50ms);
+			std::this_thread::sleep_for(150ms);
+			ActionQueue::get_instance()->activate_actions_in_queue();
 			Assert::AreEqual(0, test_get_dataref_value("sim/cockpit/electrical/strobe_lights_on"));
+		}
+
+		//Test a button with CommandRef action
+		TEST_METHOD(TestStarterButton)
+		{
+			unsigned char buffer[9] = { 0,0x40,0,0,0,0,0,0,0 };
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+			ActionQueue::get_instance()->activate_actions_in_queue();
+			Assert::AreEqual(1, test_get_command_queue_size());			
+			Assert::AreEqual(std::string("sim/ignition/engage_starter_1_BEGIN"), test_get_last_command());
+
+			memset(buffer, 0, sizeof(buffer));;
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+			ActionQueue::get_instance()->activate_actions_in_queue();
+			Assert::AreEqual(1, test_get_command_queue_size());			
+			Assert::AreEqual(std::string("sim/ignition/engage_starter_1_END"), test_get_last_command());
 		}
 
 		TEST_METHOD_CLEANUP(TestArduinoHomeCockpitCleanup)

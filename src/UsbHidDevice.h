@@ -26,11 +26,11 @@ class UsbHidDevice : public Device
 public:
 	UsbHidDevice(Configuration &config, int buffer_size);
 	~UsbHidDevice();
-	void thread_func();
-	void start();
-	void stop(int time_out);
+	virtual void thread_func();
 protected:
 	int connect();
+	virtual void start();
+	virtual void stop(int time_out);
 	void release();
 	int read_device(unsigned char* buf, int buf_size);
 	int write_device(unsigned char* buf, int length);

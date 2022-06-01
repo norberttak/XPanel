@@ -1,7 +1,12 @@
-#include "pch.h"
+#include "XPLMDefs.h"
+#include "XPLMGraphics.h"
+#include "XPLMPlugin.h"
+#include "XPLMPlanes.h"
+#include "XPLMDisplay.h"
+
 #include "CppUnitTest.h"
-#include "..\src\SaitekMultiPanel.h"
-#include "..\src\configparser.h"
+#include "SaitekMultiPanel.h"
+#include "configparser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -19,7 +24,7 @@ namespace test
 		std::vector<Configuration> config;
 		Configparser* p;
 		SaitekMultiPanel* device;
-		std::thread *t;
+		std::thread* t;
 	public:
 		TEST_METHOD_INITIALIZE(TestMultiPanelInit)
 		{
@@ -43,12 +48,14 @@ namespace test
 		{
 			unsigned char buffer[4] = { 1,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(50ms);
+			std::this_thread::sleep_for(150ms);
+			ActionQueue::get_instance()->activate_actions_in_queue();
 			Assert::AreEqual(1, test_get_dataref_value("/sim/hello/AP"));
 
 			buffer[0] = 0;
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(50ms);
+			std::this_thread::sleep_for(150ms);
+			ActionQueue::get_instance()->activate_actions_in_queue();
 			Assert::AreEqual(0, test_get_dataref_value("/sim/hello/AP"));
 		}
 
@@ -57,13 +64,15 @@ namespace test
 		{
 			unsigned char buffer[4] = { 0,0x40,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(50ms);
+			std::this_thread::sleep_for(150ms);
+			ActionQueue::get_instance()->activate_actions_in_queue();
 			std::string last_cmd = test_get_last_command();
 			Assert::AreEqual("/sim/cmd/NAV_BEGIN", last_cmd.c_str());
 
 			memset(buffer, 0, sizeof(buffer));
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(50ms);
+			std::this_thread::sleep_for(150ms);
+			ActionQueue::get_instance()->activate_actions_in_queue();
 			last_cmd = test_get_last_command();
 			Assert::AreEqual("/sim/cmd/NAV_END", last_cmd.c_str());
 		}
@@ -73,13 +82,15 @@ namespace test
 		{
 			unsigned char buffer[4] = { 0x10,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(50ms);
+			std::this_thread::sleep_for(150ms);
+			ActionQueue::get_instance()->activate_actions_in_queue();
 			std::string last_cmd = test_get_last_command();
 			Assert::AreNotEqual("/sim/cmd/HDG_ONCE", last_cmd.c_str());
 
 			memset(buffer, 0, sizeof(buffer));
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(50ms);
+			std::this_thread::sleep_for(150ms);
+			ActionQueue::get_instance()->activate_actions_in_queue();
 			last_cmd = test_get_last_command();
 			Assert::AreEqual("/sim/cmd/HDG_ONCE", last_cmd.c_str());
 		}

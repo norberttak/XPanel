@@ -9,5 +9,7 @@ private:
 public:
 	ArduinoHomeCockpit(Configuration& config);
 	int connect();
+	void start();
+	void stop(int timeout);
 };
 

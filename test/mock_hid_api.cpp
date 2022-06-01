@@ -5,9 +5,11 @@
 int device = 123;
 int vid = 0;
 int pid = 0;
+bool hid_device_open = false;
 
 extern int HID_API_EXPORT HID_API_CALL hid_init()
 {
+	hid_device_open = false;
 	return 0;
 }
 
@@ -15,11 +17,13 @@ extern HID_API_EXPORT hid_device* HID_API_CALL hid_open(unsigned short vendor_id
 {
 	vid = vendor_id;
 	pid = product_id;
+	hid_device_open = true;
 	return (hid_device*)&device;
 }
 
 extern int HID_API_EXPORT HID_API_CALL hid_exit(void)
 {
+	hid_device_open = false;
 	return 0;
 }
 
@@ -33,19 +37,27 @@ void test_hid_set_read_data(unsigned char* data, size_t length)
 
 extern int HID_API_EXPORT HID_API_CALL hid_read(hid_device* device, unsigned char* data, size_t length)
 {
+	if (!hid_device_open) {
+		memset(data, 0, length);
+		return 1;
+	}
+
 	memcpy(data, read_buffer, length);
 	return 0;
 }
 
 extern int HID_API_EXPORT HID_API_CALL hid_set_nonblocking(hid_device* device, int nonblock)
 {
-	return 0;
+	return hid_device_open?0:1;
 }
 
 unsigned char write_buffer[256];
 
 extern int HID_API_EXPORT HID_API_CALL hid_send_feature_report(hid_device* device, const unsigned char* data, size_t length)
 {
+	if (!hid_device_open)
+		return 1;
+
 	memcpy(write_buffer, data, length);
 	return 0;
 }

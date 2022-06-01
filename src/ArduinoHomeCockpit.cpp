@@ -4,20 +4,22 @@
 
 ArduinoHomeCockpit::ArduinoHomeCockpit(Configuration& config) :UsbHidDevice(config, 9)
 {
-	arduino_buttons.push_back(PanelButton(0, "STROBE"));
-	arduino_buttons.push_back(PanelButton(1, "DOME"));
-	arduino_buttons.push_back(PanelButton(2, "LAND"));
-	arduino_buttons.push_back(PanelButton(3, "TAXI"));
-	arduino_buttons.push_back(PanelButton(4, "BEACON"));
-	arduino_buttons.push_back(PanelButton(5, "CAUTION"));
-	arduino_buttons.push_back(PanelButton(6, "START_L"));
-	arduino_buttons.push_back(PanelButton(7, "WARNING"));
-	arduino_buttons.push_back(PanelButton(8, "START_R"));
-	arduino_buttons.push_back(PanelButton(9, "PITOT"));
-	arduino_buttons.push_back(PanelButton(10, "SEAT_BELT"));
-	arduino_buttons.push_back(PanelButton(11, "PROP_SYNC"));
-	arduino_buttons.push_back(PanelButton(12, "AUTO_COARS"));
-	arduino_buttons.push_back(PanelButton(13, "XPDR"));
+	// register B
+	arduino_buttons.push_back(PanelButton(8, "STROBE"));
+	arduino_buttons.push_back(PanelButton(9, "DOME"));
+	arduino_buttons.push_back(PanelButton(10, "LAND"));
+	arduino_buttons.push_back(PanelButton(11, "TAXI"));
+	arduino_buttons.push_back(PanelButton(12, "BEACON"));
+	arduino_buttons.push_back(PanelButton(13, "CAUTION"));
+	arduino_buttons.push_back(PanelButton(14, "START_L"));
+	arduino_buttons.push_back(PanelButton(15, "WARNING"));
+	// register C
+	arduino_buttons.push_back(PanelButton(16, "START_R"));
+	arduino_buttons.push_back(PanelButton(17, "PITOT"));
+	arduino_buttons.push_back(PanelButton(18, "SEAT_BELT"));
+	arduino_buttons.push_back(PanelButton(19, "PROP_SYNC"));
+	arduino_buttons.push_back(PanelButton(20, "AUTO_COARS"));
+	arduino_buttons.push_back(PanelButton(21, "XPDR"));
 
 	register_buttons(arduino_buttons);
 }
@@ -27,3 +29,12 @@ int ArduinoHomeCockpit::connect()
 	return UsbHidDevice::connect();
 }
 
+void ArduinoHomeCockpit::start()
+{
+	UsbHidDevice::start();
+}
+
+void ArduinoHomeCockpit::stop(int timeout)
+{
+	UsbHidDevice::stop(timeout);
+}

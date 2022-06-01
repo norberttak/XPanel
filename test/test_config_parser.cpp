@@ -1,6 +1,11 @@
-#include "pch.h"
+#include "XPLMDefs.h"
+#include "XPLMGraphics.h"
+#include "XPLMPlugin.h"
+#include "XPLMPlanes.h"
+#include "XPLMDisplay.h"
+
 #include "CppUnitTest.h"
-#include "..\src\configparser.h"
+#include "configparser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

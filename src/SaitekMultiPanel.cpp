@@ -42,3 +42,13 @@ int SaitekMultiPanel::connect()
 
 	return EXIT_SUCCESS;
 }
+
+void SaitekMultiPanel::start()
+{
+	UsbHidDevice::start();
+}
+
+void SaitekMultiPanel::stop(int timeout)
+{
+	UsbHidDevice::stop(timeout);
+}

@@ -11,5 +11,7 @@ private:
 public:
 	SaitekMultiPanel(Configuration &config);
 	int connect();
+	void start();
+	void stop(int timeout);
 };
 

@@ -58,17 +58,22 @@ int UsbHidDevice::connect()
 	if (hid_set_nonblocking(device_handle, 1) == -1)
 		return EXIT_FAILURE;
 
-	return EXIT_SUCCESS;
-}
+	read_device(buffer, sizeof(buffer));
+	memcpy(buffer_old, buffer, sizeof(buffer));
 
-bool UsbHidDevice::is_bit_changed(unsigned char* buf, unsigned char* buf_old, int bit)
-{
-	return ((*(unsigned __int32*)buf) & ((unsigned __int32)0x00000001) << bit) != (*((unsigned __int32*)buf_old) & ((unsigned __int32)0x00000001) << bit);
+	return EXIT_SUCCESS;
 }
 
 bool UsbHidDevice::bit_value(unsigned char* buf, int bit)
 {
-	return ((*((unsigned __int32*)buf) & ((unsigned __int32)0x00000001) << bit) == ((unsigned __int32)0x00000001) << bit);
+	int reg = bit / 8;
+	int bit_mask = (1 << (bit % 8));
+	return (buf[reg] & bit_mask) == bit_mask ? 1 : 0;
+}
+
+bool UsbHidDevice::is_bit_changed(unsigned char* buf, unsigned char* buf_old, int bit)
+{
+	return bit_value(buf, bit) != bit_value(buf_old, bit);
 }
 
 void UsbHidDevice::start()
@@ -90,7 +95,7 @@ void UsbHidDevice::thread_func()
 {
 	while (_thread_run.load() == TRUE)
 	{
-		std::this_thread::sleep_for(10ms);
+		std::this_thread::sleep_for(50ms);
 
 		if (read_device(buffer, sizeof(buffer)) == EXIT_FAILURE)
 			continue;
@@ -100,9 +105,13 @@ void UsbHidDevice::thread_func()
 			if (is_bit_changed(buffer, buffer_old, button.bit))
 			{
 				if (bit_value(buffer, button.bit) && config.push_actions.find(button.config_name.c_str()) != config.push_actions.end())
-					config.push_actions[button.config_name.c_str()].activate();
+				{
+					ActionQueue::get_instance()->push(&config.push_actions[button.config_name.c_str()]);
+				}
 				else if (!bit_value(buffer, button.bit) && config.release_actions.find(button.config_name.c_str()) != config.release_actions.end())
-					config.release_actions[button.config_name.c_str()].activate();
+				{
+					ActionQueue::get_instance()->push(&config.release_actions[button.config_name.c_str()]);
+				}
 			}
 		}
 

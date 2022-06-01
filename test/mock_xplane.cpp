@@ -2,6 +2,7 @@
 #include "XPLMPlanes.h"
 #include "XPLMDisplay.h"
 #include "XPLMDataAccess.h"
+#include "XPLMUtilities.h"
 #include "XPLMMenus.h"
 #include <string>
 #include <map>
@@ -9,6 +10,11 @@
 
 std::map<std::string, int> internal_dataref;
 std::map<std::string, int> internal_command_ref;
+
+extern void XPLMDebugString(const char* inString)
+{
+	printf(inString);
+}
 
 extern XPLMDataRef XPLMFindDataRef(const char* datarefstr)
 {
@@ -51,6 +57,11 @@ std::string test_get_last_command()
 	std::string cmd_str = command_queue.front();
 	command_queue.pop();
 	return cmd_str;
+}
+
+int test_get_command_queue_size()
+{
+	return command_queue.size();
 }
 
 extern void XPLMCommandBegin(XPLMCommandRef command_ref)
