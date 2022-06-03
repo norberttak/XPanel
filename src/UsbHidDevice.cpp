@@ -106,11 +106,17 @@ void UsbHidDevice::thread_func()
 			{
 				if (bit_value(buffer, button.bit) && config.push_actions.find(button.config_name.c_str()) != config.push_actions.end())
 				{
-					ActionQueue::get_instance()->push(&config.push_actions[button.config_name.c_str()]);
+					for (auto act : config.push_actions[button.config_name.c_str()])
+					{
+						ActionQueue::get_instance()->push(act);
+					}
 				}
 				else if (!bit_value(buffer, button.bit) && config.release_actions.find(button.config_name.c_str()) != config.release_actions.end())
 				{
-					ActionQueue::get_instance()->push(&config.release_actions[button.config_name.c_str()]);
+					for (auto act : config.release_actions[button.config_name.c_str()])
+					{
+						ActionQueue::get_instance()->push(act);
+					}
 				}
 			}
 		}

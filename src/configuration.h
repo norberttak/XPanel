@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <list>
 #include <map>
 #include "Action.h"
 
@@ -23,7 +24,7 @@ public:
 	std::string version = "";
 	std::string aircraft_acf = "";
 	std::string script_file = "";
-	std::map<std::string, Action> push_actions;
-	std::map<std::string, Action> release_actions;
+	std::map<std::string, std::list<Action*>> push_actions;
+	std::map<std::string, std::list<Action*>> release_actions;
 };
 

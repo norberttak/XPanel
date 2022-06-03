@@ -19,6 +19,11 @@ Configuration& Configuration::operator=(const Configuration& other)
 
 Configuration::~Configuration()
 {
+	for (auto act : push_actions)
+		act.second.clear();
 	push_actions.clear();
+
+	for (auto act : release_actions)
+		act.second.clear();
 	release_actions.clear();
 }

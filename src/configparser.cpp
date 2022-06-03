@@ -119,7 +119,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
             return EXIT_FAILURE;
         }
         Action *push_action = new Action(dataRef, stoi(m[2]));
-		config.back().push_actions[section_id] = *push_action;
+		config.back().push_actions[section_id].push_back(push_action);
         return EXIT_SUCCESS;
 	}
 
@@ -132,7 +132,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
             return EXIT_FAILURE;
         }
         Action* release_action = new Action(dataRef, stoi(m[2]));
-        config.back().release_actions[section_id] = *release_action;
+        config.back().release_actions[section_id].push_back(release_action);
         return EXIT_SUCCESS;
     }
 
@@ -155,7 +155,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
                 command_type = CommandType::ONCE;
 
         Action* push_action = new Action(commandRef, command_type);
-        config.back().push_actions[section_id] = *push_action;
+        config.back().push_actions[section_id].push_back(push_action);
         return EXIT_SUCCESS;
     }
 
@@ -178,7 +178,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
                 command_type = CommandType::ONCE;
 
         Action* release_action = new Action(commandRef, command_type);
-        config.back().release_actions[section_id] = *release_action;
+        config.back().release_actions[section_id].push_back(release_action);
         return EXIT_SUCCESS;
     }
 
