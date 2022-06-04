@@ -17,11 +17,13 @@ private:
 	const std::string TOKEN_SCRIPT	= "script_file=\"(.+)\"";
 	const std::string TOKEN_ACF		= "aircraft_acf=\"(.+)\"";
 	
-	const std::string TOKEN_BUTTON_PUSH_DATAREF = "on_push=\"dataref:([a-zA-Z0-9\\/\\[\\]_-]+):([0-9]*)\"";
+	const std::string TOKEN_BUTTON_PUSH_DATAREF = "on_push=\"dataref:([a-zA-Z0-9\\/_-]+):([0-9-]*)\"";
+	const std::string TOKEN_BUTTON_PUSH_DATAREF_ARRAY = "on_push=\"dataref:([a-zA-Z0-9\\/_-]+)\\[([0-9]+)\\]:([0-9-]*)\"";
 	const std::string TOKEN_BUTTON_PUSH_SCRIPT = "on_push=\"script:([a-zA-Z0-9/\\(\\)_-]+)";
-	const std::string TOKEN_BUTTON_PUSH_COMMANDREF = "on_push=\"commandref:([a-zA-Z0-9\\/\\[\\]_-]+)([:a-z]*)\"";
+	const std::string TOKEN_BUTTON_PUSH_COMMANDREF = "on_push=\"commandref:([a-zA-Z0-9\\/_-]+)([:a-z]*)\"";
 
-	const std::string TOKEN_BUTTON_RELEASE_DATAREF = "on_release=\"dataref:([a-zA-Z0-9\\/\\[\\]_-]+):([0-9]*)\"";
+	const std::string TOKEN_BUTTON_RELEASE_DATAREF = "on_release=\"dataref:([a-zA-Z0-9\\/\\[\\]_-]+):([0-9-]*)\"";
+	const std::string TOKEN_BUTTON_RELEASE_DATAREF_ARRAY = "on_release=\"dataref:([a-zA-Z0-9\\/_-]+)\\[([0-9]+)\\]:([0-9-]*)\"";
 	const std::string TOKEN_BUTTON_RELEASE_SCRIPT = "on_release=\"script:([a-zA-Z0-9/\\(\\)_]+)";
 	const std::string TOKEN_BUTTON_RELEASE_COMMANDREF = "on_release=\"commandref:([a-zA-Z0-9\\/\\[\\]_-]+)([:a-z]*)\"";
 

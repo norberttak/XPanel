@@ -34,6 +34,11 @@ extern void XPLMSetDatai(XPLMDataRef dataref, int inValue)
 	*(int*)dataref = inValue;
 }
 
+extern void XPLMSetDatavi(XPLMDataRef dataref, int* inValues, int inOffset, int inCount)
+{
+	*(int*)dataref = *inValues;
+}
+
 int test_get_dataref_value(const char* datarefstr)
 {
 	return internal_dataref[datarefstr];

@@ -19,6 +19,7 @@ class Action
 public:
 	Action();
 	Action(XPLMDataRef dat, int d);
+	Action(XPLMDataRef dat, int array_index, int d);
 	Action(XPLMCommandRef cmd, CommandType type);
 	Action(std::string lua_str);
 	//XPLMCommandPhase command_phase;
@@ -26,6 +27,7 @@ public:
 	void activate();
 private:
 	int data = 0;
+	int index = -1;
 	std::string lua_str = "";
 	XPLMDataRef dataref = NULL;
 	CommandType command_type = CommandType::NONE;

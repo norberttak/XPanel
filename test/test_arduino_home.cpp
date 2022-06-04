@@ -54,7 +54,7 @@ namespace test
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 			ActionQueue::get_instance()->activate_actions_in_queue();
-			Assert::AreEqual(1, test_get_dataref_value("sim/cockpit/electrical/strobe_lights_on"));
+			Assert::AreEqual(-1, test_get_dataref_value("sim/cockpit/electrical/strobe_lights_on"));
 
 			memset(buffer, 0, sizeof(buffer));
 			test_hid_set_read_data(buffer, sizeof(buffer));

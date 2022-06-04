@@ -19,6 +19,14 @@ Action::Action(XPLMDataRef dat, int d)
 {
 	dataref = dat;
 	data = d;
+	index = -1; // dataref is not an array
+}
+
+Action::Action(XPLMDataRef dat, int array_index, int d)
+{
+	dataref = dat;
+	data = d;
+	index = array_index;
 }
 
 Action::Action(std::string lua_str)
@@ -37,7 +45,10 @@ void Action::activate()
 {
 	if (dataref != NULL)
 	{
-		XPLMSetDatai(dataref, data);
+		if (index == -1)
+			XPLMSetDatai(dataref, data);
+		else // array type dataref
+			XPLMSetDatavi(dataref, &data, index, 1);
 	}
 
 	if (commandref != NULL)

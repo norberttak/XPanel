@@ -37,14 +37,20 @@ namespace test
 
 		TEST_METHOD(TestButtonActions)
 		{
-			Assert::AreEqual(1, (int)config[0].push_actions.count("AP"));
-			Assert::AreEqual(1, (int)config[0].release_actions.count("AP"));
+			Assert::AreEqual(2, (int)config[0].push_actions["AP"].size());
+			Assert::AreEqual(2, (int)config[0].release_actions["AP"].size());
 
-			Assert::AreEqual(1, (int)config[0].push_actions.count("NAV"));
-			Assert::AreEqual(1, (int)config[0].release_actions.count("NAV"));
+			Assert::AreEqual(1, (int)config[0].push_actions["NAV"].size());
+			Assert::AreEqual(1, (int)config[0].release_actions["NAV"].size());
 
 			Assert::AreEqual(0, (int)config[0].push_actions.count("HDG"));
-			Assert::AreEqual(1, (int)config[0].release_actions.count("HDG"));
+			Assert::AreEqual(1, (int)config[0].release_actions["HDG"].size());
+		}
+
+		TEST_METHOD(TestDatarefArray)
+		{
+			Assert::AreEqual(1, (int)config[0].push_actions["TEST"].size());
+			Assert::AreEqual(0, (int)config[0].release_actions.count("TEST"));
 		}
 	};
 }

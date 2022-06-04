@@ -123,6 +123,18 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         return EXIT_SUCCESS;
 	}
 
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_PUSH_DATAREF_ARRAY)))
+    {
+        XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+        if (dataRef == NULL)
+        {
+            error_message("Invalid data ref", line);
+            return EXIT_FAILURE;
+        }
+        Action* push_action = new Action(dataRef, stoi(m[2]), stoi(m[3]));
+        config.back().push_actions[section_id].push_back(push_action);
+        return EXIT_SUCCESS;
+    }
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_RELEASE_DATAREF)))
     {
         XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
@@ -132,6 +144,19 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
             return EXIT_FAILURE;
         }
         Action* release_action = new Action(dataRef, stoi(m[2]));
+        config.back().release_actions[section_id].push_back(release_action);
+        return EXIT_SUCCESS;
+    }
+
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_RELEASE_DATAREF_ARRAY)))
+    {
+        XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+        if (dataRef == NULL)
+        {
+            error_message("Invalid data ref", line);
+            return EXIT_FAILURE;
+        }
+        Action* release_action = new Action(dataRef, stoi(m[2]), stoi(m[3]));
         config.back().release_actions[section_id].push_back(release_action);
         return EXIT_SUCCESS;
     }
