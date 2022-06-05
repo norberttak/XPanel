@@ -7,6 +7,7 @@
 #include "CppUnitTest.h"
 #include "ArduinoHomeCockpit.h"
 #include "configparser.h"
+#include "logger.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

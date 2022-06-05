@@ -3,13 +3,15 @@
 #include <sstream>
 #include <regex>
 #include "configparser.h"
+#include "logger.h"
 
 int Configparser::parse_file(std::string file_name, std::vector<Configuration>& config)
 {
     last_error_message = "";
     std::ifstream input_file(file_name);
+    Logger(TLogLevel::logINFO) << "parse config file: " << file_name << std::endl;
     if (!input_file.is_open()) {
-        error_message("Error open config file:", file_name);
+        Logger(TLogLevel::logERROR) << "parser: error open config file: " << file_name << std::endl;        
         return EXIT_FAILURE;
     }
 
@@ -20,20 +22,13 @@ int Configparser::parse_file(std::string file_name, std::vector<Configuration>& 
         current_line_nr++;
         if (parse_line(line, config) != EXIT_SUCCESS)
         {
-            error_message("Error in file:", line);
+            Logger(TLogLevel::logERROR) << "parser: error parse line (at line "<< current_line_nr <<"): " << line << std::endl;
             return EXIT_FAILURE;
         }
     }
 
     input_file.close();
     return EXIT_SUCCESS;
-}
-
-void Configparser::error_message(std::string detail, std::string line)
-{
-    std::stringstream error_details;
-    error_details << "XPanel<configparser>:" << detail << " :[line:" << current_line_nr << "]: " << line;
-    error_details >> last_error_message;
 }
 
 int Configparser::parse_line(std::string line, std::vector<Configuration>& config)
@@ -70,9 +65,10 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
             config.back().device_type = HOME_COCKPIT;
         else
         {
-            error_message("Uknown device type", line);
+            Logger(TLogLevel::logERROR) << "parser: uknown device type (at line " << current_line_nr << "): " << line << std::endl;
             return EXIT_FAILURE;
         }
+        Logger(TLogLevel::logDEBUG) << "parser: new device detected " << std::endl;
         return EXIT_SUCCESS;
     }
 
@@ -81,6 +77,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
 		std::stringstream ss;
 		ss << std::hex << m[1];
 		ss >> config.back().vid;
+        Logger(TLogLevel::logDEBUG) << "parser: vid="<< config.back().vid << std::endl;
         return EXIT_SUCCESS;
 	}
 
@@ -89,24 +86,52 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
 		std::stringstream ss;
 		ss << std::hex << m[1];
 		ss >> config.back().pid;
+        Logger(TLogLevel::logDEBUG) << "parser: pid=" << config.back().pid << std::endl;
         return EXIT_SUCCESS;
 	}
 
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_SCRIPT)))
 	{
 		config.back().script_file = m[1];
+        Logger(TLogLevel::logDEBUG) << "parser: script file=" << config.back().script_file << std::endl;
         return EXIT_SUCCESS;
 	}
 
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ACF)))
 	{
 		config.back().aircraft_acf = m[1];
+        Logger(TLogLevel::logDEBUG) << "parser: script file=" << config.back().aircraft_acf << std::endl;
         return EXIT_SUCCESS;
 	}
+
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_LOG_LEVEL)))
+    {
+        TLogLevel level;
+        if (m[1] == "DEBUG")
+            level = TLogLevel::logDEBUG;
+        else if (m[1] == "INFO")
+            level = TLogLevel::logINFO;
+        else if (m[1] == "WARNING")
+            level = TLogLevel::logWARNING;
+        else if (m[1] == "ERROR")
+            level = TLogLevel::logERROR;
+        else if (m[1] == "TRACE")
+            level = TLogLevel::logTRACE;
+        else {
+            Logger(TLogLevel::logERROR) << "parser: unknown log level: " << line << std::endl;
+            return EXIT_FAILURE;
+        }
+        
+        Logger::set_log_level(level);
+        Logger(TLogLevel::logDEBUG) << "parser: log level set to " << level << std::endl;
+
+        return EXIT_SUCCESS;
+    }
 
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON)))
     {
         section_id = m[1];
+        Logger(TLogLevel::logDEBUG) << "parser: button detected " << section_id << std::endl;
         return EXIT_SUCCESS;
     }
 
@@ -115,10 +140,11 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
         if (dataRef == NULL)
         {
-            error_message("Invalid data ref", line);
+            Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
             return EXIT_FAILURE;
         }
         Action *push_action = new Action(dataRef, stoi(m[2]));
+        Logger(TLogLevel::logDEBUG) << "parser: button push dataref " << m[1].str() << std::endl;
 		config.back().push_actions[section_id].push_back(push_action);
         return EXIT_SUCCESS;
 	}
@@ -128,10 +154,11 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
         if (dataRef == NULL)
         {
-            error_message("Invalid data ref", line);
+            Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
             return EXIT_FAILURE;
         }
         Action* push_action = new Action(dataRef, stoi(m[2]), stoi(m[3]));
+        Logger(TLogLevel::logDEBUG) << "parser: button push dataref array " << m[1].str() << std::endl;
         config.back().push_actions[section_id].push_back(push_action);
         return EXIT_SUCCESS;
     }
@@ -140,10 +167,11 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
         if (dataRef == NULL)
         {
-            error_message("Invalid data ref", line);
+            Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
             return EXIT_FAILURE;
         }
         Action* release_action = new Action(dataRef, stoi(m[2]));
+        Logger(TLogLevel::logDEBUG) << "parser: button release dataref " << m[1].str() << std::endl;
         config.back().release_actions[section_id].push_back(release_action);
         return EXIT_SUCCESS;
     }
@@ -153,10 +181,11 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
         if (dataRef == NULL)
         {
-            error_message("Invalid data ref", line);
+            Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
             return EXIT_FAILURE;
         }
         Action* release_action = new Action(dataRef, stoi(m[2]), stoi(m[3]));
+        Logger(TLogLevel::logDEBUG) << "parser: button release dataref array " << m[1].str() << std::endl;
         config.back().release_actions[section_id].push_back(release_action);
         return EXIT_SUCCESS;
     }
@@ -166,7 +195,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         XPLMCommandRef commandRef = XPLMFindCommand(m[1].str().c_str());
         if (commandRef == NULL)
         {
-            error_message("Invalid command ref", line);
+            Logger(TLogLevel::logERROR) << "parser: invalid command ref (at line: " << current_line_nr << "): " << line << std::endl;
             return EXIT_FAILURE;
         }
         CommandType command_type = CommandType::NONE;
@@ -180,6 +209,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
                 command_type = CommandType::ONCE;
 
         Action* push_action = new Action(commandRef, command_type);
+        Logger(TLogLevel::logDEBUG) << "parser: button push command " << m[1].str() << std::endl;
         config.back().push_actions[section_id].push_back(push_action);
         return EXIT_SUCCESS;
     }
@@ -189,7 +219,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         XPLMCommandRef commandRef = XPLMFindCommand(m[1].str().c_str());
         if (commandRef == NULL)
         {
-            error_message("Invalid command ref", line);
+            Logger(TLogLevel::logERROR) << "parser: invalid command ref (at line: " << current_line_nr << "): " << line << std::endl;
             return EXIT_FAILURE;
         }
         CommandType command_type = CommandType::ONCE;
@@ -203,15 +233,11 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
                 command_type = CommandType::ONCE;
 
         Action* release_action = new Action(commandRef, command_type);
+        Logger(TLogLevel::logDEBUG) << "parser: button release command " << m[1].str() << std::endl;
         config.back().release_actions[section_id].push_back(release_action);
         return EXIT_SUCCESS;
     }
 
-    error_message("Unknown error", line);
+    Logger(TLogLevel::logERROR) << "parser: unknown error (at line: " << current_line_nr << "): " << line << std::endl;
     return EXIT_FAILURE;
-}
-
-std::string Configparser::get_last_error_message()
-{
-    return last_error_message;
 }

@@ -1,4 +1,5 @@
 #include "UsbHidDevice.h"
+#include "logger.h"
 
 int UsbHidDevice::ref_count = 0;
 bool UsbHidDevice::hid_api_initialized = FALSE;
@@ -50,17 +51,21 @@ int UsbHidDevice::write_device(unsigned char* buf, int length)
 int UsbHidDevice::connect()
 {	
 	device_handle = hid_open(vid, pid, NULL);
-	if (!device_handle)
+	if (!device_handle) {
+		Logger(TLogLevel::logERROR) << "error opening hid device vid=" << vid << " pid=" << pid << std::endl;
 		return EXIT_FAILURE;
-
+	}
 	ref_count++;
 
-	if (hid_set_nonblocking(device_handle, 1) == -1)
+	if (hid_set_nonblocking(device_handle, 1) == -1) {
+		Logger(TLogLevel::logERROR) << "error in hid_set_nonblocking vid=" << vid << " pid=" << pid << std::endl;
 		return EXIT_FAILURE;
+	}
 
 	read_device(buffer, sizeof(buffer));
 	memcpy(buffer_old, buffer, sizeof(buffer));
 
+	Logger(TLogLevel::logDEBUG) << "UsbHidDevice connect successful" << std::endl;
 	return EXIT_SUCCESS;
 }
 
@@ -98,16 +103,20 @@ void UsbHidDevice::thread_func()
 		std::this_thread::sleep_for(50ms);
 
 		if (read_device(buffer, sizeof(buffer)) == EXIT_FAILURE)
+		{
+			Logger(TLogLevel::logDEBUG) << "UsbHidDevice error reading HID device" << std::endl;
 			continue;
-
+		}
 		for (auto button : buttons)
 		{
 			if (is_bit_changed(buffer, buffer_old, button.bit))
-			{
+			{				
+				Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " button bit changed " << std::endl;
 				if (bit_value(buffer, button.bit) && config.push_actions.find(button.config_name.c_str()) != config.push_actions.end())
 				{
 					for (auto act : config.push_actions[button.config_name.c_str()])
 					{
+						Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " button push action called" << std::endl;
 						ActionQueue::get_instance()->push(act);
 					}
 				}
@@ -115,6 +124,7 @@ void UsbHidDevice::thread_func()
 				{
 					for (auto act : config.release_actions[button.config_name.c_str()])
 					{
+						Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " button release action called" << std::endl;
 						ActionQueue::get_instance()->push(act);
 					}
 				}
@@ -127,6 +137,7 @@ void UsbHidDevice::thread_func()
 
 void UsbHidDevice::release()
 {
+	Logger(TLogLevel::logDEBUG) << "UsbHidDevice release" << std::endl;
 	if (--ref_count <= 0)
 		hid_exit();
 }

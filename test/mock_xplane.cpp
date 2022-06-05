@@ -5,6 +5,8 @@
 #include "XPLMUtilities.h"
 #include "XPLMMenus.h"
 #include <string>
+#include <iostream>
+#include <fstream>
 #include <map>
 #include <queue>
 
@@ -13,7 +15,9 @@ std::map<std::string, int> internal_command_ref;
 
 extern void XPLMDebugString(const char* inString)
 {
-	printf(inString);
+	std::ofstream flog("test_log.txt", std::ofstream::app);
+	flog << inString;
+	flog.close();
 }
 
 extern XPLMDataRef XPLMFindDataRef(const char* datarefstr)

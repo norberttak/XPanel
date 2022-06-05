@@ -51,5 +51,8 @@
     <ClCompile Include="..\src\ArduinoHomeCockpit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

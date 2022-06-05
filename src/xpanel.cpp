@@ -17,6 +17,7 @@
 #include "configuration.h"
 #include "configparser.h"
 #include "Action.h"
+#include "logger.h"
 
 #if IBM
 #include <windows.h>
@@ -62,7 +63,8 @@ PLUGIN_API int XPluginStart(
 	char* outSig,
 	char* outDesc)
 {
-	XPLMDebugString("XPanel: Plugin Start\n");
+	Logger::set_log_level(TLogLevel::logINFO);
+	Logger(TLogLevel::logINFO) << "plugin start" << std::endl;
 	lua = luaL_newstate();
 	luaL_openlibs(lua);
 	
@@ -75,12 +77,14 @@ PLUGIN_API int XPluginStart(
 
 PLUGIN_API void	XPluginStop(void)
 {
+	Logger(TLogLevel::logINFO) << "plugin stop called" << std::endl;
+
 	XPLMUnregisterFlightLoopCallback(flight_loop_callback, NULL);
 
 	for (auto dev : devices)
 	{
 		if (dev != NULL)
-		{
+		{			
 			dev->stop(0);
 			dev->release();
 			delete dev;
@@ -94,11 +98,12 @@ PLUGIN_API void	XPluginStop(void)
 
 PLUGIN_API void XPluginDisable(void) 
 {
-
+	Logger(TLogLevel::logINFO) << "plugin disable called" << std::endl;
 }
 
 PLUGIN_API int  XPluginEnable(void) 
 {
+	Logger(TLogLevel::logINFO) << "plugin enable called" << std::endl;
 	return 1;
 }
 
@@ -113,8 +118,7 @@ int init_and_start_xpanel_plugin(void)
 	char aircraft_file_name[256];
 	char aircraft_path[512];
 	XPLMGetNthAircraftModel(0, aircraft_file_name, aircraft_path);
-	XPLMDebugString("\nXPanel: aircraft file name:");
-	XPLMDebugString(aircraft_file_name);
+	Logger(TLogLevel::logINFO) << "aircraft file name: " << aircraft_file_name << std::endl;
 
 	lua_pushstring(lua, aircraft_file_name);
 	lua_setglobal(lua, "AIRCRAFT_FILENAME");
@@ -126,10 +130,11 @@ int init_and_start_xpanel_plugin(void)
 	init_path /= "xpanel.ini";
 
 	Configparser p;
+	Logger(TLogLevel::logDEBUG) << "parse config file: " << init_path.string() << std::endl;
 	int result = p.parse_file(init_path.string(), config);
 	if (result != EXIT_SUCCESS)
 	{
-		XPLMDebugString(p.get_last_error_message().c_str());
+		Logger(TLogLevel::logERROR) << "error parsing config file" << std::endl;
 		return 0;
 	}
 	Device* device;
@@ -143,7 +148,7 @@ int init_and_start_xpanel_plugin(void)
 				it.vid = 0x06a3;
 			if (it.pid == 0)
 				it.pid = 0x0d06;
-
+			Logger(TLogLevel::logDEBUG) << "add new saitek multi panel device" << std::endl;
 			device = new SaitekMultiPanel(it);
 			devices.push_back(device);		
 			device->connect();
@@ -156,22 +161,22 @@ int init_and_start_xpanel_plugin(void)
 				it.vid = 0x2341;
 			if (it.pid == 0)
 				it.pid = 0x8036;
-			XPLMDebugString("XPanel: add new homecockpit device");
+			Logger(TLogLevel::logDEBUG) << "add new homecockpit device" << std::endl;			
 			device = new ArduinoHomeCockpit(it);
 			devices.push_back(device);
 			device->connect();
 			device->start();
 			t_home = new std::thread(&ArduinoHomeCockpit::thread_func, (ArduinoHomeCockpit*)device);
 			break;
-		default:
-			XPLMDebugString("XPanel: Unknown device type\n");
+		default:		
+			Logger(TLogLevel::logERROR) << "unknown device type" << std::endl;
 			return 0;
 			break;
 		}
 	}
 
 	XPLMRegisterFlightLoopCallback(flight_loop_callback, FLIGHT_LOOP_TIME_PERIOD, NULL);
-
+	Logger(TLogLevel::logINFO) << "successful init and start plugin" << std::endl;
 	return 1;
 }
 
@@ -183,13 +188,12 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inPa
 		case XPLM_MSG_AIRPORT_LOADED:
 			if (init_and_start_xpanel_plugin() != 1)
 			{
-				XPLMDebugString("XPanel: Error during plugin init and start\n");
+				Logger(TLogLevel::logERROR) << "error during plugin init and start" << std::endl;				
 			}
-			XPLMDebugString("XPanel: Succesful plugin init and start\n");
 			break;
 		case XPLM_MSG_PLANE_CRASHED:
 		case XPLM_MSG_PLANE_UNLOADED:
-			//
+			Logger(TLogLevel::logDEBUG) << "XPLM_MSG_PLANE_CRASHED or XPLM_MSG_PLANE_UNLOADED message recived" << std::endl;
 			break;
 		default:
 			break;

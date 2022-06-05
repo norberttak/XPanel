@@ -17,6 +17,7 @@ private:
 	const std::string TOKEN_SCRIPT	= "script_file=\"(.+)\"";
 	const std::string TOKEN_ACF		= "aircraft_acf=\"(.+)\"";
 	
+	const std::string TOKEN_LOG_LEVEL = "log_level=\"(.+)\"";
 	const std::string TOKEN_BUTTON_PUSH_DATAREF = "on_push=\"dataref:([a-zA-Z0-9\\/_-]+):([0-9-]*)\"";
 	const std::string TOKEN_BUTTON_PUSH_DATAREF_ARRAY = "on_push=\"dataref:([a-zA-Z0-9\\/_-]+)\\[([0-9]+)\\]:([0-9-]*)\"";
 	const std::string TOKEN_BUTTON_PUSH_SCRIPT = "on_push=\"script:([a-zA-Z0-9/\\(\\)_-]+)";
@@ -36,14 +37,11 @@ private:
 	const std::string TOKEN_TRIGGER_UNLIT = "trigger_unlit=";
 	const std::string TOKEN_TRIGGER_BLINK = "trigger_blink=";
 	*/
-//	parser_state state = INIT;
 	std::string section_id = "";
 	std::string last_error_message = "";
 	int current_line_nr;
-	void error_message(std::string detail, std::string line);
 	int parse_line(std::string line, std::vector<Configuration>& config);
 public:
 	int parse_file(std::string file_name, std::vector<Configuration>& config);
-	std::string get_last_error_message();
 };
 
