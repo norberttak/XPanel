@@ -107,6 +107,12 @@ void UsbHidDevice::thread_func()
 			Logger(TLogLevel::logDEBUG) << "UsbHidDevice error reading HID device" << std::endl;
 			continue;
 		}
+		for (int i = 0; i < 29; i++)
+		{
+			if (bit_value(buffer, i) != bit_value(buffer_old, i))
+				Logger(TLogLevel::logTRACE) << "bit changed: " << i << "=" << bit_value(buffer, i) << std::endl;
+		}
+
 		for (auto button : buttons)
 		{
 			if (is_bit_changed(buffer, buffer_old, button.bit))
