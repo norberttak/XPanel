@@ -38,6 +38,17 @@ extern void XPLMSetDatai(XPLMDataRef dataref, int inValue)
 	*(int*)dataref = inValue;
 }
 
+extern void XPLMSetDataf(XPLMDataRef dataref, float inValue)
+{
+	*(int*)dataref = (int)inValue;
+}
+
+extern float XPLMGetDataf(XPLMDataRef dataref)
+{
+	int val_int = *(int*)dataref;
+	return (float)val_int;
+}
+
 extern void XPLMSetDatavi(XPLMDataRef dataref, int* inValues, int inOffset, int inCount)
 {
 	*(int*)dataref = *inValues;

@@ -190,6 +190,34 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         return EXIT_SUCCESS;
     }
 
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_PUSH_DATAREF_CHANGE)))
+    {
+        XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+        if (dataRef == NULL)
+        {
+            Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+            return EXIT_FAILURE;
+        }
+        Action* push_action = new Action(dataRef, stof(m[2]), stof(m[3]), stof(m[4]));
+        Logger(TLogLevel::logDEBUG) << "parser: button push dataref " << m[1].str() << std::endl;
+        config.back().push_actions[section_id].push_back(push_action);
+        return EXIT_SUCCESS;
+    }
+
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_RELEASE_DATAREF_CHANGE)))
+    {
+        XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+        if (dataRef == NULL)
+        {
+            Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+            return EXIT_FAILURE;
+        }
+        Action* release_action = new Action(dataRef, stof(m[2]), stof(m[3]), stof(m[4]));
+        Logger(TLogLevel::logDEBUG) << "parser: button release dataref " << m[1].str() << std::endl;
+        config.back().release_actions[section_id].push_back(release_action);
+        return EXIT_SUCCESS;
+    }
+
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_PUSH_COMMANDREF)))
     {
         XPLMCommandRef commandRef = XPLMFindCommand(m[1].str().c_str());
@@ -201,9 +229,9 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         CommandType command_type = CommandType::NONE;
 
         if (m.size() >= 3)
-            if (m[2] == ":begin")
+            if (m[2] == "begin")
                 command_type = CommandType::BEGIN;
-            else if (m[2] == ":end")
+            else if (m[2] == "end")
                 command_type = CommandType::END;
             else
                 command_type = CommandType::ONCE;
@@ -225,9 +253,9 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         CommandType command_type = CommandType::ONCE;
 
         if (m.size() >= 3)
-            if (m[2] == ":begin")
+            if (m[2] == "begin")
                 command_type = CommandType::BEGIN;
-            else if (m[2] == ":end")
+            else if (m[2] == "end")
                 command_type = CommandType::END;
             else
                 command_type = CommandType::ONCE;

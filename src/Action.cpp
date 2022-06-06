@@ -1,10 +1,12 @@
 #include "Action.h"
 #include "XPLMUtilities.h"
 #include "XPLMProcessing.h"
+#include "logger.h"
 
 Action::Action()
 {
 	data = 0;
+	delta = 0;
 	lua_str = "";
 	dataref = NULL;
 }
@@ -29,6 +31,14 @@ Action::Action(XPLMDataRef dat, int array_index, int d)
 	index = array_index;
 }
 
+Action::Action(XPLMDataRef dat, float _delta, float _max, float _min)
+{
+	dataref = dat;
+	delta = _delta;
+	max = _max;
+	min = _min;
+}
+
 Action::Action(std::string lua_str)
 {
 	lua_str = lua_str;
@@ -45,10 +55,25 @@ void Action::activate()
 {
 	if (dataref != NULL)
 	{
-		if (index == -1)
-			XPLMSetDatai(dataref, data);
-		else // array type dataref
+		if (index != -1)
+		{
 			XPLMSetDatavi(dataref, &data, index, 1);
+		}
+		else if (abs(delta) > 0.0001)
+		{
+			float val = XPLMGetDataf(dataref);
+			Logger(TLogLevel::logTRACE) << "action: change float value " << val << " by " << delta << std::endl;
+			val += delta;
+			if (val > max)
+				val = max;
+			if (val < min)
+				val = min;
+			XPLMSetDataf(dataref, val);
+		}
+		else
+		{
+			XPLMSetDatai(dataref, data);
+		}
 	}
 
 	if (commandref != NULL)
@@ -80,7 +105,7 @@ ActionQueue* ActionQueue::current = NULL;
 
 ActionQueue::ActionQueue()
 {
-//
+	//
 }
 
 ActionQueue* ActionQueue::get_instance()
@@ -94,7 +119,7 @@ ActionQueue* ActionQueue::get_instance()
 void ActionQueue::push(Action* action)
 {
 	guard.lock();
-	action_queue.push(action);	
+	action_queue.push(action);
 	guard.unlock();
 }
 

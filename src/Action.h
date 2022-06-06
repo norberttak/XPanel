@@ -20,14 +20,17 @@ public:
 	Action();
 	Action(XPLMDataRef dat, int d);
 	Action(XPLMDataRef dat, int array_index, int d);
+	Action(XPLMDataRef dat, float _delta, float _max, float _min);
 	Action(XPLMCommandRef cmd, CommandType type);
 	Action(std::string lua_str);
-	//XPLMCommandPhase command_phase;
 	~Action();
 	void activate();
 private:
 	int data = 0;
 	int index = -1;
+	float delta = 0;
+	float max = 0;
+	float min = 0;
 	std::string lua_str = "";
 	XPLMDataRef dataref = NULL;
 	CommandType command_type = CommandType::NONE;

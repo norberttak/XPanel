@@ -46,7 +46,7 @@ namespace test
 		//Test a button with DataRef action
 		TEST_METHOD(TestAPMasterButton)
 		{
-			unsigned char buffer[4] = { 1,0,0,0 };
+			unsigned char buffer[4] = { 0x80,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 			ActionQueue::get_instance()->activate_actions_in_queue();
@@ -62,7 +62,7 @@ namespace test
 		//Test a button with command begin-end action
 		TEST_METHOD(TestNAVButton)
 		{
-			unsigned char buffer[4] = { 0,0x40,0,0 };
+			unsigned char buffer[4] = { 0,0x02,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 			ActionQueue::get_instance()->activate_actions_in_queue();
@@ -77,10 +77,25 @@ namespace test
 			Assert::AreEqual("/sim/cmd/NAV_END", last_cmd.c_str());
 		}
 
+		TEST_METHOD(TestTrimWheelUp)
+		{
+			int val_before = test_get_dataref_value("sim/custom/switchers/console/absu_pitch_wheel");
+			unsigned char buffer[4] = { 0,0,0x08,0};
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+			ActionQueue::get_instance()->activate_actions_in_queue();
+			int val_after = test_get_dataref_value("sim/custom/switchers/console/absu_pitch_wheel");
+
+			Assert::IsTrue((val_after - val_before) == 1);
+
+			memset(buffer, 0, sizeof(buffer));
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+		}
 		//Test a button with command once action
 		TEST_METHOD(TestHDGButton)
 		{
-			unsigned char buffer[4] = { 0x10,0,0,0 };
+			unsigned char buffer[4] = { 0,0x01,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 			ActionQueue::get_instance()->activate_actions_in_queue();
