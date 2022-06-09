@@ -4,6 +4,7 @@
 #include <list>
 #include <map>
 #include "Action.h"
+#include "trigger.h"
 
 typedef enum {
 	UNKNOWN_DEVICE_TYPE,
@@ -26,5 +27,6 @@ public:
 	std::string script_file = "";
 	std::map<std::string, std::list<Action*>> push_actions;
 	std::map<std::string, std::list<Action*>> release_actions;
+	std::map<std::string, std::list<Trigger*>> light_triggers;
 };
 

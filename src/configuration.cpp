@@ -13,6 +13,7 @@ Configuration& Configuration::operator=(const Configuration& other)
 	script_file = other.script_file;
 	push_actions = other.push_actions;
 	release_actions = other.release_actions;
+	light_triggers = other.light_triggers;
 
 	return *this;
 }

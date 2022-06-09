@@ -15,6 +15,8 @@ int test_get_dataref_value(const char* datarefstr);
 int test_hid_get_vid();
 int test_hid_get_pid();
 std::string test_get_last_command();
+void test_hid_get_write_data(unsigned char* data, size_t length);
+void test_flight_loop(std::vector<Configuration> config);
 
 namespace test
 {
@@ -49,13 +51,13 @@ namespace test
 			unsigned char buffer[4] = { 0x80,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			ActionQueue::get_instance()->activate_actions_in_queue();
+			test_flight_loop(config);
 			Assert::AreEqual(1, test_get_dataref_value("/sim/hello/AP"));
 
 			buffer[0] = 0;
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			ActionQueue::get_instance()->activate_actions_in_queue();
+			test_flight_loop(config);
 			Assert::AreEqual(0, test_get_dataref_value("/sim/hello/AP"));
 		}
 
@@ -65,14 +67,14 @@ namespace test
 			unsigned char buffer[4] = { 0,0x02,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			ActionQueue::get_instance()->activate_actions_in_queue();
+			test_flight_loop(config);
 			std::string last_cmd = test_get_last_command();
 			Assert::AreEqual("/sim/cmd/NAV_BEGIN", last_cmd.c_str());
 
 			memset(buffer, 0, sizeof(buffer));
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			ActionQueue::get_instance()->activate_actions_in_queue();
+			test_flight_loop(config);
 			last_cmd = test_get_last_command();
 			Assert::AreEqual("/sim/cmd/NAV_END", last_cmd.c_str());
 		}
@@ -83,7 +85,7 @@ namespace test
 			unsigned char buffer[4] = { 0,0,0x08,0};
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			ActionQueue::get_instance()->activate_actions_in_queue();
+			test_flight_loop(config);
 			int val_after = test_get_dataref_value("sim/custom/switchers/console/absu_pitch_wheel");
 
 			Assert::IsTrue((val_after - val_before) == 1);
@@ -98,16 +100,54 @@ namespace test
 			unsigned char buffer[4] = { 0,0x01,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			ActionQueue::get_instance()->activate_actions_in_queue();
+			test_flight_loop(config);
 			std::string last_cmd = test_get_last_command();
 			Assert::AreNotEqual("/sim/cmd/HDG_ONCE", last_cmd.c_str());
 
 			memset(buffer, 0, sizeof(buffer));
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			ActionQueue::get_instance()->activate_actions_in_queue();
+			test_flight_loop(config);
 			last_cmd = test_get_last_command();
 			Assert::AreEqual("/sim/cmd/HDG_ONCE", last_cmd.c_str());
+		}
+
+		TEST_METHOD(TestAltButtonLight)
+		{
+			XPLMDataRef dataref = XPLMFindDataRef("sim/custom/lights/button/absu_stab_h");
+			// ALT button light set to LIT
+			XPLMSetDatai(dataref, 1);
+			test_flight_loop(config); // evaluate triggers
+			std::this_thread::sleep_for(150ms);
+			unsigned char write_buffer[13];
+			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
+			Assert::AreEqual((int)write_buffer[11], 0x10);
+
+			// ALT button light set to UNLIT
+			XPLMSetDatai(dataref, 0);
+			test_flight_loop(config); // evaluate triggers
+			std::this_thread::sleep_for(150ms);
+			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
+			Assert::AreEqual((int)write_buffer[11], 0x00);
+		}
+
+		TEST_METHOD(TestHdgButtonLight)
+		{
+			XPLMDataRef dataref = XPLMFindDataRef("sim/custom/lights/button/absu_zk");
+			// HDG button light set to LIT
+			XPLMSetDatai(dataref, 1);
+			test_flight_loop(config); // evaluate triggers
+			std::this_thread::sleep_for(150ms);
+			unsigned char write_buffer[13];
+			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
+			Assert::AreEqual((int)write_buffer[11], 0x02);
+
+			// HDG button light set to UNLIT
+			XPLMSetDatai(dataref, 0);
+			test_flight_loop(config); // evaluate triggers
+			std::this_thread::sleep_for(150ms);
+			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
+			Assert::AreEqual((int)write_buffer[11] ,0x00);
 		}
 
 		TEST_METHOD_CLEANUP(TestMultiPanelCleanup)

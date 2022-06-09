@@ -9,9 +9,15 @@
 #include <fstream>
 #include <map>
 #include <queue>
+#include "configuration.h"
 
 std::map<std::string, int> internal_dataref;
 std::map<std::string, int> internal_command_ref;
+
+extern XPLMDataTypeID XPLMGetDataRefTypes(XPLMDataRef inDataRef)
+{
+	return xplmType_Int;
+}
 
 extern void XPLMDebugString(const char* inString)
 {
@@ -47,6 +53,17 @@ extern float XPLMGetDataf(XPLMDataRef dataref)
 {
 	int val_int = *(int*)dataref;
 	return (float)val_int;
+}
+
+extern double XPLMGetDatad(XPLMDataRef dataref)
+{
+	int val_int = *(int*)dataref;
+	return (double)val_int;
+}
+
+extern int XPLMGetDatai(XPLMDataRef dataref)
+{
+	return *(int*)dataref;
 }
 
 extern void XPLMSetDatavi(XPLMDataRef dataref, int* inValues, int inOffset, int inCount)
@@ -118,4 +135,22 @@ extern void XPLMCommandOnce(XPLMCommandRef command_ref)
 			break;
 		}
 	}
+}
+
+void test_flight_loop(std::vector<Configuration> config)
+{
+	// process button light changes
+	for (auto it : config)
+	{
+		for (auto triggers : it.light_triggers)
+		{
+			for (auto trigger : triggers.second)
+			{
+				trigger->evaluate_and_store_action();
+			}
+		}
+	}
+
+	// process button push/release events
+	ActionQueue::get_instance()->activate_actions_in_queue();
 }

@@ -3,6 +3,7 @@
 #include <sstream>
 #include <regex>
 #include "configparser.h"
+#include "trigger.h"
 #include "logger.h"
 
 int Configparser::parse_file(std::string file_name, std::vector<Configuration>& config)
@@ -263,6 +264,41 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         Action* release_action = new Action(commandRef, command_type);
         Logger(TLogLevel::logDEBUG) << "parser: button release command " << m[1].str() << std::endl;
         config.back().release_actions[section_id].push_back(release_action);
+        return EXIT_SUCCESS;
+    }
+
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_LIGHT)))
+    {
+        section_id = m[1];
+        Logger(TLogLevel::logDEBUG) << "parser: light detected " << section_id << std::endl;
+        return EXIT_SUCCESS;
+    }
+
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_TRIGGER_LIT)))
+    {
+        XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+        if (dataRef == NULL)
+        {
+            Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+            return EXIT_FAILURE;
+        }
+        Trigger* lit_trigger = new Trigger(dataRef, stoi(m[2]),TriggerType::LIT);
+        Logger(TLogLevel::logDEBUG) << "parser: light lit dataref " << m[1].str() << std::endl;
+        config.back().light_triggers[section_id].push_back(lit_trigger);
+        return EXIT_SUCCESS;
+    }
+
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_TRIGGER_UNLIT)))
+    {
+        XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+        if (dataRef == NULL)
+        {
+            Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+            return EXIT_FAILURE;
+        }
+        Trigger* unlit_trigger = new Trigger(dataRef, stoi(m[2]), TriggerType::UNLIT);
+        Logger(TLogLevel::logDEBUG) << "parser: light unlit dataref " << m[1].str() << std::endl;
+        config.back().light_triggers[section_id].push_back(unlit_trigger);
         return EXIT_SUCCESS;
     }
 

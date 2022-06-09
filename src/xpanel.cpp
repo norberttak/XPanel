@@ -109,6 +109,19 @@ PLUGIN_API int  XPluginEnable(void)
 
 float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon)
 {
+	// check ans set LED states
+	for (auto it : config)
+	{
+		for (auto triggers : it.light_triggers)
+		{
+			for (auto trigger : triggers.second)
+			{
+				trigger->evaluate_and_store_action();
+			}
+		}
+	}
+
+	// process button push/release events
 	ActionQueue::get_instance()->activate_actions_in_queue();
 	return FLIGHT_LOOP_TIME_PERIOD;
 }
@@ -130,7 +143,7 @@ int init_and_start_xpanel_plugin(void)
 	init_path /= "xpanel.ini";
 
 	Configparser p;
-	Logger(TLogLevel::logDEBUG) << "parse config file: " << init_path.string() << std::endl;
+	Logger(TLogLevel::logINFO) << "parse config file: " << init_path.string() << std::endl;
 	int result = p.parse_file(init_path.string(), config);
 	if (result != EXIT_SUCCESS)
 	{
