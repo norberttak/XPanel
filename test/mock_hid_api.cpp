@@ -76,5 +76,3 @@ int test_hid_get_pid()
 {
 	return pid;
 }
-
-

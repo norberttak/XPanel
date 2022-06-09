@@ -40,14 +40,13 @@ private:
 
 	// Button light
 	const std::string TOKEN_LIGHT = "\\[light:id=\"([a-zA-Z0-9_-]+)\"\\]";
+	const std::string TOKEN_TRIGGER_LIT = "trigger_lit=\"dataref:"+RE_REF+":"+RE_FLOAT+"\"";
+	const std::string TOKEN_TRIGGER_UNLIT = "trigger_unlit=\"dataref:"+RE_REF+":"+RE_FLOAT+"\"";
+	const std::string TOKEN_TRIGGER_BLINK = "trigger_blink=\"dataref:"+RE_REF+":"+RE_FLOAT+"\"";
 
 	// Display
 	const std::string TOKEN_DISPLAY = "\\[display:id=\"([a-zA-Z0-9_-]+)\"\\]";
-	/*
-	const std::string TOKEN_TRIGGER_LIT = "trigger_lit=";
-	const std::string TOKEN_TRIGGER_UNLIT = "trigger_unlit=";
-	const std::string TOKEN_TRIGGER_BLINK = "trigger_blink=";
-	*/
+	
 	std::string section_id = "";
 	std::string last_error_message = "";
 	int current_line_nr;

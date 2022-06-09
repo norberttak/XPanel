@@ -3,7 +3,7 @@
 #include "SaitekMultiPanel.h"
 #include "logger.h"
 
-SaitekMultiPanel::SaitekMultiPanel(Configuration &config):UsbHidDevice(config,4)
+SaitekMultiPanel::SaitekMultiPanel(Configuration &config):UsbHidDevice(config,4, 13)
 {	
 	multi_buttons.push_back(PanelButton(0, "SW_ALT"));
 	multi_buttons.push_back(PanelButton(1, "SW_VS"));
@@ -27,21 +27,28 @@ SaitekMultiPanel::SaitekMultiPanel(Configuration &config):UsbHidDevice(config,4)
 	multi_buttons.push_back(PanelButton(19, "TRIM_WHEEL_UP"));
 
 	register_buttons(multi_buttons);
+
+	multi_lights.push_back(PanelLight(11 * 8 + 0, "AP_L"));
+	multi_lights.push_back(PanelLight(11 * 8 + 1, "HDG_L"));
+	multi_lights.push_back(PanelLight(11 * 8 + 2, "NAV_L"));
+	multi_lights.push_back(PanelLight(11 * 8 + 3, "IAS_L"));
+	multi_lights.push_back(PanelLight(11 * 8 + 4, "ALT_L"));
+	multi_lights.push_back(PanelLight(11 * 8 + 5, "VS_L"));
+	multi_lights.push_back(PanelLight(11 * 8 + 6, "APR_L"));
+	multi_lights.push_back(PanelLight(11 * 8 + 7, "REV_L"));
+
+	register_lights(multi_lights);
 }
 
 int SaitekMultiPanel::connect()
 {
-	unsigned char read_buff[13];
+	unsigned char buff[13];
 	UsbHidDevice::connect();
-
-	if (hid_read(device_handle, read_buff, sizeof(read_buff)) == -1)
+	
+	memset(buff, 0, sizeof(buff)); // clear all button lights
+	if (write_device(buff, sizeof(buff)) != EXIT_SUCCESS)
 	{
-		Logger(TLogLevel::logERROR) << "SaitekMultiPanel connect. error in hid_read" << std::endl;
-		return EXIT_FAILURE;
-	}
-	if (hid_send_feature_report(device_handle, read_buff, sizeof(read_buff)))
-	{
-		Logger(TLogLevel::logERROR) << "SaitekMultiPanel connect. error in hid_send_feature_report" << std::endl;
+		Logger(TLogLevel::logERROR) << "SaitekMultiPanel connect. error in write_device" << std::endl;
 		return EXIT_FAILURE;
 	}
 
@@ -51,7 +58,7 @@ int SaitekMultiPanel::connect()
 
 void SaitekMultiPanel::start()
 {
-	UsbHidDevice::start();
+ 	UsbHidDevice::start();
 }
 
 void SaitekMultiPanel::stop(int timeout)
