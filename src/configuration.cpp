@@ -14,6 +14,7 @@ Configuration& Configuration::operator=(const Configuration& other)
 	push_actions = other.push_actions;
 	release_actions = other.release_actions;
 	light_triggers = other.light_triggers;
+	multi_displays = other.multi_displays;
 
 	return *this;
 }

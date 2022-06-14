@@ -5,6 +5,7 @@
 #include <map>
 #include "Action.h"
 #include "trigger.h"
+#include "multi_purpose_display.h"
 
 typedef enum {
 	UNKNOWN_DEVICE_TYPE,
@@ -28,5 +29,6 @@ public:
 	std::map<std::string, std::list<Action*>> push_actions;
 	std::map<std::string, std::list<Action*>> release_actions;
 	std::map<std::string, std::list<Trigger*>> light_triggers;
+	std::map<std::string, MultiPurposeDisplay*> multi_displays;
 };
 

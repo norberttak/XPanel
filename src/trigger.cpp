@@ -31,10 +31,10 @@ void Trigger::evaluate_and_store_action()
 	else if (data_ref_type == xplmType_Float)
 		act_value = (double)XPLMGetDataf(data_ref);
 	else
-		act_value = (int)XPLMGetDatad(data_ref);
+		act_value = XPLMGetDatad(data_ref);
 
 	guard.lock();
-	if (act_value == trigger_value && last_dataref_value != act_value)
+	if (abs(act_value - trigger_value) <= 0.001 && abs(last_dataref_value - act_value) >= 0.01)
 	{
 		stored_action = trigger_action;
 	}

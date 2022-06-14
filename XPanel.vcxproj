@@ -164,6 +164,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\multi_purpose_display.cpp" />
     <ClCompile Include="src\ArduinoHomeCockpit.cpp" />
     <ClCompile Include="src\configuration.cpp" />
     <ClCompile Include="src\Action.cpp" />
@@ -181,6 +182,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\multi_purpose_display.h" />
     <ClInclude Include="src\logger.h" />
     <ClInclude Include="src\ArduinoHomeCockpit.h" />
     <ClInclude Include="src\configuration.h" />

@@ -82,13 +82,13 @@ namespace test
 		TEST_METHOD(TestTrimWheelUp)
 		{
 			int val_before = test_get_dataref_value("sim/custom/switchers/console/absu_pitch_wheel");
-			unsigned char buffer[4] = { 0,0,0x08,0};
+			unsigned char buffer[4] = { 0,0,0x08,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 			test_flight_loop(config);
 			int val_after = test_get_dataref_value("sim/custom/switchers/console/absu_pitch_wheel");
 
-			Assert::IsTrue((val_after - val_before) == 1);
+			Assert::AreEqual(1, (val_after - val_before));
 
 			memset(buffer, 0, sizeof(buffer));
 			test_hid_set_read_data(buffer, sizeof(buffer));
@@ -121,14 +121,14 @@ namespace test
 			std::this_thread::sleep_for(150ms);
 			unsigned char write_buffer[13];
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
-			Assert::AreEqual((int)write_buffer[11], 0x10);
+			Assert::AreEqual(0x10, (int)write_buffer[11]);
 
 			// ALT button light set to UNLIT
 			XPLMSetDatai(dataref, 0);
 			test_flight_loop(config); // evaluate triggers
 			std::this_thread::sleep_for(150ms);
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
-			Assert::AreEqual((int)write_buffer[11], 0x00);
+			Assert::AreEqual(0x00, (int)write_buffer[11]);
 		}
 
 		TEST_METHOD(TestHdgButtonLight)
@@ -140,14 +140,52 @@ namespace test
 			std::this_thread::sleep_for(150ms);
 			unsigned char write_buffer[13];
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
-			Assert::AreEqual((int)write_buffer[11], 0x02);
+			Assert::AreEqual(0x02, (int)write_buffer[11]);
 
 			// HDG button light set to UNLIT
 			XPLMSetDatai(dataref, 0);
 			test_flight_loop(config); // evaluate triggers
 			std::this_thread::sleep_for(150ms);
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
-			Assert::AreEqual((int)write_buffer[11] ,0x00);
+			Assert::AreEqual(0x00, (int)write_buffer[11]);
+		}
+
+		TEST_METHOD(TestMultiDisplayConfig)
+		{
+			Assert::AreEqual(2, (int)config[0].multi_displays.size());
+		}
+
+		TEST_METHOD(TestMultiDisplay)
+		{
+			XPLMDataRef dataref = XPLMFindDataRef("sim/custom/gauges/compas/pkp_helper_course_L");
+			XPLMSetDatai(dataref, 12345);
+
+			// set rotation switch to ALT_SW position
+			unsigned char buffer[4] = { 0x01,0,0,0 };
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+
+			test_flight_loop(config);
+			std::this_thread::sleep_for(150ms);
+
+			unsigned char write_buffer[13];
+			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
+			Assert::AreEqual(1, (int)write_buffer[1]);
+			Assert::AreEqual(2, (int)write_buffer[2]);
+			Assert::AreEqual(3, (int)write_buffer[3]);
+			Assert::AreEqual(4, (int)write_buffer[4]);
+			Assert::AreEqual(5, (int)write_buffer[5]);
+
+			XPLMSetDatai(dataref, 0);
+			test_flight_loop(config);
+			std::this_thread::sleep_for(150ms);
+
+			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
+			Assert::AreEqual(0, (int)write_buffer[1]);
+			Assert::AreEqual(0, (int)write_buffer[2]);
+			Assert::AreEqual(0, (int)write_buffer[3]);
+			Assert::AreEqual(0, (int)write_buffer[4]);
+			Assert::AreEqual(0, (int)write_buffer[5]);
 		}
 
 		TEST_METHOD_CLEANUP(TestMultiPanelCleanup)

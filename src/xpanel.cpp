@@ -119,6 +119,11 @@ float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 				trigger->evaluate_and_store_action();
 			}
 		}
+
+		for (auto display : it.multi_displays)
+		{
+			display.second->evaluate_and_store_dataref_value();
+		}
 	}
 
 	// process button push/release events

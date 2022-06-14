@@ -3,8 +3,8 @@
 #include "SaitekMultiPanel.h"
 #include "logger.h"
 
-SaitekMultiPanel::SaitekMultiPanel(Configuration &config):UsbHidDevice(config,4, 13)
-{	
+SaitekMultiPanel::SaitekMultiPanel(Configuration& config) :UsbHidDevice(config, 4, 13)
+{
 	multi_buttons.push_back(PanelButton(0, "SW_ALT"));
 	multi_buttons.push_back(PanelButton(1, "SW_VS"));
 	multi_buttons.push_back(PanelButton(2, "SW_IAS"));
@@ -38,13 +38,23 @@ SaitekMultiPanel::SaitekMultiPanel(Configuration &config):UsbHidDevice(config,4,
 	multi_lights.push_back(PanelLight(11 * 8 + 7, "REV_L"));
 
 	register_lights(multi_lights);
+
+	multi_displays.push_back(PanelDisplay(1, "MULTI_DISPLAY_UP"));
+	multi_displays.push_back(PanelDisplay(6, "MULTI_DISPLAY_DOWN"));
+
+	register_displays(multi_displays);
+
+	for (auto config_display : config.multi_displays)
+	{
+		config_display.second->set_nr_digits(5);
+	}
 }
 
 int SaitekMultiPanel::connect()
 {
 	unsigned char buff[13];
 	UsbHidDevice::connect();
-	
+
 	memset(buff, 0, sizeof(buff)); // clear all button lights
 	if (write_device(buff, sizeof(buff)) != EXIT_SUCCESS)
 	{
@@ -58,7 +68,7 @@ int SaitekMultiPanel::connect()
 
 void SaitekMultiPanel::start()
 {
- 	UsbHidDevice::start();
+	UsbHidDevice::start();
 }
 
 void SaitekMultiPanel::stop(int timeout)

@@ -6,7 +6,7 @@
 class Configparser
 {
 private:
-	const std::string RE_FLOAT = "([+-]*[0-9\.]+)";
+	const std::string RE_FLOAT = "([+-]*[0-9\\.]+)";
 	const std::string RE_INT = "([+-]*[0-9]+)";
 	const std::string RE_REF = "([a-zA-Z0-9\\/\\[\\]_-]+)";
 
@@ -44,9 +44,10 @@ private:
 	const std::string TOKEN_TRIGGER_UNLIT = "trigger_unlit=\"dataref:"+RE_REF+":"+RE_FLOAT+"\"";
 	const std::string TOKEN_TRIGGER_BLINK = "trigger_blink=\"dataref:"+RE_REF+":"+RE_FLOAT+"\"";
 
-	// Display
-	const std::string TOKEN_DISPLAY = "\\[display:id=\"([a-zA-Z0-9_-]+)\"\\]";
-	
+	// Multi function Display
+	const std::string TOKEN_MULTI_DISPLAY = "\\[multi_display:id=\"([a-zA-Z0-9_-]+)\"\\]";
+	const std::string TOKEN_MULTI_DISPLAY_LINE = "line=\"on_select:([a-zA-Z0-9_-]+),dataref:"+RE_REF+"\"";
+
 	std::string section_id = "";
 	std::string last_error_message = "";
 	int current_line_nr;

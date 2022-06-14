@@ -116,11 +116,13 @@ bool UsbHidDevice::is_bit_changed(unsigned char* buf, unsigned char* buf_old, in
 
 void UsbHidDevice::start()
 {
+	Logger(TLogLevel::logDEBUG) << "UsbHidDevice::start" << std::endl;
 	_thread_run.store(TRUE);
 }
 
 void UsbHidDevice::stop(int time_out)
 {
+	Logger(TLogLevel::logDEBUG) << "UsbHidDevice::stop" << std::endl;
 	_thread_run.store(FALSE);
 }
 
@@ -134,6 +136,123 @@ void UsbHidDevice::register_lights(std::vector<PanelLight>& _lights)
 	lights = _lights;
 }
 
+void UsbHidDevice::register_displays(std::vector<PanelDisplay>& _displays)
+{
+	panel_displays = _displays;
+}
+
+bool UsbHidDevice::updateLightStates()
+{
+	bool write_buffer_changed = false;
+
+	for (auto it : config.light_triggers)
+	{
+		int bit_nr = -1;
+		for (auto light : lights)
+		{
+			if (light.config_name == it.first)
+				bit_nr = light.bit;
+		}
+
+		// light doesn't exist in this configuration
+		if (bit_nr == -1)
+			continue;
+
+		for (auto trigger : it.second)
+		{
+			TriggerType light_change = trigger->get_and_clear_stored_action();
+
+			switch (light_change) {
+			case TriggerType::LIT:
+				Logger(TLogLevel::logDEBUG) << " " << it.first << " activated LIT" << std::endl;
+				set_bit_value(write_buffer, bit_nr, 1);
+				write_buffer_changed = true;
+				break;
+			case TriggerType::UNLIT:
+				Logger(TLogLevel::logDEBUG) << " " << it.first << " activated UNLIT" << std::endl;
+				set_bit_value(write_buffer, bit_nr, 0);
+				write_buffer_changed = true;
+				break;
+			case TriggerType::BLINK:
+				invert_bit_value(write_buffer, bit_nr);
+				write_buffer_changed = true;
+				Logger(TLogLevel::logWARNING) << " " << it.first << ": light blink function not yet implemented" << std::endl;
+				break;
+			case TriggerType::NO_CHANGE:
+				//
+				break;
+			default:
+				Logger(TLogLevel::logERROR) << " " << it.first << ": unknown trigger type: " << light_change << std::endl;
+			}
+		}
+	}
+	return write_buffer_changed;
+}
+
+bool UsbHidDevice::updateDisplays()
+{
+	bool write_buffer_changed = false;
+
+	for (auto config_display : config.multi_displays)
+	{
+		int reg_index = -1;
+		for (auto display : panel_displays)
+		{
+			if (display.config_name == config_display.first)
+			{
+				reg_index = display.reg_index;
+				break;
+			}
+		}
+		if (reg_index != -1 && config_display.second != NULL)
+		{
+			write_buffer_changed |= config_display.second->get_display_value(&write_buffer[reg_index]);
+		}
+	}
+	return write_buffer_changed;
+}
+
+void UsbHidDevice::process_and_store_button_states()
+{
+	for (auto button : buttons)
+	{
+		if (is_bit_changed(read_buffer, read_buffer_old, button.bit))
+		{
+			Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " button bit changed " << std::endl;
+			if (get_bit_value(read_buffer, button.bit))
+			{
+				if (config.push_actions.find(button.config_name.c_str()) != config.push_actions.end())
+				{
+					for (auto act : config.push_actions[button.config_name.c_str()])
+					{
+						Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " button push action called" << std::endl;
+						ActionQueue::get_instance()->push(act);
+					}
+				}
+
+				/* read rotation switch */
+				for (auto display : panel_displays)
+				{
+					if (config.multi_displays.count(display.config_name) > 0 && config.multi_displays[display.config_name] != NULL && config.multi_displays[display.config_name]->is_registered_selector(button.config_name))
+					{
+						Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " mode selector switch for " << display.config_name << " is activated" << std::endl;
+						config.multi_displays[display.config_name]->set_condition_active(button.config_name);
+					}
+				}
+			}
+			else if (!get_bit_value(read_buffer, button.bit) && config.release_actions.find(button.config_name.c_str()) != config.release_actions.end())
+			{
+				for (auto act : config.release_actions[button.config_name.c_str()])
+				{
+					Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " button release action called" << std::endl;
+					ActionQueue::get_instance()->push(act);
+				}
+			}
+		}
+	}
+
+}
+
 void UsbHidDevice::thread_func()
 {
 	Logger(TLogLevel::logTRACE) << "UsbHidDevice::thread_func started" << std::endl;
@@ -144,54 +263,17 @@ void UsbHidDevice::thread_func()
 	{
 		std::this_thread::sleep_for(50ms);
 
-		// set LED states
 		write_buffer_changed = false;
-		for (auto it : config.light_triggers)
-		{
-			int bit_nr = -1;
-			for (auto light : lights)
-			{
-				if (light.config_name == it.first)
-					bit_nr = light.bit;
-			}
-
-			// light doesn't exist in this configuration
-			if (bit_nr == -1)
-				continue;
-
-			for (auto trigger : it.second)
-			{
-				TriggerType light_change = trigger->get_and_clear_stored_action();
-
-				switch (light_change) {
-				case TriggerType::LIT:
-					Logger(TLogLevel::logDEBUG) << " " << it.first << " activated LIT" << std::endl;
-					set_bit_value(write_buffer, bit_nr, 1);
-					write_buffer_changed = true;
-					break;
-				case TriggerType::UNLIT:
-					Logger(TLogLevel::logDEBUG) << " " << it.first << " activated UNLIT" << std::endl;
-					set_bit_value(write_buffer, bit_nr, 0);
-					write_buffer_changed = true;
-					break;
-				case TriggerType::BLINK:
-					invert_bit_value(write_buffer, bit_nr);
-					write_buffer_changed = true;
-					Logger(TLogLevel::logWARNING) << " " << it.first << ": light blink function not yet implemented" << std::endl;
-					break;
-				case TriggerType::NO_CHANGE:
-					//
-					break;
-				default:
-					Logger(TLogLevel::logERROR) << " " << it.first << ": unknown trigger type: " << light_change << std::endl;
-				}
-			}
-		}
+		write_buffer_changed |= updateLightStates();
+		write_buffer_changed |= updateDisplays();
 
 		if (write_buffer_changed)
-		{
-			write_device(write_buffer, write_buffer_size);
-		}
+			if (write_device(write_buffer, write_buffer_size) == EXIT_FAILURE)
+			{
+				Logger(TLogLevel::logDEBUG) << "UsbHidDevice error writing HID device" << std::endl;
+				continue;
+			}
+
 
 		// read and handle button push/release events
 		if (read_device(read_buffer, read_buffer_size) == EXIT_FAILURE)
@@ -199,31 +281,7 @@ void UsbHidDevice::thread_func()
 			Logger(TLogLevel::logDEBUG) << "UsbHidDevice error reading HID device" << std::endl;
 			continue;
 		}
-
-		for (auto button : buttons)
-		{
-			if (is_bit_changed(read_buffer, read_buffer_old, button.bit))
-			{
-				Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " button bit changed " << std::endl;
-				if (get_bit_value(read_buffer, button.bit) && config.push_actions.find(button.config_name.c_str()) != config.push_actions.end())
-				{
-					for (auto act : config.push_actions[button.config_name.c_str()])
-					{
-						Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " button push action called" << std::endl;
-						ActionQueue::get_instance()->push(act);
-					}
-				}
-				else if (!get_bit_value(read_buffer, button.bit) && config.release_actions.find(button.config_name.c_str()) != config.release_actions.end())
-				{
-					for (auto act : config.release_actions[button.config_name.c_str()])
-					{
-						Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " button release action called" << std::endl;
-						ActionQueue::get_instance()->push(act);
-					}
-				}
-			}
-		}
-
+		process_and_store_button_states();
 		memcpy(read_buffer_old, read_buffer, read_buffer_size);
 	}
 }

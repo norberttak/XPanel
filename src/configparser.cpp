@@ -4,6 +4,7 @@
 #include <regex>
 #include "configparser.h"
 #include "trigger.h"
+#include "multi_purpose_display.h"
 #include "logger.h"
 
 int Configparser::parse_file(std::string file_name, std::vector<Configuration>& config)
@@ -299,6 +300,26 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         Trigger* unlit_trigger = new Trigger(dataRef, stoi(m[2]), TriggerType::UNLIT);
         Logger(TLogLevel::logDEBUG) << "parser: light unlit dataref " << m[1].str() << std::endl;
         config.back().light_triggers[section_id].push_back(unlit_trigger);
+        return EXIT_SUCCESS;
+    }
+
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_MULTI_DISPLAY)))
+    {
+        section_id = m[1];
+        config.back().multi_displays[section_id] = new MultiPurposeDisplay();
+        Logger(TLogLevel::logDEBUG) << "parser: multi display detected " << section_id << std::endl;
+        return EXIT_SUCCESS;
+    }
+
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_MULTI_DISPLAY_LINE)))
+    {
+        XPLMDataRef dataRef = XPLMFindDataRef(m[2].str().c_str());
+        if (dataRef == NULL)
+        {
+            Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+            return EXIT_FAILURE;
+        }
+        config.back().multi_displays[section_id]->add_condition(m[1], dataRef);
         return EXIT_SUCCESS;
     }
 

@@ -32,6 +32,17 @@ struct PanelLight
 	std::string config_name;
 };
 
+struct PanelDisplay
+{
+	PanelDisplay(int _reg_index, std::string _config_name)
+	{
+		reg_index = _reg_index;
+		config_name = _config_name;
+	}
+	int reg_index;
+	std::string config_name;
+};
+
 class UsbHidDevice : public Device
 {
 public:
@@ -47,10 +58,12 @@ protected:
 	int write_device(unsigned char* buf, int length);
 	void register_buttons(std::vector<PanelButton>& _buttons);
 	void register_lights(std::vector<PanelLight>& _lights);
+	void register_displays(std::vector<PanelDisplay>& _displays);
 	hid_device* device_handle = NULL;	
 private:
 	std::vector<PanelButton> buttons;
 	std::vector<PanelLight> lights;
+	std::vector<PanelDisplay> panel_displays;
 	std::atomic<bool> _thread_run;
 	unsigned char* read_buffer;
 	unsigned char* read_buffer_old;
@@ -65,5 +78,8 @@ private:
 	bool is_bit_changed(unsigned char* buffer, unsigned char* buffer_old, int bit);
 	void set_bit_value(unsigned char* buf, int bit_nr, int bit_val);
 	void invert_bit_value(unsigned char* buf, int bit_nr);
+	bool updateLightStates();
+	bool updateDisplays();
+	void process_and_store_button_states();
 };
 

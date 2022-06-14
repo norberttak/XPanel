@@ -24,8 +24,8 @@ private:
 	XPLMDataRef data_ref;
 	XPLMDataTypeID data_ref_type;
 	double trigger_value;
-	int last_dataref_value;
+	double last_dataref_value;
 	TriggerType trigger_action;
-	TriggerType stored_action;	
+	TriggerType stored_action;
 	std::mutex guard;
 };
