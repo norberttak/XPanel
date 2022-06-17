@@ -8,6 +8,8 @@ Action::Action()
 	data = 0;
 	delta = 0;
 	lua_str = "";
+	condition = "";
+	active_conditions.clear();
 	dataref = NULL;
 }
 
@@ -51,8 +53,32 @@ Action::~Action()
 	dataref = NULL;
 }
 
+void Action::add_condition(std::string _condition)
+{
+	condition = _condition;
+	Logger(TLogLevel::logDEBUG) << "Action: add condition: " << _condition << std::endl;
+}
+
+void Action::set_condition_active(std::string _active_condition)
+{
+	active_conditions[_active_condition] = true;
+	Logger(TLogLevel::logDEBUG) << "Action: set_condition_active " << _active_condition << std::endl;
+}
+
+void Action::set_condition_inactive(std::string _active_condition)
+{
+	active_conditions[_active_condition] = false;
+	Logger(TLogLevel::logDEBUG) << "Action: set_condition_inactive " << _active_condition << std::endl;
+}
+
 void Action::activate()
 {
+	if (active_conditions.count(condition) != 0 && active_conditions[condition] == false)
+	{
+		Logger(TLogLevel::logTRACE) << "Action: skip because condition (" << condition << ") is not active" << std::endl;
+		return;
+	}
+
 	if (dataref != NULL)
 	{
 		if (index != -1)

@@ -3,6 +3,7 @@
 #include <queue>
 #include <atomic>
 #include <mutex>
+#include <map>
 #include "XPLMDataAccess.h"
 #include "XPLMMenus.h"
 
@@ -24,6 +25,9 @@ public:
 	Action(XPLMCommandRef cmd, CommandType type);
 	Action(std::string lua_str);
 	~Action();
+	void add_condition(std::string _condition);
+	void set_condition_active(std::string _active_condition);
+	void set_condition_inactive(std::string _active_condition);
 	void activate();
 private:
 	int data = 0;
@@ -32,6 +36,8 @@ private:
 	float max = 0;
 	float min = 0;
 	std::string lua_str = "";
+	std::string condition = "";
+	std::map<std::string,bool> active_conditions;
 	XPLMDataRef dataref = NULL;
 	CommandType command_type = CommandType::NONE;
 	XPLMCommandRef commandref = NULL;

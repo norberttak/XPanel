@@ -10,7 +10,6 @@ class MultiPurposeDisplay
 {
 public:
 	MultiPurposeDisplay();
-	MultiPurposeDisplay(const MultiPurposeDisplay& d1);
 	// called during init phase
 	void add_condition(std::string selector_sw_name, XPLMDataRef data);
 

@@ -188,6 +188,40 @@ namespace test
 			Assert::AreEqual(0, (int)write_buffer[5]);
 		}
 
+		TEST_METHOD(TestRotationKnobHdg)
+		{
+			std::string dataref_str = "sim/custom/gauges/compas/pkp_helper_course_L";
+
+			// set rotation switch to SW_HDG position
+			unsigned char buffer[4] = { 0x08,0,0,0 };
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+
+			buffer[0] |= 0x20; // set KNOB_PLUS to 1
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+			test_flight_loop(config);
+			Assert::AreEqual(1, test_get_dataref_value(dataref_str.c_str()));
+
+			buffer[0] &= (~0x20); // set KNOB_PLUS to 0
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+			test_flight_loop(config);
+			Assert::AreEqual(1, test_get_dataref_value(dataref_str.c_str()));
+
+			buffer[0] |= 0x40; // set KNOB_MINUS to 1
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+			test_flight_loop(config);
+			Assert::AreEqual(0, test_get_dataref_value(dataref_str.c_str()));
+
+			buffer[0] &= (~0x40); // set KNOB_MINUS to 0
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+			test_flight_loop(config);
+			Assert::AreEqual(0, test_get_dataref_value(dataref_str.c_str()));
+		}
+
 		TEST_METHOD_CLEANUP(TestMultiPanelCleanup)
 		{
 			device->stop(0);

@@ -5,11 +5,16 @@
 
 SaitekMultiPanel::SaitekMultiPanel(Configuration& config) :UsbHidDevice(config, 4, 13)
 {
-	multi_buttons.push_back(PanelButton(0, "SW_ALT"));
-	multi_buttons.push_back(PanelButton(1, "SW_VS"));
-	multi_buttons.push_back(PanelButton(2, "SW_IAS"));
-	multi_buttons.push_back(PanelButton(3, "SW_HDG"));
-	multi_buttons.push_back(PanelButton(4, "SW_CRS"));
+
+	// mode selector switch
+	multi_selectors.push_back(PanelButton(0, "SW_ALT"));
+	multi_selectors.push_back(PanelButton(1, "SW_VS"));
+	multi_selectors.push_back(PanelButton(2, "SW_IAS"));
+	multi_selectors.push_back(PanelButton(3, "SW_HDG"));
+	multi_selectors.push_back(PanelButton(4, "SW_CRS"));
+	register_selectors(multi_selectors);
+
+	// push buttons
 	multi_buttons.push_back(PanelButton(5, "KNOB_PLUS"));
 	multi_buttons.push_back(PanelButton(6, "KNOB_MINUS"));
 	multi_buttons.push_back(PanelButton(7, "AP"));

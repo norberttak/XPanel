@@ -8,6 +8,7 @@ class SaitekMultiPanel : public UsbHidDevice
 {
 private:
 	std::vector<PanelButton> multi_buttons;
+	std::vector<PanelButton> multi_selectors;
 	std::vector<PanelLight> multi_lights;
 	std::vector<PanelDisplay> multi_displays;
 public:

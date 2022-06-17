@@ -220,6 +220,36 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         return EXIT_SUCCESS;
     }
 
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_CONDITIONAL_PUSH_DATAREF_CHANGE)))
+    {
+        XPLMDataRef dataRef = XPLMFindDataRef(m[2].str().c_str());
+        if (dataRef == NULL)
+        {
+            Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+            return EXIT_FAILURE;
+        }
+        Action* push_action = new Action(dataRef, stof(m[3]), stof(m[5]), stof(m[4]));
+        push_action->add_condition(m[1]);
+        config.back().push_actions[section_id].push_back(push_action);
+        Logger(TLogLevel::logDEBUG) << "parser: button conditional push dataref. on:" << m[1].str() << " dataref:" << m[2].str() << std::endl;
+        return EXIT_SUCCESS;
+    }
+
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_CONDITIONAL_RELEASE_DATAREF_CHANGE)))
+    {
+        XPLMDataRef dataRef = XPLMFindDataRef(m[2].str().c_str());
+        if (dataRef == NULL)
+        {
+            Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+            return EXIT_FAILURE;
+        }
+        Action* release_action = new Action(dataRef, stof(m[3]), stof(m[5]), stof(m[4]));
+        release_action->add_condition(m[1]);
+        config.back().release_actions[section_id].push_back(release_action);
+        Logger(TLogLevel::logDEBUG) << "parser: button conditional release dataref. on:" << m[1].str() << " dataref:" << m[2].str() << std::endl;
+        return EXIT_SUCCESS;
+    }
+
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_PUSH_COMMANDREF)))
     {
         XPLMCommandRef commandRef = XPLMFindCommand(m[1].str().c_str());
@@ -268,6 +298,55 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         return EXIT_SUCCESS;
     }
 
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_CONDITIONAL_PUSH_COMMANDREF)))
+    {
+        XPLMCommandRef commandRef = XPLMFindCommand(m[2].str().c_str());
+        if (commandRef == NULL)
+        {
+            Logger(TLogLevel::logERROR) << "parser: invalid command ref (at line: " << current_line_nr << "): " << line << std::endl;
+            return EXIT_FAILURE;
+        }
+        CommandType command_type = CommandType::NONE;
+
+        if (m.size() >= 4)
+            if (m[3] == "begin")
+                command_type = CommandType::BEGIN;
+            else if (m[3] == "end")
+                command_type = CommandType::END;
+            else
+                command_type = CommandType::ONCE;
+
+        Action* push_action = new Action(commandRef, command_type);
+        push_action->add_condition(m[1]);
+        Logger(TLogLevel::logDEBUG) << "parser: button conditional ("<<m[1]<<") push command " << m[2].str() << std::endl;
+        config.back().push_actions[section_id].push_back(push_action);
+        return EXIT_SUCCESS;
+    }
+
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_CONDITIONAL_RELEASE_COMMANDREF)))
+    {
+        XPLMCommandRef commandRef = XPLMFindCommand(m[2].str().c_str());
+        if (commandRef == NULL)
+        {
+            Logger(TLogLevel::logERROR) << "parser: invalid command ref (at line: " << current_line_nr << "): " << line << std::endl;
+            return EXIT_FAILURE;
+        }
+        CommandType command_type = CommandType::NONE;
+
+        if (m.size() >= 4)
+            if (m[3] == "begin")
+                command_type = CommandType::BEGIN;
+            else if (m[3] == "end")
+                command_type = CommandType::END;
+            else
+                command_type = CommandType::ONCE;
+
+        Action* release_action = new Action(commandRef, command_type);
+        release_action->add_condition(m[1]);
+        Logger(TLogLevel::logDEBUG) << "parser: button conditional (" << m[1] << ") release command " << m[2].str() << std::endl;
+        config.back().release_actions[section_id].push_back(release_action);
+        return EXIT_SUCCESS;
+    }
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_LIGHT)))
     {
         section_id = m[1];
@@ -322,6 +401,9 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         config.back().multi_displays[section_id]->add_condition(m[1], dataRef);
         return EXIT_SUCCESS;
     }
+
+    //
+    //TOKEN_MULTI_KNOB_CHANGE_COMMANDREF
 
     Logger(TLogLevel::logERROR) << "parser: unknown error (at line: " << current_line_nr << "): " << line << std::endl;
     return EXIT_FAILURE;

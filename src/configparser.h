@@ -38,6 +38,11 @@ private:
 	const std::string TOKEN_BUTTON_PUSH_DATAREF_CHANGE = "on_push=\"dataref:"+RE_REF+":"+RE_FLOAT+":"+RE_FLOAT+":"+RE_FLOAT+"\"";
 	const std::string TOKEN_BUTTON_RELEASE_DATAREF_CHANGE = "on_release=\"dataref:"+RE_REF+":"+RE_FLOAT+":"+RE_FLOAT+":"+RE_FLOAT+"\"";
 
+	const std::string TOKEN_CONDITIONAL_PUSH_DATAREF_CHANGE = "on_push=\"on_select:([a-zA-Z0-9_-]+),dataref:" + RE_REF + ":" + RE_FLOAT + ":" + RE_FLOAT + ":" + RE_FLOAT + "\"";
+	const std::string TOKEN_CONDITIONAL_PUSH_COMMANDREF = "on_push=\"on_select:([a-zA-Z0-9_-]+),commandref:" + RE_REF + ":([begin|end|once]*)\"";
+	const std::string TOKEN_CONDITIONAL_RELEASE_DATAREF_CHANGE = "on_release=\"on_select:([a-zA-Z0-9_-]+),dataref:" + RE_REF + ":" + RE_FLOAT + ":" + RE_FLOAT + ":" + RE_FLOAT + "\"";
+	const std::string TOKEN_CONDITIONAL_RELEASE_COMMANDREF = "on_release=\"on_select:([a-zA-Z0-9_-]+),commandref:" + RE_REF + ":([begin|end|once]*)\"";
+
 	// Button light
 	const std::string TOKEN_LIGHT = "\\[light:id=\"([a-zA-Z0-9_-]+)\"\\]";
 	const std::string TOKEN_TRIGGER_LIT = "trigger_lit=\"dataref:"+RE_REF+":"+RE_FLOAT+"\"";

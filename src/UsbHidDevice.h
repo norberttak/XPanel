@@ -57,11 +57,13 @@ protected:
 	int read_device(unsigned char* buf, int buf_size);
 	int write_device(unsigned char* buf, int length);
 	void register_buttons(std::vector<PanelButton>& _buttons);
+	void register_selectors(std::vector<PanelButton>& _selectors);
 	void register_lights(std::vector<PanelLight>& _lights);
 	void register_displays(std::vector<PanelDisplay>& _displays);
 	hid_device* device_handle = NULL;	
 private:
 	std::vector<PanelButton> buttons;
+	std::vector<PanelButton> selectors;
 	std::vector<PanelLight> lights;
 	std::vector<PanelDisplay> panel_displays;
 	std::atomic<bool> _thread_run;
@@ -81,5 +83,6 @@ private:
 	bool updateLightStates();
 	bool updateDisplays();
 	void process_and_store_button_states();
+	void process_selector_switch();
 };
 

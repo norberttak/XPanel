@@ -131,6 +131,11 @@ void UsbHidDevice::register_buttons(std::vector<PanelButton>& _buttons)
 	buttons = _buttons;
 }
 
+void UsbHidDevice::register_selectors(std::vector<PanelButton>& _selectors)
+{
+	selectors = _selectors;
+}
+
 void UsbHidDevice::register_lights(std::vector<PanelLight>& _lights)
 {
 	lights = _lights;
@@ -212,6 +217,54 @@ bool UsbHidDevice::updateDisplays()
 	return write_buffer_changed;
 }
 
+void UsbHidDevice::process_selector_switch()
+{
+	for (auto sel : selectors)
+	{
+		if (is_bit_changed(read_buffer, read_buffer_old, sel.bit))
+		{
+			if (get_bit_value(read_buffer, sel.bit))
+			{
+				for (auto button : buttons)
+				{
+					for (auto act : config.push_actions[button.config_name.c_str()])
+					{
+						act->set_condition_active(sel.config_name);
+					}
+					for (auto act : config.release_actions[button.config_name.c_str()])
+					{
+						act->set_condition_active(sel.config_name);
+					}
+				}
+
+				/* update condition for displays */
+				for (auto display : panel_displays)
+				{
+					if (config.multi_displays.count(display.config_name) > 0 && config.multi_displays[display.config_name] != NULL && config.multi_displays[display.config_name]->is_registered_selector(sel.config_name))
+					{
+						Logger(TLogLevel::logTRACE) << "UsbHidDevice " << sel.config_name << " mode selector switch for " << display.config_name << " is activated" << std::endl;
+						config.multi_displays[display.config_name]->set_condition_active(sel.config_name);
+					}
+				}
+			}
+			else
+			{
+				for (auto button : buttons)
+				{
+					for (auto act : config.push_actions[button.config_name.c_str()])
+					{
+						act->set_condition_inactive(sel.config_name);
+					}
+					for (auto act : config.release_actions[button.config_name.c_str()])
+					{
+						act->set_condition_inactive(sel.config_name);
+					}
+				}
+			}
+		}
+	}
+}
+
 void UsbHidDevice::process_and_store_button_states()
 {
 	for (auto button : buttons)
@@ -219,25 +272,12 @@ void UsbHidDevice::process_and_store_button_states()
 		if (is_bit_changed(read_buffer, read_buffer_old, button.bit))
 		{
 			Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " button bit changed " << std::endl;
-			if (get_bit_value(read_buffer, button.bit))
+			if (get_bit_value(read_buffer, button.bit) && config.push_actions.find(button.config_name.c_str()) != config.push_actions.end())
 			{
-				if (config.push_actions.find(button.config_name.c_str()) != config.push_actions.end())
+				for (auto act : config.push_actions[button.config_name.c_str()])
 				{
-					for (auto act : config.push_actions[button.config_name.c_str()])
-					{
-						Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " button push action called" << std::endl;
-						ActionQueue::get_instance()->push(act);
-					}
-				}
-
-				/* read rotation switch */
-				for (auto display : panel_displays)
-				{
-					if (config.multi_displays.count(display.config_name) > 0 && config.multi_displays[display.config_name] != NULL && config.multi_displays[display.config_name]->is_registered_selector(button.config_name))
-					{
-						Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " mode selector switch for " << display.config_name << " is activated" << std::endl;
-						config.multi_displays[display.config_name]->set_condition_active(button.config_name);
-					}
+					Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " button push action called" << std::endl;
+					ActionQueue::get_instance()->push(act);
 				}
 			}
 			else if (!get_bit_value(read_buffer, button.bit) && config.release_actions.find(button.config_name.c_str()) != config.release_actions.end())
@@ -282,6 +322,7 @@ void UsbHidDevice::thread_func()
 			continue;
 		}
 		process_and_store_button_states();
+		process_selector_switch();
 		memcpy(read_buffer_old, read_buffer, read_buffer_size);
 	}
 }
