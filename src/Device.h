@@ -16,6 +16,7 @@ class Device
 protected:
 	Configuration config;
 public:
+	std::thread* thread_handle = NULL;
 	Device(Configuration &_config);
 	virtual void stop(int time_out)=0;
 	virtual void thread_func(void)=0;

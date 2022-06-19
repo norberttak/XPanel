@@ -56,8 +56,6 @@ int init_and_start_xpanel_plugin();
 lua_State* lua;
 std::vector<Configuration> config;
 std::vector<Device*> devices;
-std::thread* t_multi = NULL;
-std::thread* t_home = NULL;
 const float FLIGHT_LOOP_TIME_PERIOD = 0.2;
 
 int g_menu_container_idx;
@@ -142,7 +140,7 @@ void stop_and_clear_xpanel_plugin()
 		if (dev != NULL)
 		{
 			dev->stop(500);
-			dev->release();		
+			dev->release();			
 		}
 	}	
 	devices.clear();
@@ -190,7 +188,7 @@ int init_and_start_xpanel_plugin(void)
 			devices.push_back(device);
 			device->connect();
 			device->start();
-			t_multi = new std::thread(&SaitekMultiPanel::thread_func, (SaitekMultiPanel*)device);
+			device->thread_handle = new std::thread(&SaitekMultiPanel::thread_func, (SaitekMultiPanel*)device);
 			break;
 		case DeviceType::HOME_COCKPIT:
 			// set default vid & pid if it's not set in config file
@@ -203,7 +201,7 @@ int init_and_start_xpanel_plugin(void)
 			devices.push_back(device);
 			device->connect();
 			device->start();
-			t_home = new std::thread(&ArduinoHomeCockpit::thread_func, (ArduinoHomeCockpit*)device);
+			device->thread_handle = new std::thread(&ArduinoHomeCockpit::thread_func, (ArduinoHomeCockpit*)device);
 			break;
 		default:
 			Logger(TLogLevel::logERROR) << "unknown device type" << std::endl;
