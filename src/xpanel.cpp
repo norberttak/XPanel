@@ -50,6 +50,9 @@ BOOL APIENTRY DllMain(HANDLE hModule,
 #endif
 
 float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon);
+void stop_and_clear_xpanel_plugin();
+int init_and_start_xpanel_plugin();
+int reload_xpanel_plugin();
 
 lua_State* lua;
 std::vector<Configuration> config;
@@ -57,6 +60,14 @@ std::vector<Device*> devices;
 std::thread* t_multi = NULL;
 std::thread* t_home = NULL;
 const float FLIGHT_LOOP_TIME_PERIOD = 0.2;
+
+int g_menu_container_idx;
+XPLMMenuID g_menu_id;
+void menu_handler(void*, void*);
+
+typedef enum {
+	MENU_ITEM_RELOAD
+} MenuItemType;
 
 PLUGIN_API int XPluginStart(
 	char* outName,
@@ -67,10 +78,14 @@ PLUGIN_API int XPluginStart(
 	Logger(TLogLevel::logINFO) << "plugin start" << std::endl;
 	lua = luaL_newstate();
 	luaL_openlibs(lua);
-	
+
 	strcpy_s(outName, 16, "XPanel ver 1.0");
 	strcpy_s(outSig, 16, "xpanel");
 	strcpy_s(outDesc, 64, "A plugin to handle control devices using hidapi interface");
+
+	g_menu_container_idx = XPLMAppendMenuItem(XPLMFindPluginsMenu(), "XPanel", 0, 0);
+	g_menu_id = XPLMCreateMenu("XPanel Plugin", XPLMFindPluginsMenu(), g_menu_container_idx, menu_handler, NULL);
+	XPLMAppendMenuItem(g_menu_id, "Reload Plugin", (void*)MenuItemType::MENU_ITEM_RELOAD, 1);
 
 	return 1;
 }
@@ -78,30 +93,16 @@ PLUGIN_API int XPluginStart(
 PLUGIN_API void	XPluginStop(void)
 {
 	Logger(TLogLevel::logINFO) << "plugin stop called" << std::endl;
-
-	XPLMUnregisterFlightLoopCallback(flight_loop_callback, NULL);
-
-	for (auto dev : devices)
-	{
-		if (dev != NULL)
-		{			
-			dev->stop(0);
-			dev->release();
-			delete dev;
-			dev = NULL;
-		}
-	}
-	devices.clear();
-
-	lua_close(lua);
+	stop_and_clear_xpanel_plugin();
+	XPLMDestroyMenu(g_menu_id);
 }
 
-PLUGIN_API void XPluginDisable(void) 
+PLUGIN_API void XPluginDisable(void)
 {
 	Logger(TLogLevel::logINFO) << "plugin disable called" << std::endl;
 }
 
-PLUGIN_API int  XPluginEnable(void) 
+PLUGIN_API int  XPluginEnable(void)
 {
 	Logger(TLogLevel::logINFO) << "plugin enable called" << std::endl;
 	return 1;
@@ -109,9 +110,9 @@ PLUGIN_API int  XPluginEnable(void)
 
 float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon)
 {
-	// check ans set LED states
 	for (auto it : config)
 	{
+		// check and set LED states
 		for (auto triggers : it.light_triggers)
 		{
 			for (auto trigger : triggers.second)
@@ -119,7 +120,7 @@ float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 				trigger->evaluate_and_store_action();
 			}
 		}
-
+		// check and set 7 segment display states
 		for (auto display : it.multi_displays)
 		{
 			display.second->evaluate_and_store_dataref_value();
@@ -129,6 +130,25 @@ float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 	// process button push/release events
 	ActionQueue::get_instance()->activate_actions_in_queue();
 	return FLIGHT_LOOP_TIME_PERIOD;
+}
+
+void stop_and_clear_xpanel_plugin()
+{
+	XPLMUnregisterFlightLoopCallback(flight_loop_callback, NULL);
+
+	for (auto dev : devices)
+	{
+		if (dev != NULL)
+		{
+			dev->stop(0);
+			dev->release();
+			delete dev;
+			dev = NULL;
+		}
+	}
+	devices.clear();
+
+	lua_close(lua);
 }
 
 int init_and_start_xpanel_plugin(void)
@@ -142,7 +162,7 @@ int init_and_start_xpanel_plugin(void)
 	lua_setglobal(lua, "AIRCRAFT_FILENAME");
 	lua_pushstring(lua, aircraft_path);
 	lua_setglobal(lua, "AIRCRAFT_PATH");
-	
+
 	std::filesystem::path init_path = std::filesystem::path(aircraft_path);
 	init_path = init_path.remove_filename();
 	init_path /= "xpanel.ini";
@@ -168,7 +188,7 @@ int init_and_start_xpanel_plugin(void)
 				it.pid = 0x0d06;
 			Logger(TLogLevel::logDEBUG) << "add new saitek multi panel device" << std::endl;
 			device = new SaitekMultiPanel(it);
-			devices.push_back(device);		
+			devices.push_back(device);
 			device->connect();
 			device->start();
 			t_multi = new std::thread(&SaitekMultiPanel::thread_func, (SaitekMultiPanel*)device);
@@ -179,14 +199,14 @@ int init_and_start_xpanel_plugin(void)
 				it.vid = 0x2341;
 			if (it.pid == 0)
 				it.pid = 0x8036;
-			Logger(TLogLevel::logDEBUG) << "add new homecockpit device" << std::endl;			
+			Logger(TLogLevel::logDEBUG) << "add new homecockpit device" << std::endl;
 			device = new ArduinoHomeCockpit(it);
 			devices.push_back(device);
 			device->connect();
 			device->start();
 			t_home = new std::thread(&ArduinoHomeCockpit::thread_func, (ArduinoHomeCockpit*)device);
 			break;
-		default:		
+		default:
 			Logger(TLogLevel::logERROR) << "unknown device type" << std::endl;
 			return 0;
 			break;
@@ -198,15 +218,15 @@ int init_and_start_xpanel_plugin(void)
 	return 1;
 }
 
-PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inParam) 
+PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inParam)
 {
-	if (inFrom == XPLM_PLUGIN_XPLANE) 
+	if (inFrom == XPLM_PLUGIN_XPLANE)
 	{
 		switch (inMsg) {
 		case XPLM_MSG_AIRPORT_LOADED:
 			if (init_and_start_xpanel_plugin() != 1)
 			{
-				Logger(TLogLevel::logERROR) << "error during plugin init and start" << std::endl;				
+				Logger(TLogLevel::logERROR) << "error during plugin init and start" << std::endl;
 			}
 			break;
 		case XPLM_MSG_PLANE_CRASHED:
@@ -216,5 +236,23 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inPa
 		default:
 			break;
 		}
+	}
+}
+
+void menu_handler(void* in_menu_ref, void* in_item_ref)
+{
+	MenuItemType menu_item = *(MenuItemType*)in_item_ref;
+
+	switch (menu_item)
+	{
+	case MenuItemType::MENU_ITEM_RELOAD:
+		Logger(TLogLevel::logINFO) << "Reload plugin initiated" << std::endl;
+		stop_and_clear_xpanel_plugin();
+		init_and_start_xpanel_plugin();
+		Logger(TLogLevel::logDEBUG) << "Plugin reloaded" << std::endl;
+		break;
+	default:
+		//
+		break;
 	}
 }
