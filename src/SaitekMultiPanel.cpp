@@ -73,10 +73,21 @@ int SaitekMultiPanel::connect()
 
 void SaitekMultiPanel::start()
 {
+	Logger(TLogLevel::logDEBUG) << "SaitekMultiPanel::start called" << std::endl;
 	UsbHidDevice::start();
 }
 
 void SaitekMultiPanel::stop(int timeout)
 {
+	Logger(TLogLevel::logDEBUG) << "SaitekMultiPanel::stop called" << std::endl;
+
+	// Blank the dispay before exit
+	unsigned char buff[13] = {0,15,15,15,15,15,15,15,15,15,15,0,0};
+	if (write_device(buff, sizeof(buff)) != EXIT_SUCCESS)
+	{
+		Logger(TLogLevel::logERROR) << "SaitekMultiPanel stop. error in write_device" << std::endl;
+		return;
+	}
+
 	UsbHidDevice::stop(timeout);
 }

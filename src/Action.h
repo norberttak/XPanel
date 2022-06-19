@@ -54,6 +54,7 @@ public:
 	static ActionQueue* get_instance();
 	void push(Action* act);
 	void activate_actions_in_queue();
+	void clear_all_actions();
 };
 
 

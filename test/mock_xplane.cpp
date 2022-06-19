@@ -4,6 +4,7 @@
 #include "XPLMDataAccess.h"
 #include "XPLMUtilities.h"
 #include "XPLMMenus.h"
+#include "XPLMProcessing.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -13,6 +14,50 @@
 
 std::map<std::string, int> internal_dataref;
 std::map<std::string, int> internal_command_ref;
+
+XPLMFlightLoop_f registered_flight_loop;
+XPLMMenuHandler_f menu_handler = NULL;
+
+char test_aircraft_file_name[256];
+char test_aircraft_path[512];
+void test_set_aircraft_path_and_filename(char* file_name, char* path)
+{
+	strcpy(test_aircraft_file_name, file_name);
+	strcpy(test_aircraft_path, path);
+}
+
+extern void XPLMGetNthAircraftModel(int inIndex, char *outFileName, char *outPath)
+{
+	strcpy(outFileName, test_aircraft_file_name);
+	strcpy(outPath, test_aircraft_path);
+}
+
+extern XPLMMenuID XPLMFindPluginsMenu()
+{
+	return NULL;
+}
+
+extern int XPLMAppendMenuItem(XPLMMenuID inMenu, const char* inItemName, void* inItemRef, int inDeprecated)
+{
+	return 0;
+}
+
+extern XPLMMenuID XPLMCreateMenu(const char* inName, XPLMMenuID inParentMenu, int inParentItem, XPLMMenuHandler_f inHandler, void* inMenuRef)
+{
+	menu_handler = inHandler;
+	return 0;
+}
+
+extern void XPLMDestroyMenu(XPLMMenuID inMenuID)
+{
+
+}
+
+void test_call_menu_handler(XPLMMenuID inMenuID, void* menuRef, void* itemRef)
+{
+	if (menu_handler != NULL)
+		(*menu_handler)(menuRef, itemRef);
+}
 
 extern XPLMDataTypeID XPLMGetDataRefTypes(XPLMDataRef inDataRef)
 {
@@ -135,6 +180,22 @@ extern void XPLMCommandOnce(XPLMCommandRef command_ref)
 			break;
 		}
 	}
+}
+
+extern void XPLMRegisterFlightLoopCallback(XPLMFlightLoop_f inFlightLoop, float inInterval, void* inRefcon)
+{
+	registered_flight_loop = inFlightLoop;
+}
+
+extern void XPLMUnregisterFlightLoopCallback(XPLMFlightLoop_f inFlightLoop, void* inRefcon)
+{
+	registered_flight_loop = NULL;
+}
+
+void test_call_registered_flight_loop()
+{
+	if (registered_flight_loop != NULL)
+		(*registered_flight_loop)(1, 1, 1, NULL);
 }
 
 void test_flight_loop(std::vector<Configuration> config)

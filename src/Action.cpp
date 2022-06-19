@@ -156,8 +156,16 @@ void ActionQueue::activate_actions_in_queue()
 	while (!action_queue.empty())
 	{
 		action_queue.front()->activate();
-		action_queue.pop();
+		action_queue.pop();		
 	}
 
+	guard.unlock();
+}
+
+void ActionQueue::clear_all_actions()
+{
+	guard.lock();
+	while (action_queue.size())
+		action_queue.pop();
 	guard.unlock();
 }

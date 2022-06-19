@@ -51,6 +51,6 @@ namespace test
 		{
 			Assert::AreEqual(1, (int)config[0].push_actions["TEST"].size());
 			Assert::AreEqual(0, (int)config[0].release_actions.count("TEST"));
-		}
+		}	
 	};
 }

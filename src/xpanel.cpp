@@ -52,7 +52,6 @@ BOOL APIENTRY DllMain(HANDLE hModule,
 float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon);
 void stop_and_clear_xpanel_plugin();
 int init_and_start_xpanel_plugin();
-int reload_xpanel_plugin();
 
 lua_State* lua;
 std::vector<Configuration> config;
@@ -66,8 +65,10 @@ XPLMMenuID g_menu_id;
 void menu_handler(void*, void*);
 
 typedef enum {
-	MENU_ITEM_RELOAD
+	MENU_ITEM_RELOAD = 0
 } MenuItemType;
+
+MenuItemType menu_item_reload = MenuItemType::MENU_ITEM_RELOAD;
 
 PLUGIN_API int XPluginStart(
 	char* outName,
@@ -85,7 +86,7 @@ PLUGIN_API int XPluginStart(
 
 	g_menu_container_idx = XPLMAppendMenuItem(XPLMFindPluginsMenu(), "XPanel", 0, 0);
 	g_menu_id = XPLMCreateMenu("XPanel Plugin", XPLMFindPluginsMenu(), g_menu_container_idx, menu_handler, NULL);
-	XPLMAppendMenuItem(g_menu_id, "Reload Plugin", (void*)MenuItemType::MENU_ITEM_RELOAD, 1);
+	XPLMAppendMenuItem(g_menu_id, "Reload Plugin", (void*)&menu_item_reload, 1);
 
 	return 1;
 }
@@ -140,15 +141,13 @@ void stop_and_clear_xpanel_plugin()
 	{
 		if (dev != NULL)
 		{
-			dev->stop(0);
-			dev->release();
-			delete dev;
-			dev = NULL;
+			dev->stop(500);
+			dev->release();		
 		}
-	}
+	}	
 	devices.clear();
-
-	lua_close(lua);
+	config.clear();
+	ActionQueue::get_instance()->clear_all_actions();
 }
 
 int init_and_start_xpanel_plugin(void)
@@ -173,7 +172,7 @@ int init_and_start_xpanel_plugin(void)
 	if (result != EXIT_SUCCESS)
 	{
 		Logger(TLogLevel::logERROR) << "error parsing config file" << std::endl;
-		return 0;
+		return EXIT_FAILURE;
 	}
 	Device* device;
 
@@ -208,14 +207,14 @@ int init_and_start_xpanel_plugin(void)
 			break;
 		default:
 			Logger(TLogLevel::logERROR) << "unknown device type" << std::endl;
-			return 0;
+			return EXIT_FAILURE;
 			break;
 		}
 	}
 
 	XPLMRegisterFlightLoopCallback(flight_loop_callback, FLIGHT_LOOP_TIME_PERIOD, NULL);
 	Logger(TLogLevel::logINFO) << "successful init and start plugin" << std::endl;
-	return 1;
+	return EXIT_SUCCESS;
 }
 
 PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inParam)
@@ -248,8 +247,8 @@ void menu_handler(void* in_menu_ref, void* in_item_ref)
 	case MenuItemType::MENU_ITEM_RELOAD:
 		Logger(TLogLevel::logINFO) << "Reload plugin initiated" << std::endl;
 		stop_and_clear_xpanel_plugin();
-		init_and_start_xpanel_plugin();
-		Logger(TLogLevel::logDEBUG) << "Plugin reloaded" << std::endl;
+		if (init_and_start_xpanel_plugin() != EXIT_SUCCESS)
+			Logger(TLogLevel::logERROR) << "Plugin reload error" << std::endl;
 		break;
 	default:
 		//

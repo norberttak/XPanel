@@ -19,6 +19,7 @@ UsbHidDevice::UsbHidDevice(Configuration& config, int _read_buffer_size, int _wr
 
 	if (!hid_api_initialized)
 	{
+		Logger(TLogLevel::logDEBUG) << "UsbHidDevice: call hid_init()" << std::endl;
 		hid_init();
 		hid_api_initialized = TRUE;
 	}
@@ -26,6 +27,7 @@ UsbHidDevice::UsbHidDevice(Configuration& config, int _read_buffer_size, int _wr
 
 UsbHidDevice::~UsbHidDevice()
 {
+	Logger(TLogLevel::logTRACE) << "UsbHidDevice::~UsbHidDevice() vid=" << vid << " pid=" << pid << std::endl;
 	free(read_buffer);
 	free(read_buffer_old);
 	free(write_buffer);
@@ -120,10 +122,17 @@ void UsbHidDevice::start()
 	_thread_run.store(TRUE);
 }
 
-void UsbHidDevice::stop(int time_out)
+void UsbHidDevice::stop(int time_out_msec)
 {
 	Logger(TLogLevel::logDEBUG) << "UsbHidDevice::stop" << std::endl;
 	_thread_run.store(FALSE);
+	int time_to_wait = time_out_msec;
+	while (_thread_finish.load() == FALSE && time_to_wait > 0)
+	{
+		std::this_thread::sleep_for(1ms);
+		time_to_wait--;
+	}
+	Logger(TLogLevel::logDEBUG) << "UsbHidDevice::stop. thread finish ? " << _thread_finish.load() << " remaining time=" << time_to_wait << std::endl;
 }
 
 void UsbHidDevice::register_buttons(std::vector<PanelButton>& _buttons)
@@ -290,14 +299,15 @@ void UsbHidDevice::process_and_store_button_states()
 			}
 		}
 	}
-
 }
 
 void UsbHidDevice::thread_func()
 {
-	Logger(TLogLevel::logTRACE) << "UsbHidDevice::thread_func started" << std::endl;
+	Logger(TLogLevel::logTRACE) << "UsbHidDevice::thread_func: started for vid="<<vid<<" pid="<< pid << std::endl;
 	memset(write_buffer, 0, write_buffer_size);
 	bool write_buffer_changed = false;
+
+	_thread_finish.store(false);
 
 	while (_thread_run.load() == TRUE)
 	{
@@ -310,26 +320,38 @@ void UsbHidDevice::thread_func()
 		if (write_buffer_changed)
 			if (write_device(write_buffer, write_buffer_size) == EXIT_FAILURE)
 			{
-				Logger(TLogLevel::logDEBUG) << "UsbHidDevice error writing HID device" << std::endl;
-				continue;
+				Logger(TLogLevel::logERROR) << "UsbHidDevice thread_func: error writing HID device. vid="<< vid << " pid=" << pid << std::endl;
+				break;
 			}
 
 
 		// read and handle button push/release events
 		if (read_device(read_buffer, read_buffer_size) == EXIT_FAILURE)
 		{
-			Logger(TLogLevel::logDEBUG) << "UsbHidDevice error reading HID device" << std::endl;
-			continue;
+			Logger(TLogLevel::logERROR) << "UsbHidDevice thread_func: error reading HID device. vid=" << vid << " pid=" << pid << std::endl;
+			break;
 		}
 		process_and_store_button_states();
 		process_selector_switch();
 		memcpy(read_buffer_old, read_buffer, read_buffer_size);
 	}
+	_thread_finish.store(true);
+	Logger(TLogLevel::logDEBUG) << "UsbHidDevice thread_func: exit vid=" << vid << " pid=" << pid << std::endl;
 }
 
 void UsbHidDevice::release()
 {
+	if (device_handle != NULL) 
+	{
+		Logger(TLogLevel::logDEBUG) << "UsbHidDevice::release called for vid=" << vid << " pid=" << pid << std::endl;
+		hid_close(device_handle);
+	}
+	device_handle = NULL;
+
 	Logger(TLogLevel::logDEBUG) << "UsbHidDevice release" << std::endl;
 	if (--ref_count <= 0)
+	{
+		Logger(TLogLevel::logDEBUG) << "All USB HID devices are closed. call hid_exit()" << std::endl;
 		hid_exit();
+	}
 }

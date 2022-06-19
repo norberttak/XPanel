@@ -67,6 +67,7 @@ private:
 	std::vector<PanelLight> lights;
 	std::vector<PanelDisplay> panel_displays;
 	std::atomic<bool> _thread_run;
+	std::atomic<bool> _thread_finish;
 	unsigned char* read_buffer;
 	unsigned char* read_buffer_old;
 	unsigned char* write_buffer;

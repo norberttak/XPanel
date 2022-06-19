@@ -21,6 +21,11 @@ extern HID_API_EXPORT hid_device* HID_API_CALL hid_open(unsigned short vendor_id
 	return (hid_device*)&device;
 }
 
+void HID_API_EXPORT HID_API_CALL hid_close(hid_device* device)
+{
+	hid_device_open = true;
+}
+
 extern int HID_API_EXPORT HID_API_CALL hid_exit(void)
 {
 	hid_device_open = false;

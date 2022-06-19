@@ -217,7 +217,7 @@ namespace test
 
 			buffer[0] &= (~0x40); // set KNOB_MINUS to 0
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			std::this_thread::sleep_for(250ms);
 			test_flight_loop(config);
 			Assert::AreEqual(0, test_get_dataref_value(dataref_str.c_str()));
 		}
