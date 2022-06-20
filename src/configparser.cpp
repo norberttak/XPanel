@@ -7,7 +7,7 @@
 #include "multi_purpose_display.h"
 #include "logger.h"
 
-int Configparser::parse_file(std::string file_name, std::vector<Configuration>& config)
+int Configparser::parse_file(std::string file_name, Configuration& config)
 {
     last_error_message = "";
     std::ifstream input_file(file_name);
@@ -33,7 +33,7 @@ int Configparser::parse_file(std::string file_name, std::vector<Configuration>& 
     return EXIT_SUCCESS;
 }
 
-int Configparser::parse_line(std::string line, std::vector<Configuration>& config)
+int Configparser::parse_line(std::string line, Configuration& config)
 {
     // comments are marked by semicolumn (;)
     size_t pos = line.find(';', 0);
@@ -54,17 +54,17 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
     { 
         section_id = m[1];
 
-        Configuration* c = new Configuration();
-        config.push_back(*c);
+        DeviceConfiguration* c = new DeviceConfiguration();
+        config.device_configs.push_back(*c);
 
         if (section_id == DEVICE_TYPE_SAITEK_MULTI)
-            config.back().device_type = SAITEK_MULTI;
+            config.device_configs.back().device_type = SAITEK_MULTI;
         else if (section_id == DEVICE_TYPE_SAITEK_RADIO)
-            config.back().device_type = SAITEK_RADIO;
+            config.device_configs.back().device_type = SAITEK_RADIO;
         else if (section_id == DEVICE_TYPE_SAITEK_SWITCH)
-            config.back().device_type = SAITEK_SWITCH;
+            config.device_configs.back().device_type = SAITEK_SWITCH;
         else if (section_id == DEVICE_TYPE_ARDUINO_HOME_COCKPIT)
-            config.back().device_type = HOME_COCKPIT;
+            config.device_configs.back().device_type = HOME_COCKPIT;
         else
         {
             Logger(TLogLevel::logERROR) << "parser: uknown device type (at line " << current_line_nr << "): " << line << std::endl;
@@ -78,8 +78,8 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
 	{
 		std::stringstream ss;
 		ss << std::hex << m[1];
-		ss >> config.back().vid;
-        Logger(TLogLevel::logDEBUG) << "parser: vid="<< config.back().vid << std::endl;
+		ss >> config.device_configs.back().vid;
+        Logger(TLogLevel::logDEBUG) << "parser: vid="<< config.device_configs.back().vid << std::endl;
         return EXIT_SUCCESS;
 	}
 
@@ -87,27 +87,36 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
 	{
 		std::stringstream ss;
 		ss << std::hex << m[1];
-		ss >> config.back().pid;
-        Logger(TLogLevel::logDEBUG) << "parser: pid=" << config.back().pid << std::endl;
+		ss >> config.device_configs.back().pid;
+        Logger(TLogLevel::logDEBUG) << "parser: pid=" << config.device_configs.back().pid << std::endl;
         return EXIT_SUCCESS;
 	}
 
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_SCRIPT)))
 	{
-		config.back().script_file = m[1];
-        Logger(TLogLevel::logDEBUG) << "parser: script file=" << config.back().script_file << std::endl;
+        if (section_id != "")
+            Logger(TLogLevel::logWARNING) << "Script shall be defined in the common part of the config file!" << std::endl;
+
+		config.script_file = m[1];
+        Logger(TLogLevel::logDEBUG) << "parser: script file=" << config.script_file << std::endl;
         return EXIT_SUCCESS;
 	}
 
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ACF)))
 	{
-		config.back().aircraft_acf = m[1];
-        Logger(TLogLevel::logDEBUG) << "parser: script file=" << config.back().aircraft_acf << std::endl;
+        if (section_id != "")
+            Logger(TLogLevel::logWARNING) << "ACF file shall be defined in the common part of the config file!" << std::endl;
+
+		config.aircraft_acf = m[1];
+        Logger(TLogLevel::logDEBUG) << "parser: ACF file=" << config.aircraft_acf << std::endl;
         return EXIT_SUCCESS;
 	}
 
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_LOG_LEVEL)))
     {
+        if (section_id != "")
+            Logger(TLogLevel::logWARNING) << "Log level shall be defined in the common part of the config file!" << std::endl;
+
         TLogLevel level;
         if (m[1] == "DEBUG")
             level = TLogLevel::logDEBUG;
@@ -147,7 +156,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         }
         Action *push_action = new Action(dataRef, stoi(m[2]));
         Logger(TLogLevel::logDEBUG) << "parser: button push dataref " << m[1].str() << std::endl;
-		config.back().push_actions[section_id].push_back(push_action);
+		config.device_configs.back().push_actions[section_id].push_back(push_action);
         return EXIT_SUCCESS;
 	}
 
@@ -161,7 +170,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         }
         Action* push_action = new Action(dataRef, stoi(m[2]), stoi(m[3]));
         Logger(TLogLevel::logDEBUG) << "parser: button push dataref array " << m[1].str() << std::endl;
-        config.back().push_actions[section_id].push_back(push_action);
+        config.device_configs.back().push_actions[section_id].push_back(push_action);
         return EXIT_SUCCESS;
     }
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_RELEASE_DATAREF)))
@@ -174,7 +183,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         }
         Action* release_action = new Action(dataRef, stoi(m[2]));
         Logger(TLogLevel::logDEBUG) << "parser: button release dataref " << m[1].str() << std::endl;
-        config.back().release_actions[section_id].push_back(release_action);
+        config.device_configs.back().release_actions[section_id].push_back(release_action);
         return EXIT_SUCCESS;
     }
 
@@ -188,7 +197,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         }
         Action* release_action = new Action(dataRef, stoi(m[2]), stoi(m[3]));
         Logger(TLogLevel::logDEBUG) << "parser: button release dataref array " << m[1].str() << std::endl;
-        config.back().release_actions[section_id].push_back(release_action);
+        config.device_configs.back().release_actions[section_id].push_back(release_action);
         return EXIT_SUCCESS;
     }
 
@@ -202,7 +211,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         }
         Action* push_action = new Action(dataRef, stof(m[2]), stof(m[3]), stof(m[4]));
         Logger(TLogLevel::logDEBUG) << "parser: button push dataref " << m[1].str() << std::endl;
-        config.back().push_actions[section_id].push_back(push_action);
+        config.device_configs.back().push_actions[section_id].push_back(push_action);
         return EXIT_SUCCESS;
     }
 
@@ -216,7 +225,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         }
         Action* release_action = new Action(dataRef, stof(m[2]), stof(m[3]), stof(m[4]));
         Logger(TLogLevel::logDEBUG) << "parser: button release dataref " << m[1].str() << std::endl;
-        config.back().release_actions[section_id].push_back(release_action);
+        config.device_configs.back().release_actions[section_id].push_back(release_action);
         return EXIT_SUCCESS;
     }
 
@@ -230,7 +239,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         }
         Action* push_action = new Action(dataRef, stof(m[3]), stof(m[5]), stof(m[4]));
         push_action->add_condition(m[1]);
-        config.back().push_actions[section_id].push_back(push_action);
+        config.device_configs.back().push_actions[section_id].push_back(push_action);
         Logger(TLogLevel::logDEBUG) << "parser: button conditional push dataref. on:" << m[1].str() << " dataref:" << m[2].str() << std::endl;
         return EXIT_SUCCESS;
     }
@@ -245,7 +254,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         }
         Action* release_action = new Action(dataRef, stof(m[3]), stof(m[5]), stof(m[4]));
         release_action->add_condition(m[1]);
-        config.back().release_actions[section_id].push_back(release_action);
+        config.device_configs.back().release_actions[section_id].push_back(release_action);
         Logger(TLogLevel::logDEBUG) << "parser: button conditional release dataref. on:" << m[1].str() << " dataref:" << m[2].str() << std::endl;
         return EXIT_SUCCESS;
     }
@@ -270,7 +279,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
 
         Action* push_action = new Action(commandRef, command_type);
         Logger(TLogLevel::logDEBUG) << "parser: button push command " << m[1].str() << std::endl;
-        config.back().push_actions[section_id].push_back(push_action);
+        config.device_configs.back().push_actions[section_id].push_back(push_action);
         return EXIT_SUCCESS;
     }
 
@@ -294,7 +303,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
 
         Action* release_action = new Action(commandRef, command_type);
         Logger(TLogLevel::logDEBUG) << "parser: button release command " << m[1].str() << std::endl;
-        config.back().release_actions[section_id].push_back(release_action);
+        config.device_configs.back().release_actions[section_id].push_back(release_action);
         return EXIT_SUCCESS;
     }
 
@@ -319,7 +328,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         Action* push_action = new Action(commandRef, command_type);
         push_action->add_condition(m[1]);
         Logger(TLogLevel::logDEBUG) << "parser: button conditional ("<<m[1]<<") push command " << m[2].str() << std::endl;
-        config.back().push_actions[section_id].push_back(push_action);
+        config.device_configs.back().push_actions[section_id].push_back(push_action);
         return EXIT_SUCCESS;
     }
 
@@ -344,7 +353,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         Action* release_action = new Action(commandRef, command_type);
         release_action->add_condition(m[1]);
         Logger(TLogLevel::logDEBUG) << "parser: button conditional (" << m[1] << ") release command " << m[2].str() << std::endl;
-        config.back().release_actions[section_id].push_back(release_action);
+        config.device_configs.back().release_actions[section_id].push_back(release_action);
         return EXIT_SUCCESS;
     }
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_LIGHT)))
@@ -364,7 +373,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         }
         Trigger* lit_trigger = new Trigger(dataRef, stoi(m[2]),TriggerType::LIT);
         Logger(TLogLevel::logDEBUG) << "parser: light lit dataref " << m[1].str() << std::endl;
-        config.back().light_triggers[section_id].push_back(lit_trigger);
+        config.device_configs.back().light_triggers[section_id].push_back(lit_trigger);
         return EXIT_SUCCESS;
     }
 
@@ -378,14 +387,14 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
         }
         Trigger* unlit_trigger = new Trigger(dataRef, stoi(m[2]), TriggerType::UNLIT);
         Logger(TLogLevel::logDEBUG) << "parser: light unlit dataref " << m[1].str() << std::endl;
-        config.back().light_triggers[section_id].push_back(unlit_trigger);
+        config.device_configs.back().light_triggers[section_id].push_back(unlit_trigger);
         return EXIT_SUCCESS;
     }
 
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_MULTI_DISPLAY)))
     {
         section_id = m[1];
-        config.back().multi_displays[section_id] = new MultiPurposeDisplay();
+        config.device_configs.back().multi_displays[section_id] = new MultiPurposeDisplay();
         Logger(TLogLevel::logDEBUG) << "parser: multi display detected " << section_id << std::endl;
         return EXIT_SUCCESS;
     }
@@ -398,7 +407,7 @@ int Configparser::parse_line(std::string line, std::vector<Configuration>& confi
             Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
             return EXIT_FAILURE;
         }
-        config.back().multi_displays[section_id]->add_condition(m[1], dataRef);
+        config.device_configs.back().multi_displays[section_id]->add_condition(m[1], dataRef);
         return EXIT_SUCCESS;
     }
 

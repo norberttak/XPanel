@@ -1,6 +1,6 @@
 #include "Device.h"
 
-Device::Device(Configuration &_config)
+Device::Device(DeviceConfiguration &_config)
 {
 	config = _config;
 }

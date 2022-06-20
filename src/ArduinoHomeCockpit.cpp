@@ -2,7 +2,7 @@
 #include "ArduinoHomeCockpit.h"
 #include "UsbHidDevice.h"
 
-ArduinoHomeCockpit::ArduinoHomeCockpit(Configuration& config) :UsbHidDevice(config, 9, 9)
+ArduinoHomeCockpit::ArduinoHomeCockpit(DeviceConfiguration& config) :UsbHidDevice(config, 9, 9)
 {
 	// register B
 	arduino_buttons.push_back(PanelButton(8, "STROBE"));

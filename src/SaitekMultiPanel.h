@@ -12,7 +12,7 @@ private:
 	std::vector<PanelLight> multi_lights;
 	std::vector<PanelDisplay> multi_displays;
 public:
-	SaitekMultiPanel(Configuration &config);
+	SaitekMultiPanel(DeviceConfiguration &config);
 	int connect();
 	void start();
 	void stop(int timeout);

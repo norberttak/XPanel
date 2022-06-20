@@ -56,8 +56,8 @@ private:
 	std::string section_id = "";
 	std::string last_error_message = "";
 	int current_line_nr;
-	int parse_line(std::string line, std::vector<Configuration>& config);
+	int parse_line(std::string line, Configuration& config);
 public:
-	int parse_file(std::string file_name, std::vector<Configuration>& config);
+	int parse_file(std::string file_name, Configuration& config);
 };
 

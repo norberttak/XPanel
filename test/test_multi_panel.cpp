@@ -16,14 +16,14 @@ int test_hid_get_vid();
 int test_hid_get_pid();
 std::string test_get_last_command();
 void test_hid_get_write_data(unsigned char* data, size_t length);
-void test_flight_loop(std::vector<Configuration> config);
+void test_flight_loop(std::vector<DeviceConfiguration> config);
 
 namespace test
 {
 	TEST_CLASS(test_multi_panel)
 	{
 	private:
-		std::vector<Configuration> config;
+		Configuration config;
 		Configparser* p;
 		SaitekMultiPanel* device;
 		std::thread* t;
@@ -33,7 +33,7 @@ namespace test
 			p = new Configparser();
 			int result = p->parse_file("../../test/test-valid-config.ini", config);
 			Assert::AreEqual(0, result);
-			device = new SaitekMultiPanel(config[0]);
+			device = new SaitekMultiPanel(config.device_configs[0]);
 			device->connect();
 			device->start();
 			t = new std::thread(&SaitekMultiPanel::thread_func, (SaitekMultiPanel*)device);
@@ -51,13 +51,13 @@ namespace test
 			unsigned char buffer[4] = { 0x80,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config);
+			test_flight_loop(config.device_configs);
 			Assert::AreEqual(1, test_get_dataref_value("/sim/hello/AP"));
 
 			buffer[0] = 0;
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config);
+			test_flight_loop(config.device_configs);
 			Assert::AreEqual(0, test_get_dataref_value("/sim/hello/AP"));
 		}
 
@@ -67,14 +67,14 @@ namespace test
 			unsigned char buffer[4] = { 0,0x02,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config);
+			test_flight_loop(config.device_configs);
 			std::string last_cmd = test_get_last_command();
 			Assert::AreEqual("/sim/cmd/NAV_BEGIN", last_cmd.c_str());
 
 			memset(buffer, 0, sizeof(buffer));
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config);
+			test_flight_loop(config.device_configs);
 			last_cmd = test_get_last_command();
 			Assert::AreEqual("/sim/cmd/NAV_END", last_cmd.c_str());
 		}
@@ -85,7 +85,7 @@ namespace test
 			unsigned char buffer[4] = { 0,0,0x08,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config);
+			test_flight_loop(config.device_configs);
 			int val_after = test_get_dataref_value("sim/custom/switchers/console/absu_pitch_wheel");
 
 			Assert::AreEqual(1, (val_after - val_before));
@@ -100,14 +100,14 @@ namespace test
 			unsigned char buffer[4] = { 0,0x01,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config);
+			test_flight_loop(config.device_configs);
 			std::string last_cmd = test_get_last_command();
 			Assert::AreNotEqual("/sim/cmd/HDG_ONCE", last_cmd.c_str());
 
 			memset(buffer, 0, sizeof(buffer));
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config);
+			test_flight_loop(config.device_configs);
 			last_cmd = test_get_last_command();
 			Assert::AreEqual("/sim/cmd/HDG_ONCE", last_cmd.c_str());
 		}
@@ -117,7 +117,7 @@ namespace test
 			XPLMDataRef dataref = XPLMFindDataRef("sim/custom/lights/button/absu_stab_h");
 			// ALT button light set to LIT
 			XPLMSetDatai(dataref, 1);
-			test_flight_loop(config); // evaluate triggers
+			test_flight_loop(config.device_configs); // evaluate triggers
 			std::this_thread::sleep_for(150ms);
 			unsigned char write_buffer[13];
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
@@ -125,7 +125,7 @@ namespace test
 
 			// ALT button light set to UNLIT
 			XPLMSetDatai(dataref, 0);
-			test_flight_loop(config); // evaluate triggers
+			test_flight_loop(config.device_configs); // evaluate triggers
 			std::this_thread::sleep_for(150ms);
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
 			Assert::AreEqual(0x00, (int)write_buffer[11]);
@@ -136,7 +136,7 @@ namespace test
 			XPLMDataRef dataref = XPLMFindDataRef("sim/custom/lights/button/absu_zk");
 			// HDG button light set to LIT
 			XPLMSetDatai(dataref, 1);
-			test_flight_loop(config); // evaluate triggers
+			test_flight_loop(config.device_configs); // evaluate triggers
 			std::this_thread::sleep_for(150ms);
 			unsigned char write_buffer[13];
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
@@ -144,7 +144,7 @@ namespace test
 
 			// HDG button light set to UNLIT
 			XPLMSetDatai(dataref, 0);
-			test_flight_loop(config); // evaluate triggers
+			test_flight_loop(config.device_configs); // evaluate triggers
 			std::this_thread::sleep_for(150ms);
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
 			Assert::AreEqual(0x00, (int)write_buffer[11]);
@@ -152,7 +152,7 @@ namespace test
 
 		TEST_METHOD(TestMultiDisplayConfig)
 		{
-			Assert::AreEqual(2, (int)config[0].multi_displays.size());
+			Assert::AreEqual(2, (int)config.device_configs[0].multi_displays.size());
 		}
 
 		TEST_METHOD(TestMultiDisplay)
@@ -165,7 +165,7 @@ namespace test
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 
-			test_flight_loop(config);
+			test_flight_loop(config.device_configs);
 			std::this_thread::sleep_for(150ms);
 
 			unsigned char write_buffer[13];
@@ -177,7 +177,7 @@ namespace test
 			Assert::AreEqual(5, (int)write_buffer[5]);
 
 			XPLMSetDatai(dataref, 0);
-			test_flight_loop(config);
+			test_flight_loop(config.device_configs);
 			std::this_thread::sleep_for(150ms);
 
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
@@ -200,25 +200,25 @@ namespace test
 			buffer[0] |= 0x20; // set KNOB_PLUS to 1
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config);
+			test_flight_loop(config.device_configs);
 			Assert::AreEqual(1, test_get_dataref_value(dataref_str.c_str()));
 
 			buffer[0] &= (~0x20); // set KNOB_PLUS to 0
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config);
+			test_flight_loop(config.device_configs);
 			Assert::AreEqual(1, test_get_dataref_value(dataref_str.c_str()));
 
 			buffer[0] |= 0x40; // set KNOB_MINUS to 1
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config);
+			test_flight_loop(config.device_configs);
 			Assert::AreEqual(0, test_get_dataref_value(dataref_str.c_str()));
 
 			buffer[0] &= (~0x40); // set KNOB_MINUS to 0
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(250ms);
-			test_flight_loop(config);
+			test_flight_loop(config.device_configs);
 			Assert::AreEqual(0, test_get_dataref_value(dataref_str.c_str()));
 		}
 

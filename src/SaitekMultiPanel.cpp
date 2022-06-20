@@ -3,7 +3,7 @@
 #include "SaitekMultiPanel.h"
 #include "logger.h"
 
-SaitekMultiPanel::SaitekMultiPanel(Configuration& config) :UsbHidDevice(config, 4, 13)
+SaitekMultiPanel::SaitekMultiPanel(DeviceConfiguration& config) :UsbHidDevice(config, 4, 13)
 {
 
 	// mode selector switch

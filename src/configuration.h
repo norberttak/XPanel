@@ -7,6 +7,24 @@
 #include "trigger.h"
 #include "multi_purpose_display.h"
 
+class DeviceConfiguration;
+
+/*------ Plugin level configuration options ------------*/
+class Configuration
+{
+public:
+	~Configuration();
+	Configuration& operator=(const Configuration& other);
+	void clear();
+
+	std::string version = "";
+	std::string aircraft_acf = "";
+	std::string script_file = "";
+
+	std::vector<DeviceConfiguration> device_configs;
+};
+
+/* ----------- Device specific configuration options ------------------*/
 typedef enum {
 	UNKNOWN_DEVICE_TYPE,
 	SAITEK_MULTI,
@@ -15,17 +33,14 @@ typedef enum {
 	HOME_COCKPIT
 } DeviceType;
 
-class Configuration
+class DeviceConfiguration
 {
 public:
-	~Configuration();
-	Configuration& operator=(const Configuration& other);
+	~DeviceConfiguration();
+	DeviceConfiguration& operator=(const DeviceConfiguration& other);
 	DeviceType device_type = UNKNOWN_DEVICE_TYPE;
 	unsigned int vid = 0;
 	unsigned int pid = 0;
-	std::string version = "";
-	std::string aircraft_acf = "";
-	std::string script_file = "";
 	std::map<std::string, std::list<Action*>> push_actions;
 	std::map<std::string, std::list<Action*>> release_actions;
 	std::map<std::string, std::list<Trigger*>> light_triggers;

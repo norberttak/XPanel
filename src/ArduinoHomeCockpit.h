@@ -7,7 +7,7 @@ class ArduinoHomeCockpit :public UsbHidDevice
 private:
 	std::vector<PanelButton> arduino_buttons;
 public:
-	ArduinoHomeCockpit(Configuration& config);
+	ArduinoHomeCockpit(DeviceConfiguration& config);
 	int connect();
 	void start();
 	void stop(int timeout);
