@@ -54,7 +54,7 @@ void stop_and_clear_xpanel_plugin();
 int init_and_start_xpanel_plugin();
 
 lua_State* lua;
-std::vector<Configuration> config;
+Configuration config;
 std::vector<Device*> devices;
 const float FLIGHT_LOOP_TIME_PERIOD = 0.2;
 
@@ -108,8 +108,8 @@ PLUGIN_API int  XPluginEnable(void)
 }
 
 float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon)
-{
-	for (auto it : config)
+{	
+	for (auto it : config.device_configs)
 	{
 		// check and set LED states
 		for (auto triggers : it.light_triggers)
@@ -172,9 +172,15 @@ int init_and_start_xpanel_plugin(void)
 		Logger(TLogLevel::logERROR) << "error parsing config file" << std::endl;
 		return EXIT_FAILURE;
 	}
+
+	if (!config.aircraft_acf.compare(aircraft_file_name))
+	{
+		Logger(TLogLevel::logWARNING) << "Script was created for another aircraft (" << config.aircraft_acf << "). Current is " << aircraft_file_name << std::endl;
+		//return EXIT_FAILURE;
+	}
 	Device* device;
 
-	for (auto it : config)
+	for (auto it : config.device_configs)
 	{
 		switch (it.device_type) {
 		case DeviceType::SAITEK_MULTI:

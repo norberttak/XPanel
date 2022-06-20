@@ -4,7 +4,7 @@
 int UsbHidDevice::ref_count = 0;
 bool UsbHidDevice::hid_api_initialized = FALSE;
 
-UsbHidDevice::UsbHidDevice(Configuration& config, int _read_buffer_size, int _write_buffer_size) :Device(config)
+UsbHidDevice::UsbHidDevice(DeviceConfiguration& config, int _read_buffer_size, int _write_buffer_size) :Device(config)
 {
 	read_buffer = (unsigned char*)calloc(_read_buffer_size, sizeof(unsigned char));
 	read_buffer_old = (unsigned char*)calloc(_read_buffer_size, sizeof(unsigned char));

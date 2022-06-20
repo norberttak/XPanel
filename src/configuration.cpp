@@ -1,6 +1,33 @@
 #include "configuration.h"
 
+/*------ Plugin level configuration options ------------*/
 Configuration& Configuration::operator=(const Configuration& other)
+{
+	if (this == &other)
+		return *this;
+	aircraft_acf = other.aircraft_acf;
+	script_file = other.script_file;
+	version = other.version;
+
+	device_configs = other.device_configs;
+}
+
+void Configuration::clear()
+{
+	aircraft_acf = "";
+	script_file = "";
+	version = "";
+
+	device_configs.clear();
+}
+
+Configuration::~Configuration()
+{
+	device_configs.clear();
+}
+
+/* ----------- Device specific configuration options ------------------*/
+DeviceConfiguration& DeviceConfiguration::operator=(const DeviceConfiguration& other)
 {
 	if (this == &other)
 		return *this;
@@ -8,9 +35,6 @@ Configuration& Configuration::operator=(const Configuration& other)
 	device_type = other.device_type;
 	pid = other.pid;
 	vid = other.vid;
-	version = other.version;
-	aircraft_acf = other.aircraft_acf;
-	script_file = other.script_file;
 	push_actions = other.push_actions;
 	release_actions = other.release_actions;
 	light_triggers = other.light_triggers;
@@ -19,7 +43,7 @@ Configuration& Configuration::operator=(const Configuration& other)
 	return *this;
 }
 
-Configuration::~Configuration()
+DeviceConfiguration::~DeviceConfiguration()
 {
 	for (auto act : push_actions)
 		act.second.clear();

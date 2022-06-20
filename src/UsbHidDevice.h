@@ -46,7 +46,7 @@ struct PanelDisplay
 class UsbHidDevice : public Device
 {
 public:
-	UsbHidDevice(Configuration &config, int _read_buffer_size, int _write_buffer_size);
+	UsbHidDevice(DeviceConfiguration &config, int _read_buffer_size, int _write_buffer_size);
 	~UsbHidDevice();
 	virtual void thread_func();
 protected:
