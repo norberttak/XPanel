@@ -75,9 +75,7 @@ PLUGIN_API int XPluginStart(
 {
 	Logger::set_log_level(TLogLevel::logINFO);
 	Logger(TLogLevel::logINFO) << "plugin start" << std::endl;
-	lua = luaL_newstate();
-	luaL_openlibs(lua);
-
+	
 	strcpy_s(outName, 16, "XPanel ver 1.0");
 	strcpy_s(outSig, 16, "xpanel");
 	strcpy_s(outDesc, 64, "A plugin to handle control devices using hidapi interface");
@@ -134,7 +132,8 @@ float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 void stop_and_clear_xpanel_plugin()
 {
 	XPLMUnregisterFlightLoopCallback(flight_loop_callback, NULL);
-
+	lua_close(lua);
+	
 	for (auto dev : devices)
 	{
 		if (dev != NULL)
@@ -154,6 +153,9 @@ int init_and_start_xpanel_plugin(void)
 	char aircraft_path[512];
 	XPLMGetNthAircraftModel(0, aircraft_file_name, aircraft_path);
 	Logger(TLogLevel::logINFO) << "aircraft file name: " << aircraft_file_name << std::endl;
+
+	lua = luaL_newstate();
+	luaL_openlibs(lua);
 
 	lua_pushstring(lua, aircraft_file_name);
 	lua_setglobal(lua, "AIRCRAFT_FILENAME");
