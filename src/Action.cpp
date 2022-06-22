@@ -1,4 +1,5 @@
 #include "Action.h"
+#include "lua_helper.h"
 #include "XPLMUtilities.h"
 #include "XPLMProcessing.h"
 #include "logger.h"
@@ -41,9 +42,9 @@ Action::Action(XPLMDataRef dat, float _delta, float _max, float _min)
 	min = _min;
 }
 
-Action::Action(std::string lua_str)
+Action::Action(std::string _lua_str)
 {
-	lua_str = lua_str;
+	lua_str = _lua_str;
 }
 
 Action::~Action()
@@ -121,7 +122,9 @@ void Action::activate()
 
 	if (!lua_str.empty())
 	{
-		//
+		Logger(TLogLevel::logTRACE) << "activate lua action: " << lua_str << std::endl;
+		if (LuaHelper::get_instace()->do_string(lua_str) == EXIT_FAILURE)
+			Logger(TLogLevel::logERROR) << "Error while execute lua string: " << lua_str << std::endl;
 	}
 }
 

@@ -6,6 +6,7 @@
 
 #include "CppUnitTest.h"
 #include "SaitekMultiPanel.h"
+#include "lua_helper.h"
 #include "configparser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -33,6 +34,10 @@ namespace test
 			p = new Configparser();
 			int result = p->parse_file("../../test/test-valid-config.ini", config);
 			Assert::AreEqual(0, result);
+
+			LuaHelper::get_instace()->init();			
+			LuaHelper::get_instace()->load_script_file("../../test/" + config.script_file);
+			
 			device = new SaitekMultiPanel(config.device_configs[0]);
 			device->connect();
 			device->start();
@@ -53,12 +58,16 @@ namespace test
 			std::this_thread::sleep_for(150ms);
 			test_flight_loop(config.device_configs);
 			Assert::AreEqual(1, test_get_dataref_value("/sim/hello/AP"));
+			// this command is called by the lua script:
+			Assert::AreEqual("/sim/test/lua/button_AP_BEGIN", test_get_last_command().c_str());
 
 			buffer[0] = 0;
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 			test_flight_loop(config.device_configs);
 			Assert::AreEqual(0, test_get_dataref_value("/sim/hello/AP"));
+			// this command is called by the lua script:
+			Assert::AreEqual("/sim/test/lua/button_AP_END", test_get_last_command().c_str());
 		}
 
 		//Test a button with command begin-end action

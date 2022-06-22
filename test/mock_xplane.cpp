@@ -22,14 +22,14 @@ char test_aircraft_file_name[256];
 char test_aircraft_path[512];
 void test_set_aircraft_path_and_filename(char* file_name, char* path)
 {
-	strcpy(test_aircraft_file_name, file_name);
-	strcpy(test_aircraft_path, path);
+	strcpy_s(test_aircraft_file_name, file_name);
+	strcpy_s(test_aircraft_path, path);
 }
 
 extern void XPLMGetNthAircraftModel(int inIndex, char *outFileName, char *outPath)
 {
-	strcpy(outFileName, test_aircraft_file_name);
-	strcpy(outPath, test_aircraft_path);
+	strcpy_s(outFileName, 256, test_aircraft_file_name);
+	strcpy_s(outPath, 512, test_aircraft_path);
 }
 
 extern XPLMMenuID XPLMFindPluginsMenu()
@@ -89,6 +89,11 @@ extern void XPLMSetDatai(XPLMDataRef dataref, int inValue)
 	*(int*)dataref = inValue;
 }
 
+extern void XPLMSetDatad(XPLMDataRef dataref, double inValue)
+{
+	*(int*)dataref = (int)inValue;
+}
+
 extern void XPLMSetDataf(XPLMDataRef dataref, float inValue)
 {
 	*(int*)dataref = (int)inValue;
@@ -106,9 +111,33 @@ extern double XPLMGetDatad(XPLMDataRef dataref)
 	return (double)val_int;
 }
 
+extern int XPLMGetDatavi(XPLMDataRef dataref, int* inValues, int inOffset, int inCount)
+{
+	int val_int = *(int*)dataref;
+	return (double)val_int;
+}
+
+extern int XPLMGetDatavd(XPLMDataRef dataref, double* inValues, int inOffset, int inCount)
+{
+	int val_int = *(int*)dataref;
+	return (double)val_int;
+}
+
+extern int XPLMGetDatavf(XPLMDataRef dataref, float* inValues, int inOffset, int inCount)
+{
+	int val_int = *(int*)dataref;
+	return (double)val_int;
+}
+
 extern int XPLMGetDatai(XPLMDataRef dataref)
 {
 	return *(int*)dataref;
+}
+
+extern int XPLMGetDatab(XPLMDataRef dataref, void* outValue, int inOffset, int inMaxBytes)
+{
+	strncpy_s((char*)outValue, strlen((char*)dataref), (char*)dataref, inMaxBytes);
+	return 0;
 }
 
 extern void XPLMSetDatavi(XPLMDataRef dataref, int* inValues, int inOffset, int inCount)
@@ -119,6 +148,11 @@ extern void XPLMSetDatavi(XPLMDataRef dataref, int* inValues, int inOffset, int 
 int test_get_dataref_value(const char* datarefstr)
 {
 	return internal_dataref[datarefstr];
+}
+
+void test_set_dataref_value(const char* datarefstr, int value)
+{
+	internal_dataref[datarefstr] = value;
 }
 
 extern XPLMCommandRef XPLMFindCommand(const char* commandref)

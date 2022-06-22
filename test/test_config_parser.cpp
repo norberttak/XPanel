@@ -31,14 +31,14 @@ namespace test
 			Assert::IsTrue(config.device_configs[0].device_type == DeviceType::SAITEK_MULTI);
 			Assert::AreEqual(0x12AB, (int)config.device_configs[0].vid);
 			Assert::AreEqual(0x34CD, (int)config.device_configs[0].pid);
-			Assert::AreEqual("tu154-saitket-multipanel.lua", config.script_file.c_str());
+			Assert::AreEqual("test-script.lua", config.script_file.c_str());
 			Assert::AreEqual("generic.acf", config.aircraft_acf.c_str());
 		}
 
 		TEST_METHOD(TestButtonActions)
 		{
-			Assert::AreEqual(2, (int)config.device_configs[0].push_actions["AP"].size());
-			Assert::AreEqual(2, (int)config.device_configs[0].release_actions["AP"].size());
+			Assert::AreEqual(3, (int)config.device_configs[0].push_actions["AP"].size());
+			Assert::AreEqual(3, (int)config.device_configs[0].release_actions["AP"].size());
 
 			Assert::AreEqual(1, (int)config.device_configs[0].push_actions["NAV"].size());
 			Assert::AreEqual(1, (int)config.device_configs[0].release_actions["NAV"].size());

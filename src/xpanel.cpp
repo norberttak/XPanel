@@ -17,6 +17,7 @@
 #include "configuration.h"
 #include "configparser.h"
 #include "Action.h"
+#include "lua_helper.h"
 #include "logger.h"
 
 #if IBM
@@ -53,7 +54,6 @@ float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 void stop_and_clear_xpanel_plugin();
 int init_and_start_xpanel_plugin();
 
-lua_State* lua;
 Configuration config;
 std::vector<Device*> devices;
 const float FLIGHT_LOOP_TIME_PERIOD = 0.2;
@@ -124,6 +124,9 @@ float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 		}
 	}
 
+	// execute lua scrip defined flight_loop function
+	LuaHelper::get_instace()->do_flight_loop();
+
 	// process button push/release events
 	ActionQueue::get_instance()->activate_actions_in_queue();
 	return FLIGHT_LOOP_TIME_PERIOD;
@@ -132,7 +135,7 @@ float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 void stop_and_clear_xpanel_plugin()
 {
 	XPLMUnregisterFlightLoopCallback(flight_loop_callback, NULL);
-	lua_close(lua);
+	LuaHelper::get_instace()->close();
 	
 	for (auto dev : devices)
 	{
@@ -147,6 +150,15 @@ void stop_and_clear_xpanel_plugin()
 	ActionQueue::get_instance()->clear_all_actions();
 }
 
+std::filesystem::path absolute_path(std::string aircraft_path, std::string file_name)
+{
+	std::filesystem::path init_path = std::filesystem::path(aircraft_path);
+	init_path = init_path.remove_filename();
+	init_path /= file_name;
+
+	return init_path;
+}
+
 int init_and_start_xpanel_plugin(void)
 {
 	char aircraft_file_name[256];
@@ -154,17 +166,7 @@ int init_and_start_xpanel_plugin(void)
 	XPLMGetNthAircraftModel(0, aircraft_file_name, aircraft_path);
 	Logger(TLogLevel::logINFO) << "aircraft file name: " << aircraft_file_name << std::endl;
 
-	lua = luaL_newstate();
-	luaL_openlibs(lua);
-
-	lua_pushstring(lua, aircraft_file_name);
-	lua_setglobal(lua, "AIRCRAFT_FILENAME");
-	lua_pushstring(lua, aircraft_path);
-	lua_setglobal(lua, "AIRCRAFT_PATH");
-
-	std::filesystem::path init_path = std::filesystem::path(aircraft_path);
-	init_path = init_path.remove_filename();
-	init_path /= "xpanel.ini";
+	std::filesystem::path init_path = absolute_path(aircraft_path, "xpanel.ini");
 
 	Configparser p;
 	Logger(TLogLevel::logINFO) << "parse config file: " << init_path.string() << std::endl;
@@ -175,11 +177,28 @@ int init_and_start_xpanel_plugin(void)
 		return EXIT_FAILURE;
 	}
 
-	if (!config.aircraft_acf.compare(aircraft_file_name))
+	if (config.aircraft_acf.compare(aircraft_file_name))
 	{
-		Logger(TLogLevel::logWARNING) << "Script was created for another aircraft (" << config.aircraft_acf << "). Current is " << aircraft_file_name << std::endl;
+		Logger(TLogLevel::logWARNING) << "Config was created for another aircraft (" << config.aircraft_acf << "). Current is " << aircraft_file_name << std::endl;
 		//return EXIT_FAILURE;
 	}
+
+	LuaHelper::get_instace()->init();
+	LuaHelper::get_instace()->push_global_string("AIRCRAFT_FILENAME", aircraft_file_name);
+	LuaHelper::get_instace()->push_global_string("AIRCRAFT_PATH", aircraft_path);
+
+	std::filesystem::path script_path;
+	if (config.script_file != "")
+		script_path = absolute_path(aircraft_path, config.script_file);
+	if (std::filesystem::exists(script_path))
+	{
+		if (LuaHelper::get_instace()->load_script_file(script_path.string()) != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "Error loading Lua script: " << config.script_file << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+
 	Device* device;
 
 	for (auto it : config.device_configs)

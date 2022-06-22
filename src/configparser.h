@@ -9,6 +9,7 @@ private:
 	const std::string RE_FLOAT = "([+-]*[0-9\\.]+)";
 	const std::string RE_INT = "([+-]*[0-9]+)";
 	const std::string RE_REF = "([a-zA-Z0-9\\/\\[\\]_-]+)";
+	const std::string RE_LUA = "(.+)";
 
 	const std::string DEVICE_TYPE_SAITEK_MULTI = "saitek_multi";
 	const std::string DEVICE_TYPE_SAITEK_RADIO = "saitek_radio";
@@ -29,19 +30,23 @@ private:
 	const std::string TOKEN_BUTTON_PUSH_DATAREF_ARRAY = "on_push=\"dataref:"+RE_REF+"\\["+RE_INT+"\\]:"+RE_INT+"\"";
 	const std::string TOKEN_BUTTON_PUSH_SCRIPT = "on_push=\"script:([a-zA-Z0-9/\\(\\)_-]+)";
 	const std::string TOKEN_BUTTON_PUSH_COMMANDREF = "on_push=\"commandref:"+RE_REF+":([begin|end|once]*)\"";
+	const std::string TOKEN_BUTTON_PUSH_LUA = "on_push=\"lua:" + RE_LUA+"\"";
 
 	const std::string TOKEN_BUTTON_RELEASE_DATAREF = "on_release=\"dataref:"+RE_REF+":"+RE_INT+"\"";
 	const std::string TOKEN_BUTTON_RELEASE_DATAREF_ARRAY = "on_release=\"dataref:"+RE_REF+"\\["+RE_INT+"\\]:"+RE_INT+"\"";
 	const std::string TOKEN_BUTTON_RELEASE_SCRIPT = "on_release=\"script:([a-zA-Z0-9/\\(\\)_]+)";
 	const std::string TOKEN_BUTTON_RELEASE_COMMANDREF = "on_release=\"commandref:"+RE_REF+":([begin|end|once]*)\"";
-	
+	const std::string TOKEN_BUTTON_RELEASE_LUA = "on_release=\"lua:" + RE_LUA + "\"";
+
 	const std::string TOKEN_BUTTON_PUSH_DATAREF_CHANGE = "on_push=\"dataref:"+RE_REF+":"+RE_FLOAT+":"+RE_FLOAT+":"+RE_FLOAT+"\"";
 	const std::string TOKEN_BUTTON_RELEASE_DATAREF_CHANGE = "on_release=\"dataref:"+RE_REF+":"+RE_FLOAT+":"+RE_FLOAT+":"+RE_FLOAT+"\"";
 
 	const std::string TOKEN_CONDITIONAL_PUSH_DATAREF_CHANGE = "on_push=\"on_select:([a-zA-Z0-9_-]+),dataref:" + RE_REF + ":" + RE_FLOAT + ":" + RE_FLOAT + ":" + RE_FLOAT + "\"";
 	const std::string TOKEN_CONDITIONAL_PUSH_COMMANDREF = "on_push=\"on_select:([a-zA-Z0-9_-]+),commandref:" + RE_REF + ":([begin|end|once]*)\"";
+	const std::string TOKEN_CONDITIONAL_PUSH_LUA = "on_push=\"on_select:([a-zA-Z0-9_-]+),lua:" + RE_LUA + "\"";
 	const std::string TOKEN_CONDITIONAL_RELEASE_DATAREF_CHANGE = "on_release=\"on_select:([a-zA-Z0-9_-]+),dataref:" + RE_REF + ":" + RE_FLOAT + ":" + RE_FLOAT + ":" + RE_FLOAT + "\"";
 	const std::string TOKEN_CONDITIONAL_RELEASE_COMMANDREF = "on_release=\"on_select:([a-zA-Z0-9_-]+),commandref:" + RE_REF + ":([begin|end|once]*)\"";
+	const std::string TOKEN_CONDITIONAL_RELEASE_LUA = "on_release=\"on_select:([a-zA-Z0-9_-]+),lua:" + RE_LUA + "\"";
 
 	// Button light
 	const std::string TOKEN_LIGHT = "\\[light:id=\"([a-zA-Z0-9_-]+)\"\\]";

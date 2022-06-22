@@ -66,7 +66,10 @@
     <ClCompile Include="..\src\xpanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mock_lua.cpp">
+    <ClCompile Include="..\src\lua_helper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test_lua.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

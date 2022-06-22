@@ -23,7 +23,7 @@ public:
 	Action(XPLMDataRef dat, int array_index, int d);
 	Action(XPLMDataRef dat, float _delta, float _max, float _min);
 	Action(XPLMCommandRef cmd, CommandType type);
-	Action(std::string lua_str);
+	Action(std::string _lua_str);
 	~Action();
 	void add_condition(std::string _condition);
 	void set_condition_active(std::string _active_condition);

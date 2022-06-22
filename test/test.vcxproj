@@ -104,8 +104,14 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration);$(SolutionDir)\SDK\Libraries\Win;$(SolutionDir)\LUA;$(SolutionDir)\hidapi\lib;$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;liblua54.a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "$(SolutionDir)LUA\lua54.dll" "$(OutDir)" </Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>copy lua dll to output directory</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -161,9 +167,15 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration);$(SolutionDir)\SDK\Libraries\Win;$(SolutionDir)\LUA;$(SolutionDir)\hidapi\lib;$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;liblua54.a;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "$(SolutionDir)LUA\lua54.dll" "$(OutDir)" </Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>copy lua dll to output directory</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Action.cpp" />
@@ -172,16 +184,17 @@
     <ClCompile Include="..\src\configuration.cpp" />
     <ClCompile Include="..\src\Device.cpp" />
     <ClCompile Include="..\src\logger.cpp" />
+    <ClCompile Include="..\src\lua_helper.cpp" />
     <ClCompile Include="..\src\multi_purpose_display.cpp" />
     <ClCompile Include="..\src\SaitekMultiPanel.cpp" />
     <ClCompile Include="..\src\trigger.cpp" />
     <ClCompile Include="..\src\UsbHidDevice.cpp" />
     <ClCompile Include="..\src\xpanel.cpp" />
     <ClCompile Include="mock_hid_api.cpp" />
-    <ClCompile Include="mock_lua.cpp" />
     <ClCompile Include="mock_xplane.cpp" />
     <ClCompile Include="test_arduino_home.cpp" />
     <ClCompile Include="test_config_parser.cpp" />
+    <ClCompile Include="test_lua.cpp" />
     <ClCompile Include="test_multi_panel.cpp" />
     <ClCompile Include="test_xpanel_plugin.cpp" />
   </ItemGroup>
