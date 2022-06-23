@@ -1,7 +1,5 @@
 #include "lua_helper.h"
 #include "lua.hpp"
-#include "XPLMPlugin.h"
-#include "XPLMDataAccess.h"
 #include "logger.h"
 
 LuaHelper* LuaHelper::instance = NULL;
@@ -75,7 +73,7 @@ extern "C" {
         }
         strncpy_s(dataref_str, lua_tostring(L, 1), sizeof(dataref_str));
 
-        XPLMDataRef dataref = XPLMFindDataRef(dataref_str);
+        XPLMDataRef dataref = LuaHelper::get_instace()->get_dataref(dataref_str);
         if (dataref == NULL)
         {
             Logger(TLogLevel::logERROR) << "Lua get: invalid dataref :" << dataref_str << std::endl;
@@ -86,8 +84,8 @@ extern "C" {
         {
             dataref_array_index = lua_tointeger(L, 2);
         }
-        XPLMDataTypeID dataref_type = XPLMGetDataRefTypes(dataref);
 
+        XPLMDataTypeID dataref_type = LuaHelper::get_instace()->get_dataref_type(dataref);
         int value_ia = 0;
         float value_fa = 0;
 
@@ -132,14 +130,14 @@ extern "C" {
         }
         strncpy_s(dataref_str, lua_tostring(L, 1), sizeof(dataref_str));
 
-        XPLMDataRef dataref = XPLMFindDataRef(dataref_str);
+        XPLMDataRef dataref = LuaHelper::get_instace()->get_dataref(dataref_str);
         if (dataref == NULL)
         {
             Logger(TLogLevel::logERROR) << "lua set: invalid dataref: " << dataref_str << std::endl;
             return 0;
         }
 
-        XPLMDataTypeID dataref_type = XPLMGetDataRefTypes(dataref);
+        XPLMDataTypeID dataref_type = LuaHelper::get_instace()->get_dataref_type(dataref);
         switch (dataref_type)
         {
         case xplmType_Int:
@@ -249,6 +247,10 @@ int LuaHelper::init()
 void LuaHelper::close()
 {
     Logger(TLogLevel::logTRACE) << "LuaHelper close" << std::endl;
+    command_refs.clear();
+    data_refs.clear();
+    data_ref_types.clear();
+
 	lua_close(lua);
 	lua = NULL;
 }
@@ -258,6 +260,39 @@ void LuaHelper::push_global_string(std::string name, std::string value)
     Logger(TLogLevel::logTRACE) << "LuaHelper push_global_string " << name << "=" << value << std::endl;
 	lua_pushstring(lua, value.c_str());
 	lua_setglobal(lua, name.c_str());
+}
+
+/* The XPLMFindCommand is pretty expensive so we should call it only the first time
+   and store the given reference for later usage. This function can return NULL if
+   the CommandRef not found by XPlane */
+XPLMCommandRef LuaHelper::get_commandref(std::string commandref_str)
+{
+    if (command_refs.count(commandref_str) == 0)
+    {
+        XPLMCommandRef commandId = XPLMFindCommand(commandref_str.c_str());
+        command_refs[commandref_str] = commandId;
+    }
+    return command_refs[commandref_str];
+}
+
+XPLMDataRef LuaHelper::get_dataref(std::string dataref_str)
+{
+    if (command_refs.count(dataref_str) == 0)
+    {
+        XPLMDataRef datarefId = XPLMFindDataRef(dataref_str.c_str());
+        data_refs[dataref_str] = datarefId;
+    }
+    return data_refs[dataref_str];
+}
+
+XPLMDataTypeID LuaHelper::get_dataref_type(XPLMDataRef dataref)
+{
+    if (data_ref_types.count(dataref) == 0)
+    {
+        XPLMDataTypeID dataref_type = XPLMGetDataRefTypes(dataref);
+        data_ref_types[dataref] = dataref_type;
+    }
+    return data_ref_types[dataref];
 }
 
 int LuaHelper::do_flight_loop()
