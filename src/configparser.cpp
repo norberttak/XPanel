@@ -173,6 +173,15 @@ int Configparser::parse_line(std::string line, Configuration& config)
         config.device_configs.back().push_actions[section_id].push_back(push_action);
         return EXIT_SUCCESS;
     }
+
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_PUSH_LUA)))
+    {       
+        Action* push_action = new Action(m[1]);
+        Logger(TLogLevel::logDEBUG) << "parser: button push lua string " << m[1].str() << std::endl;
+        config.device_configs.back().push_actions[section_id].push_back(push_action);
+        return EXIT_SUCCESS;
+    }
+
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_RELEASE_DATAREF)))
     {
         XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
@@ -197,6 +206,14 @@ int Configparser::parse_line(std::string line, Configuration& config)
         }
         Action* release_action = new Action(dataRef, stoi(m[2]), stoi(m[3]));
         Logger(TLogLevel::logDEBUG) << "parser: button release dataref array " << m[1].str() << std::endl;
+        config.device_configs.back().release_actions[section_id].push_back(release_action);
+        return EXIT_SUCCESS;
+    }
+
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_RELEASE_LUA)))
+    {
+        Action* release_action = new Action(m[1]);
+        Logger(TLogLevel::logDEBUG) << "parser: button release lua string " << m[1].str() << std::endl;
         config.device_configs.back().release_actions[section_id].push_back(release_action);
         return EXIT_SUCCESS;
     }
@@ -332,6 +349,15 @@ int Configparser::parse_line(std::string line, Configuration& config)
         return EXIT_SUCCESS;
     }
 
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_CONDITIONAL_PUSH_LUA)))
+    {
+        Action* push_action = new Action(m[2]);
+        push_action->add_condition(m[1]);
+        Logger(TLogLevel::logDEBUG) << "parser: button conditional (" << m[1] << ") push lua " << m[2].str() << std::endl;
+        config.device_configs.back().push_actions[section_id].push_back(push_action);
+        return EXIT_SUCCESS;
+    }
+
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_CONDITIONAL_RELEASE_COMMANDREF)))
     {
         XPLMCommandRef commandRef = XPLMFindCommand(m[2].str().c_str());
@@ -356,6 +382,16 @@ int Configparser::parse_line(std::string line, Configuration& config)
         config.device_configs.back().release_actions[section_id].push_back(release_action);
         return EXIT_SUCCESS;
     }
+
+    if (std::regex_match(line.c_str(), m, std::regex(TOKEN_CONDITIONAL_RELEASE_LUA)))
+    {
+        Action* release_action = new Action(m[2]);
+        release_action->add_condition(m[1]);
+        Logger(TLogLevel::logDEBUG) << "parser: button conditional (" << m[1] << ") push release " << m[2].str() << std::endl;
+        config.device_configs.back().release_actions[section_id].push_back(release_action);
+        return EXIT_SUCCESS;
+    }
+
     if (std::regex_match(line.c_str(), m, std::regex(TOKEN_LIGHT)))
     {
         section_id = m[1];
