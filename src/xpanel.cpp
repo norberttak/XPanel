@@ -173,6 +173,7 @@ int init_and_start_xpanel_plugin(void)
 	int result = p.parse_file(init_path.string(), config);
 	if (result != EXIT_SUCCESS)
 	{
+		stop_and_clear_xpanel_plugin();
 		Logger(TLogLevel::logERROR) << "error parsing config file" << std::endl;
 		return EXIT_FAILURE;
 	}
@@ -194,6 +195,7 @@ int init_and_start_xpanel_plugin(void)
 	{
 		if (LuaHelper::get_instace()->load_script_file(script_path.string()) != EXIT_SUCCESS)
 		{
+			stop_and_clear_xpanel_plugin();
 			Logger(TLogLevel::logERROR) << "Error loading Lua script: " << config.script_file << std::endl;
 			return EXIT_FAILURE;
 		}

@@ -251,7 +251,8 @@ void LuaHelper::close()
     data_refs.clear();
     data_ref_types.clear();
 
-	lua_close(lua);
+    if (lua)
+	    lua_close(lua);
 	lua = NULL;
 }
 
