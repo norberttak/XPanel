@@ -9,7 +9,7 @@
 
 int Configparser::parse_file(std::string file_name, Configuration& config)
 {
-    last_error_message = "";
+    last_error_message = "";    
     std::ifstream input_file(file_name);
     Logger(TLogLevel::logINFO) << "parse config file: " << file_name << std::endl;
     if (!input_file.is_open()) {
@@ -17,9 +17,9 @@ int Configparser::parse_file(std::string file_name, Configuration& config)
         return EXIT_FAILURE;
     }
 
-    std::string line;
-    int current_line_nr = 1;
+    std::string line;    
     std::stringstream error_details;
+    current_line_nr = 0;
     while (std::getline(input_file, line)) {
         current_line_nr++;
         if (parse_line(line, config) != EXIT_SUCCESS)
