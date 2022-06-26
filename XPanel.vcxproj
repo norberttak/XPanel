@@ -173,6 +173,7 @@
     <ClCompile Include="src\configparser.cpp" />
     <ClCompile Include="src\logger.cpp" />
     <ClCompile Include="src\SaitekMultiPanel.cpp" />
+    <ClCompile Include="src\message_window.cpp" />
     <ClCompile Include="src\xpanel.cpp" />
     <ClCompile Include="src\UsbHidDevice.cpp" />
     <ClCompile Include="src\trigger.cpp" />
@@ -184,6 +185,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\lua_helper.h" />
+    <ClInclude Include="src\message_window.h" />
     <ClInclude Include="src\multi_purpose_display.h" />
     <ClInclude Include="src\logger.h" />
     <ClInclude Include="src\ArduinoHomeCockpit.h" />

@@ -185,6 +185,7 @@
     <ClCompile Include="..\src\Device.cpp" />
     <ClCompile Include="..\src\logger.cpp" />
     <ClCompile Include="..\src\lua_helper.cpp" />
+    <ClCompile Include="..\src\message_window.cpp" />
     <ClCompile Include="..\src\multi_purpose_display.cpp" />
     <ClCompile Include="..\src\SaitekMultiPanel.cpp" />
     <ClCompile Include="..\src\trigger.cpp" />
@@ -192,6 +193,7 @@
     <ClCompile Include="..\src\xpanel.cpp" />
     <ClCompile Include="mock_hid_api.cpp" />
     <ClCompile Include="mock_xplane.cpp" />
+    <ClCompile Include="mock_xplane_display.cpp" />
     <ClCompile Include="test_arduino_home.cpp" />
     <ClCompile Include="test_config_parser.cpp" />
     <ClCompile Include="test_lua.cpp" />

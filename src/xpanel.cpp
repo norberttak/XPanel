@@ -18,6 +18,7 @@
 #include "configparser.h"
 #include "Action.h"
 #include "lua_helper.h"
+#include "message_window.h"
 #include "logger.h"
 
 #if IBM
@@ -51,12 +52,15 @@ BOOL APIENTRY DllMain(HANDLE hModule,
 #endif
 
 float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon);
+float error_display_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon);
+
 void stop_and_clear_xpanel_plugin();
 int init_and_start_xpanel_plugin();
 
 Configuration config;
 std::vector<Device*> devices;
 const float FLIGHT_LOOP_TIME_PERIOD = 0.2;
+const float ERROR_DISPLAY_TIME_PERIOD = 2;
 
 int g_menu_container_idx;
 XPLMMenuID g_menu_id;
@@ -75,7 +79,7 @@ PLUGIN_API int XPluginStart(
 {
 	Logger::set_log_level(TLogLevel::logINFO);
 	Logger(TLogLevel::logINFO) << "plugin start" << std::endl;
-	
+
 	strcpy_s(outName, 16, "XPanel ver 1.0");
 	strcpy_s(outSig, 16, "xpanel");
 	strcpy_s(outDesc, 64, "A plugin to handle control devices using hidapi interface");
@@ -84,6 +88,8 @@ PLUGIN_API int XPluginStart(
 	g_menu_id = XPLMCreateMenu("XPanel Plugin", XPLMFindPluginsMenu(), g_menu_container_idx, menu_handler, NULL);
 	XPLMAppendMenuItem(g_menu_id, "Reload Plugin", (void*)&menu_item_reload, 1);
 
+	XPLMRegisterFlightLoopCallback(error_display_callback, ERROR_DISPLAY_TIME_PERIOD, NULL);
+
 	return 1;
 }
 
@@ -91,6 +97,7 @@ PLUGIN_API void	XPluginStop(void)
 {
 	Logger(TLogLevel::logINFO) << "plugin stop called" << std::endl;
 	stop_and_clear_xpanel_plugin();
+	XPLMUnregisterFlightLoopCallback(error_display_callback, NULL);
 	XPLMDestroyMenu(g_menu_id);
 }
 
@@ -106,7 +113,7 @@ PLUGIN_API int  XPluginEnable(void)
 }
 
 float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon)
-{	
+{
 	for (auto it : config.device_configs)
 	{
 		// check and set LED states
@@ -132,19 +139,31 @@ float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 	return FLIGHT_LOOP_TIME_PERIOD;
 }
 
+float error_display_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon)
+{
+	// Nothing to display. Call me back later.
+	if (Logger::number_of_stored_messages() == 0)
+		return ERROR_DISPLAY_TIME_PERIOD;
+
+	std::list<std::string> error_msgs = Logger::get_and_clear_stored_messages();
+	MessageWindow* msg_window = new MessageWindow(std::string("Xpanel: Errors and Warnings"), error_msgs, true);
+
+	return ERROR_DISPLAY_TIME_PERIOD;
+}
+
 void stop_and_clear_xpanel_plugin()
 {
 	XPLMUnregisterFlightLoopCallback(flight_loop_callback, NULL);
 	LuaHelper::get_instace()->close();
-	
+
 	for (auto dev : devices)
 	{
 		if (dev != NULL)
 		{
 			dev->stop(500);
-			dev->release();			
+			dev->release();
 		}
-	}	
+	}
 	devices.clear();
 	config.clear();
 	ActionQueue::get_instance()->clear_all_actions();
@@ -181,6 +200,7 @@ int init_and_start_xpanel_plugin(void)
 	if (config.aircraft_acf.compare(aircraft_file_name))
 	{
 		Logger(TLogLevel::logWARNING) << "Config was created for another aircraft (" << config.aircraft_acf << "). Current is " << aircraft_file_name << std::endl;
+		//stop_and_clear_xpanel_plugin();
 		//return EXIT_FAILURE;
 	}
 
