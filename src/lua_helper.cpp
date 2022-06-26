@@ -303,7 +303,7 @@ int LuaHelper::do_flight_loop()
 
     if (!lua_getglobal(lua, "flight_loop"))
     {
-        Logger(TLogLevel::logWARNING) << "Lua : no flight_loop function defined" << std::endl;
+        Logger(TLogLevel::logINFO) << "Lua : no flight_loop function defined" << std::endl;
         flight_loop_defined = false;
         return EXIT_FAILURE;
     }
