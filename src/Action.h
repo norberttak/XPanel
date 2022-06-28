@@ -4,6 +4,7 @@
 #include <atomic>
 #include <mutex>
 #include <map>
+#include <list>
 #include "XPLMDataAccess.h"
 #include "XPLMMenus.h"
 
@@ -28,11 +29,14 @@ public:
 	void add_condition(std::string _condition);
 	void set_condition_active(std::string _active_condition);
 	void set_condition_inactive(std::string _active_condition);
+	void speed_up(int multi);
+	int get_hash();
 	void activate();
-private:
+private:	
 	int data = 0;
 	int index = -1;
 	float delta = 0;
+	int multi = 1;
 	float max = 0;
 	float min = 0;
 	std::string lua_str = "";
@@ -46,10 +50,11 @@ private:
 class ActionQueue
 {
 private:
-	std::queue<Action*> action_queue;
+	std::list<Action*> action_queue;
 	static ActionQueue* current;
 	std::mutex guard;
 	ActionQueue();
+	std::map<int, uint64_t> action_happend_last_time;
 public:
 	static ActionQueue* get_instance();
 	void push(Action* act);

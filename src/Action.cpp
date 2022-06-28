@@ -54,6 +54,11 @@ Action::~Action()
 	dataref = NULL;
 }
 
+void Action::speed_up(int _multi)
+{
+	multi = _multi;
+}
+
 void Action::add_condition(std::string _condition)
 {
 	condition = _condition;
@@ -70,6 +75,18 @@ void Action::set_condition_inactive(std::string _active_condition)
 {
 	active_conditions[_active_condition] = false;
 	Logger(TLogLevel::logDEBUG) << "Action: set_condition_inactive " << _active_condition << std::endl;
+}
+
+int Action::get_hash()
+{
+	std::size_t h0 = std::hash<int>{}(data);
+	std::size_t h1 = std::hash<float>{}(delta);
+	std::size_t h2 = std::hash<std::string>{}(condition);
+	std::size_t h3 = std::hash<std::string>{}(lua_str);
+	std::size_t h4 = std::hash<void*>{}(dataref);
+	std::size_t h5 = std::hash<void*>{}(commandref);
+
+	return h0 ^ (h1 << 1) ^ (h2<<2) ^ (h3<<3) ^ (h4<<4) ^ (h5<<5);
 }
 
 void Action::activate()
@@ -90,7 +107,7 @@ void Action::activate()
 		{
 			float val = XPLMGetDataf(dataref);
 			Logger(TLogLevel::logTRACE) << "action: change float value " << val << " by " << delta << std::endl;
-			val += delta;
+			val += delta * multi;
 			if (val > max)
 				val = max;
 			if (val < min)
@@ -148,18 +165,33 @@ ActionQueue* ActionQueue::get_instance()
 void ActionQueue::push(Action* action)
 {
 	guard.lock();
-	action_queue.push(action);
+	action_queue.push_back(action);
 	guard.unlock();
 }
 
 void ActionQueue::activate_actions_in_queue()
 {
-	guard.lock();
+	guard.lock();	
 
+	uint64_t current_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	
 	while (!action_queue.empty())
 	{
-		action_queue.front()->activate();
-		action_queue.pop();		
+		Action* act = action_queue.front();
+
+		uint64_t time_diff = current_time_ms - action_happend_last_time[act->get_hash()];
+
+		if (time_diff < 0.25)
+			act->speed_up(4);
+		else if (time_diff < 0.5 && time_diff >= 0.25)
+			act->speed_up(2);
+		else
+			act->speed_up(1);
+		
+		action_happend_last_time[act->get_hash()] = current_time_ms;
+
+		act->activate();
+		action_queue.pop_front();
 	}
 
 	guard.unlock();
@@ -168,7 +200,6 @@ void ActionQueue::activate_actions_in_queue()
 void ActionQueue::clear_all_actions()
 {
 	guard.lock();
-	while (action_queue.size())
-		action_queue.pop();
+	action_queue.clear();
 	guard.unlock();
 }
