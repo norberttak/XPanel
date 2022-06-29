@@ -111,6 +111,30 @@ To set a value in an array you can use the following syntax. This will set the i
 on_push="dataref:/sim/data/data_array[0]:1"
 ```
 
+You can define actions that change a dataref value by a given delta. This can be used for rotation knob handlers where you change some proportional value (like heading or course). You can also define a min and max value and the plugin won't change above or bellow the given limits.
+```
+on_push="dataref:<dataref_name>:<delta>:<min>:<max>"
+```
+
+```ini
+[button:id="KNOB_PLUS"]
+on_push="on_select:SW_HDG,dataref:test/dynamic_speed_test:1:0:359"
+
+[button:id="KNOB_MINUS"]
+on_push="on_select:SW_HDG,dataref:test/dynamic_speed_test:-1:0:359"
+```
+The above example will increase or decrease (conditionaly if the selector switch is at SW_HDG position) the dataref value. The minimum is 0 and the maximum is 359.
+
+#### Dynamic speed feature for the dataref change actions
+It is very boring to rotate the knobs for a long time when you need to change the values on a wide range. To help this you can define speed factors for the action. It measures the time elapsed between the same actions (rotation in + direction for example) and based on the time interval it will apply a multiplier for the dataref change delta.
+You can define two times intervals: t_low and t_high. These are for pretty fast :-) and very fast rotation speeds respectively. You can define such behavior for every button with this syntax:
+```ini
+[button:id="KNOB_PLUS"]
+dynamic_speed="t_low=0.5x2,t_high=0.25x4"
+on_push="on_select:SW_HDG,dataref:test/dynamic_speed_test:1:0:359"
+```
+This will apply a x4 speed factor if the time elapsed between the two actions is less than 0.25 sec and will apply a x2 factor if the elapsed time is between 0.25..0.5 sec. If the time is over 0.5 sec the dynamic speed is disabled and a multiplier x1 will be applied. 
+
 The following is show how to use XPlane commands. When you push the button, it issues a command begin to Xplane with the given command ref. When you release the button, we issue a command end to Xplane.
 If you don't care about the length of a button press then you can use the commands with `:once` modifier. This will issue a single command to Xplane which contains a push and a release event as well. 
 ```ini
