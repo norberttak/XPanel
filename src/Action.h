@@ -29,6 +29,8 @@ public:
 	void add_condition(std::string _condition);
 	void set_condition_active(std::string _active_condition);
 	void set_condition_inactive(std::string _active_condition);
+	void set_dynamic_speed_params(float _time_low, int _multi_low, float _time_high, int _multi_high);
+	void get_dynamic_speed_params(float *_time_low, int *_multi_low, float *_time_high, int *_multi_high);
 	void speed_up(int multi);
 	int get_hash();
 	void activate();
@@ -36,7 +38,13 @@ private:
 	int data = 0;
 	int index = -1;
 	float delta = 0;
+	//Dynamic speed params:
+	float time_low=0;
+	float time_high=0;
+	int multi_low=1;
+	int multi_high=1;
 	int multi = 1;
+	//Limits for dataref value:
 	float max = 0;
 	float min = 0;
 	std::string lua_str = "";
