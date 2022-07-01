@@ -311,7 +311,7 @@ void UsbHidDevice::thread_func()
 
 	while (_thread_run.load() == TRUE)
 	{
-		std::this_thread::sleep_for(50ms);
+		std::this_thread::sleep_for(20ms);
 
 		write_buffer_changed = false;
 		write_buffer_changed |= updateLightStates();

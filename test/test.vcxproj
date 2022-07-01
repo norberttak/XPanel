@@ -196,6 +196,7 @@
     <ClCompile Include="mock_xplane_display.cpp" />
     <ClCompile Include="test_arduino_home.cpp" />
     <ClCompile Include="test_config_parser.cpp" />
+    <ClCompile Include="test_dynamic_speed.cpp" />
     <ClCompile Include="test_lua.cpp" />
     <ClCompile Include="test_multi_panel.cpp" />
     <ClCompile Include="test_xpanel_plugin.cpp" />

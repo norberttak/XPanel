@@ -21,9 +21,10 @@ private:
 	const std::string TOKEN_PID		= "pid=\"(.+)\"";
 	const std::string TOKEN_SCRIPT	= "script_file=\"(.+)\"";
 	const std::string TOKEN_ACF		= "aircraft_acf=\"(.+)\"";
-	
+
 	// Button
 	const std::string TOKEN_BUTTON = "\\[button:id=\"([a-zA-Z0-9_-]+)\"\\]";
+	const std::string TOKEN_DYN_SPEED = "dynamic_speed=\"t_low="+RE_FLOAT+"x"+RE_INT+",t_high="+RE_FLOAT+"x"+RE_INT+"\"";
 
 	const std::string TOKEN_LOG_LEVEL = "log_level=\"(.+)\"";
 	const std::string TOKEN_BUTTON_PUSH_DATAREF = "on_push=\"dataref:"+RE_REF+":"+RE_INT+"\"";
@@ -60,7 +61,11 @@ private:
 
 	std::string section_id = "";
 	std::string last_error_message = "";
-	int current_line_nr;
+	float time_low=0;
+	int multi_low=1;
+	float time_high=0;
+	int multi_high=1;
+	int current_line_nr=0;
 	int parse_line(std::string line, Configuration& config);
 public:
 	int parse_file(std::string file_name, Configuration& config);
