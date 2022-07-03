@@ -82,7 +82,7 @@ int UsbHidDevice::connect()
 	read_device(read_buffer, read_buffer_size);
 	memcpy(read_buffer_old, read_buffer, read_buffer_size);
 
-	Logger(TLogLevel::logDEBUG) << "UsbHidDevice connect successful" << std::endl;
+	Logger(TLogLevel::logDEBUG) << "UsbHidDevice connect successful. vid=" << vid << " pid=" << pid << std::endl;
 	return EXIT_SUCCESS;
 }
 
