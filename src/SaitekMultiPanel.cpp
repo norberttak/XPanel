@@ -3,7 +3,10 @@
 #include "SaitekMultiPanel.h"
 #include "logger.h"
 
-SaitekMultiPanel::SaitekMultiPanel(DeviceConfiguration& config) :UsbHidDevice(config, 4, 13)
+#define WRITE_BUFFER_SIZE 13
+#define READ_BUFFER_SIZE 4
+
+SaitekMultiPanel::SaitekMultiPanel(DeviceConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {
 
 	// mode selector switch
@@ -57,8 +60,12 @@ SaitekMultiPanel::SaitekMultiPanel(DeviceConfiguration& config) :UsbHidDevice(co
 
 int SaitekMultiPanel::connect()
 {
-	unsigned char buff[13];
-	UsbHidDevice::connect();
+	unsigned char buff[WRITE_BUFFER_SIZE];
+	if (UsbHidDevice::connect() != EXIT_SUCCESS)
+	{
+		Logger(TLogLevel::logERROR) << "SaitekRadioPanel connect. Error during connect" << std::endl;
+		return EXIT_FAILURE;
+	}
 
 	memset(buff, 0, sizeof(buff)); // clear all button lights
 	if (write_device(buff, sizeof(buff)) != EXIT_SUCCESS)
@@ -82,7 +89,7 @@ void SaitekMultiPanel::stop(int timeout)
 	Logger(TLogLevel::logDEBUG) << "SaitekMultiPanel::stop called" << std::endl;
 
 	// Blank the dispay before exit
-	unsigned char buff[13] = {0,15,15,15,15,15,15,15,15,15,15,0,0};
+	unsigned char buff[WRITE_BUFFER_SIZE] = {0,15,15,15,15,15,15,15,15,15,15,0,0};
 	if (write_device(buff, sizeof(buff)) != EXIT_SUCCESS)
 	{
 		Logger(TLogLevel::logERROR) << "SaitekMultiPanel stop. error in write_device" << std::endl;

@@ -2,7 +2,10 @@
 #include "ArduinoHomeCockpit.h"
 #include "UsbHidDevice.h"
 
-ArduinoHomeCockpit::ArduinoHomeCockpit(DeviceConfiguration& config) :UsbHidDevice(config, 9, 9)
+#define WRITE_BUFFER_SIZE 9
+#define READ_BUFFER_SIZE 9
+
+ArduinoHomeCockpit::ArduinoHomeCockpit(DeviceConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {
 	// register B
 	arduino_buttons.push_back(PanelButton(8, "STROBE"));
