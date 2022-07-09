@@ -128,7 +128,7 @@ void Action::get_dynamic_speed_params(float* _time_low, int* _multi_low, float* 
 
 void Action::activate()
 {
-	if (active_conditions.count(condition) != 0 && active_conditions[condition] == false)
+	if (condition != "" && (active_conditions.count(condition) == 0 || active_conditions[condition] == false) )
 	{
 		Logger(TLogLevel::logTRACE) << "Action: skip because condition (" << condition << ") is not active" << std::endl;
 		return;
