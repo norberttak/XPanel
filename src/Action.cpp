@@ -12,12 +12,14 @@ Action::Action()
 	condition = "";
 	active_conditions.clear();
 	dataref = NULL;
+	dataref_type = xplmType_Unknown;
 }
 
 Action::Action(XPLMCommandRef cmd, CommandType type)
 {
 	commandref = cmd;
 	command_type = type;
+	dataref_type = xplmType_Unknown;
 }
 
 Action::Action(XPLMDataRef dat, int d)
@@ -25,6 +27,15 @@ Action::Action(XPLMDataRef dat, int d)
 	dataref = dat;
 	data = d;
 	index = -1; // dataref is not an array
+	dataref_type = XPLMGetDataRefTypes(dataref);
+}
+
+Action::Action(XPLMDataRef dat, float d)
+{
+	dataref = dat;
+	data_f = d;
+	index = -1; // dataref is not an array
+	dataref_type = XPLMGetDataRefTypes(dataref);
 }
 
 Action::Action(XPLMDataRef dat, int array_index, int d)
@@ -32,6 +43,15 @@ Action::Action(XPLMDataRef dat, int array_index, int d)
 	dataref = dat;
 	data = d;
 	index = array_index;
+	dataref_type = XPLMGetDataRefTypes(dataref);
+}
+
+Action::Action(XPLMDataRef dat, int array_index, float d)
+{
+	dataref = dat;
+	data_f = d;
+	index = array_index;
+	dataref_type = XPLMGetDataRefTypes(dataref);
 }
 
 Action::Action(XPLMDataRef dat, float _delta, float _max, float _min)
@@ -40,6 +60,7 @@ Action::Action(XPLMDataRef dat, float _delta, float _max, float _min)
 	delta = _delta;
 	max = _max;
 	min = _min;
+	dataref_type = XPLMGetDataRefTypes(dataref);
 }
 
 Action::Action(std::string _lua_str)
@@ -107,7 +128,7 @@ void Action::get_dynamic_speed_params(float* _time_low, int* _multi_low, float* 
 
 void Action::activate()
 {
-	if (active_conditions.count(condition) != 0 && active_conditions[condition] == false)
+	if (condition != "" && (active_conditions.count(condition) == 0 || active_conditions[condition] == false) )
 	{
 		Logger(TLogLevel::logTRACE) << "Action: skip because condition (" << condition << ") is not active" << std::endl;
 		return;
@@ -115,27 +136,71 @@ void Action::activate()
 
 	if (dataref != NULL)
 	{
+		// set array type dataref
 		if (index != -1)
 		{
-			XPLMSetDatavi(dataref, &data, index, 1);
+			if (dataref_type == xplmType_IntArray)
+				XPLMSetDatavi(dataref, &data, index, 1);
+			else if (dataref_type == xplmType_FloatArray)
+				XPLMSetDatavf(dataref, &data_f, index, 1);
 		}
+		// inc/dec dataref value
 		else if (abs(delta) > 0.0001)
 		{
-			float val = XPLMGetDataf(dataref);
+			double val = XPLMGetDataf(dataref);
+			switch (dataref_type) {
+			case xplmType_Int:
+				val = (double)XPLMGetDatai(dataref);
+				break;
+			case xplmType_Double:
+				val = XPLMGetDatad(dataref);
+				break;
+			case xplmType_Float:
+				val = (double)XPLMGetDataf(dataref);
+				break;
+			default:
+				break;
+			}
+
 			Logger(TLogLevel::logTRACE) << "action: change float value " << val << " by " << delta * multi << std::endl;
+
 			val += delta * multi;
-			if (val > max)
-				val = max;
-			if (val < min)
-				val = min;
-			XPLMSetDataf(dataref, val);
+			if (val > max) val = max;
+			if (val < min) val = min;
+
+			switch (dataref_type) {
+			case xplmType_Int:
+				XPLMSetDatai(dataref, (int)val);
+				break;
+			case xplmType_Double:
+				XPLMSetDatad(dataref, val);
+				break;
+			case xplmType_Float:
+				XPLMSetDataf(dataref, (float)val);
+				break;
+			default:
+				Logger(TLogLevel::logWARNING) << "Dataref change. Invalid dataref type" << std::endl;
+			}
 		}
+		// set dataref to a value
 		else
 		{
-			XPLMSetDatai(dataref, data);
+			switch (dataref_type) {
+			case xplmType_Int:
+				XPLMSetDatai(dataref, data);
+				break;
+			case xplmType_Double:
+				XPLMSetDatad(dataref, (double)data_f);
+				break;
+			case xplmType_Float:
+				XPLMSetDataf(dataref, data_f);
+				break;
+			default:
+				Logger(TLogLevel::logWARNING) << "Dataref set. Invalid dataref type" << std::endl;
+			}
 		}
 	}
-
+	//execute xplane command
 	if (commandref != NULL)
 	{
 		switch (command_type) {
@@ -152,7 +217,7 @@ void Action::activate()
 			break;
 		}
 	}
-
+	//do a lua script
 	if (!lua_str.empty())
 	{
 		Logger(TLogLevel::logTRACE) << "activate lua action: " << lua_str << std::endl;
