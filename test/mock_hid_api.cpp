@@ -35,6 +35,11 @@ extern int HID_API_EXPORT HID_API_CALL hid_exit(void)
 size_t buffer_length = 0;
 unsigned char read_buffer[256];
 
+void test_hid_mock_init()
+{
+	memset(read_buffer, 0, sizeof(read_buffer));
+}
+
 void test_hid_set_read_data(unsigned char* data, size_t length)
 {
 	memcpy(read_buffer, data, length);
