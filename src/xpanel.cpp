@@ -13,6 +13,7 @@
 #include "XPLMProcessing.h"
 #include "UsbHidDevice.h"
 #include "SaitekMultiPanel.h"
+#include "SaitekRadioPanel.h"
 #include "ArduinoHomeCockpit.h"
 #include "configuration.h"
 #include "configparser.h"
@@ -251,6 +252,19 @@ int init_and_start_xpanel_plugin(void)
 			device->connect();
 			device->start();
 			device->thread_handle = new std::thread(&ArduinoHomeCockpit::thread_func, (ArduinoHomeCockpit*)device);
+			break;
+		case DeviceType::SAITEK_RADIO:
+			// set default vid & pid if it's not set in config file
+			if (it.vid == 0)
+				it.vid = 0x06a3;
+			if (it.pid == 0)
+				it.pid = 0x0d05;
+			Logger(TLogLevel::logDEBUG) << "add new saitek radio panel device" << std::endl;
+			device = new SaitekRadioPanel(it);
+			devices.push_back(device);
+			device->connect();
+			device->start();
+			device->thread_handle = new std::thread(&SaitekRadioPanel::thread_func, (SaitekRadioPanel*)device);
 			break;
 		default:
 			Logger(TLogLevel::logERROR) << "unknown device type" << std::endl;

@@ -164,6 +164,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\SaitekRadioPanel.cpp" />
     <ClCompile Include="src\lua_helper.cpp" />
     <ClCompile Include="src\multi_purpose_display.cpp" />
     <ClCompile Include="src\ArduinoHomeCockpit.cpp" />
@@ -184,6 +185,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\SaitekRadioPanel.h" />
     <ClInclude Include="src\lua_helper.h" />
     <ClInclude Include="src\message_window.h" />
     <ClInclude Include="src\multi_purpose_display.h" />
