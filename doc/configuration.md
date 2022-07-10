@@ -55,7 +55,7 @@ pid="8036"
 An input device on the HW panel (button, switch, rotation switch) needs to be mapped as __button__ in the configuration file. Practically every bit mapped input device is handled as a button. Even if it is a rotary encoder but it is mapped to USB register a bit value.
 Every button shall be defined as a new section and need to have a pre-defined id. The possible id values:
 ### Saitek Multi Panel's button ids:
-| Button ID | Recommended Function  |
+| ID | Recommended Function  |
 |---|---|
 |AP | Autopilot |
 |HDG | Heading mode
@@ -72,6 +72,46 @@ Every button shall be defined as a new section and need to have a pre-defined id
 |TRIM_WHEEL_UP | Trimm wheel
 |KNOB_PLUS | Multi function rotation knob, + direction
 |KNOB_MINUS | Multi function rotation knob, - direction
+|SW_ALT | Selector Switch, ALT posiiton
+|SW_VS | Selector Switch, VS posiiton
+|SW_IAS | Selector Switch, IAS posiiton
+|SW_HDG | Selector Switch, HDG posiiton
+|SW_CRS | Selector Switch, CRS posiiton
+|MULTI_DISPLAY_UP | Upper Display (7 segments, 5 digits)
+|MULTI_DISPLAY_DOWN | Down Display (7 segments, 5 digits)
+
+### Saitek Radio Panel's ids:
+| ID | Recommended Function  |
+|---|---|
+|KNOB_UP_BIG_PLUS | Upper Rotation Knob: Outer (big) Ring, Plus Direction
+|KNOB_UP_BIG_MINUS | Upper Rotation Knob: Outer (big) Ring, Minus Direction
+|KNOB_UP_SMALL_PLUS | Upper Rotation Knob: Iner (small) Button, Plus Direction
+|KNOB_UP_SMALL_MINUS | Upper Rotation Knob: Iner (small) Button, Minus Direction
+|KNOB_DOWN_BIG_PLUS | Down Rotation Knob: Outer (big) Ring, Plus Direction
+|KNOB_DOWN_BIG_MINUS | Down Rotation Knob: Outer (big) Ring, Minus Direction
+|KNOB_DOWN_SMALL_PLUS | Down Rotation Knob: Iner (small) Button, Plus Direction
+|KNOB_DOWN_SMALL_MINUS | Upper Rotation Knob: Iner (small) Button, Minus Direction
+|ACT_STBY_UP | Upper Xchange button (Active <--> Standby)
+|ACT_STBY_DOWN | Down Xchange button (Active <--> Standby)
+|SW_UP_COM1 | Upper Selector Switch, COM1 position
+|SW_UP_COM2 | Upper Selector Switch, COM2 position
+|SW_UP_NAV1 | Upper Selector Switch, NAV1 position
+|SW_UP_NAV2 | Upper Selector Switch, NAV2 position
+|SW_UP_ADF | Upper Selector Switch, ADF position
+|SW_UP_DME | Upper Selector Switch, DME position
+|SW_UP_IDT | Upper Selector Switch, IDT position
+|SW_DOWN_COM1 | Down Selector Switch, COM1 position
+|SW_DOWN_COM2 | Down Selector Switch, COM2 position
+|SW_DOWN_NAV1 | Down Selector Switch, NAV1 position
+|SW_DOWN_NAV2 | Down Selector Switch, NAV2 position
+|SW_DOWN_ADF | Down Selector Switch, ADF position
+|SW_DOWN_DME | Down Selector Switch, DME position
+|SW_DOWN_IDT | Down Selector Switch, IDT position
+|RADIO_DISPLAY_STBY_UP | Upper Standby Display (7 segments, 5 digits)
+|RADIO_DISPLAY_ACTIVE_UP | Upper Active Display (7 segments, 5 digits)
+|RADIO_DISPLAY_STBY_DOWN | Down Standby Display (7 segments, 5 digits)
+|RADIO_DISPLAY_ACTIVE_DOWN | Down Active Display (7 segments, 5 digits)
+
 
 ### Arduino based IO board
 | Button ID | Register[bit] | Recommended Function  |
