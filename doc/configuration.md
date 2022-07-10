@@ -33,6 +33,7 @@ You can write action handlers (see later) in LUA script as well. The plugin will
 ```ini
 script_file="TU154-arduino-home-cockpit.lua"
 ```
+The details of the LUA script files are in the [lua config description](lua.md) document.
 ## Devices
 Devices can be defined by a new section in the configuration file. Currently, it supports only two types of devices: XSaintek's Multi Panel and a homemade Arduino-based IO board.
 ```ini

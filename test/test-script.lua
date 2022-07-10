@@ -13,7 +13,9 @@ function button_AP(action)
         command_begin("/sim/test/lua/button_AP")
     elseif (action == "release") then
         command_end("/sim/test/lua/button_AP")
-    else
+    elseif (action == "once") then
         command_once("/sim/test/lua/button_AP")
+    else
+        log_msg("ERROR","invalid action parameter "..action) 
     end
 end
