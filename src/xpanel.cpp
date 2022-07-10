@@ -284,7 +284,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inPa
 	{
 		switch (inMsg) {
 		case XPLM_MSG_AIRPORT_LOADED:
-			if (init_and_start_xpanel_plugin() != 1)
+			if (init_and_start_xpanel_plugin() != EXIT_SUCCESS)
 			{
 				Logger(TLogLevel::logERROR) << "error during plugin init and start" << std::endl;
 			}
