@@ -31,5 +31,6 @@ private:
 	bool display_value_changed;
 	int nr_of_digits;
 	std::mutex guard;
+	bool turn_off;
 };
 

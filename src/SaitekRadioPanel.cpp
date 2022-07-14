@@ -62,7 +62,7 @@ int SaitekRadioPanel::connect()
 	}
 
 	unsigned char buff[WRITE_BUFFER_SIZE];
-	memset(buff, 0, sizeof(buff)); // clear all displays
+	memset(buff, 0xff, sizeof(buff)); // clear all displays
 	if (write_device(buff, sizeof(buff)) != EXIT_SUCCESS)
 	{
 		Logger(TLogLevel::logERROR) << "SaitekRadioPanel connect. error in write_device" << std::endl;
@@ -83,7 +83,7 @@ void SaitekRadioPanel::stop(int timeout)
 {
 	Logger(TLogLevel::logDEBUG) << "SaitekRadioPanel::stop called" << std::endl;
 
-	// Blank the dispay before exit
+	// Blank the display before exit
 	unsigned char buff[WRITE_BUFFER_SIZE];
 	memset(buff, 0xFF, sizeof(buff));
 	buff[0] = 0;

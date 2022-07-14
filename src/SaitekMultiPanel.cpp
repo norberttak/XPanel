@@ -88,7 +88,7 @@ void SaitekMultiPanel::stop(int timeout)
 {
 	Logger(TLogLevel::logDEBUG) << "SaitekMultiPanel::stop called" << std::endl;
 
-	// Blank the dispay before exit
+	// Blank the display before exit
 	unsigned char buff[WRITE_BUFFER_SIZE] = {0,15,15,15,15,15,15,15,15,15,15,0,0};
 	if (write_device(buff, sizeof(buff)) != EXIT_SUCCESS)
 	{

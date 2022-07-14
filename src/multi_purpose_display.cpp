@@ -64,6 +64,12 @@ bool MultiPurposeDisplay::get_decimal_components(int number, int max_dec_pos, un
 
 bool MultiPurposeDisplay::get_display_value(unsigned char* digits)
 {
+	if (turn_off)
+	{
+		memset(digits, 0xff, nr_of_digits); // 0xff means turn off all segments
+		return true;
+	}
+
 	if (!display_value_changed)
 		return false;
 
@@ -82,6 +88,8 @@ void MultiPurposeDisplay::evaluate_and_store_dataref_value()
 	guard.lock();
 	if (conditions.count(active_condition) != 0)
 	{
+		turn_off = false;
+	
 		switch (data_ref_types[active_condition]) {
 		case xplmType_Int:
 			display_value = (double)XPLMGetDatai(conditions[active_condition]);
@@ -96,6 +104,10 @@ void MultiPurposeDisplay::evaluate_and_store_dataref_value()
 			//return;
 			break;
 		}
+	}
+	else
+	{
+		turn_off = true;
 	}
 	guard.unlock();
 
