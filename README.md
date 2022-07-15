@@ -7,7 +7,8 @@ It has a configuration file where you can define the logical connections between
 Currently, it supports two types of USB devices:
 
 1. [Saitek Multi Panel](https://www.saitek.com/uk/prod-bak/multi.html) This is a device that mainly contains the buttons associated with the autopilot functions.
-2. Arduino based USB HID device which can simulate switches and displays customized on your own.
+2. [Saitek Radio Panel](https://www.saitek.com/uk/prod-bak/radio.html) Device to conrol radio functions of your airplane
+3. Arduino based USB HID device which can simulate switches and displays customized on your own.
 
 ## Configuration syntax
 For configuration file syntax please see the document [here](doc/configuration.md)
