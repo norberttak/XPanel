@@ -25,6 +25,7 @@ int Configparser::parse_file(std::string file_name, Configuration& config)
 		if (parse_line(line, config) != EXIT_SUCCESS)
 		{
 			Logger(TLogLevel::logERROR) << "parser: error parse line (at line " << current_line_nr << "): " << line << std::endl;
+			input_file.close();
 			return EXIT_FAILURE;
 		}
 	}
@@ -67,7 +68,7 @@ int Configparser::parse_line(std::string line, Configuration& config)
 			config.device_configs.back().device_type = HOME_COCKPIT;
 		else
 		{
-			Logger(TLogLevel::logERROR) << "parser: uknown device type (at line " << current_line_nr << "): " << line << std::endl;
+			Logger(TLogLevel::logERROR) << "parser: unknown device type (at line " << current_line_nr << "): " << line << std::endl;
 			return EXIT_FAILURE;
 		}
 		Logger(TLogLevel::logDEBUG) << "parser: new device detected " << std::endl;
