@@ -43,7 +43,7 @@ extern "C" {
             return 0;
         }
 
-        return 0;
+        return 1;
     }
 
     static int LuaCommandOnce(lua_State* L)
@@ -114,9 +114,10 @@ extern "C" {
             break;
         default:
             Logger(TLogLevel::logERROR) << "Lua get: invalid datareftype: " << dataref_type << std::endl;
+            return 0;
             break;
         }
-        return 0;
+        return 1;
     }
 
     static int LuaSet(lua_State* L)
@@ -159,10 +160,11 @@ extern "C" {
             //
         default:
             Logger(TLogLevel::logERROR) << "Lua set: invalid datareftype: " << dataref_type << std::endl;
+            return 0;
             break;
         }
 
-        return 0;
+        return 1;
     }
 
     /*lua function: log_msg("ERROR","your log message")*/
@@ -197,6 +199,7 @@ extern "C" {
             log_level = TLogLevel::logTRACE;
 
         Logger(log_level) << "LUA script: " << log_msg << std::endl;
+        return 1;
     }
 }
 
