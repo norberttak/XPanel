@@ -1,5 +1,6 @@
 #include "XPLMGraphics.h"
 #include "XPLMPlanes.h"
+#include "XPLMPlugin.h"
 #include "XPLMDisplay.h"
 #include "XPLMDataAccess.h"
 #include "XPLMUtilities.h"
@@ -30,6 +31,26 @@ extern void XPLMGetNthAircraftModel(int inIndex, char *outFileName, char *outPat
 {
 	strcpy_s(outFileName, 256, test_aircraft_file_name);
 	strcpy_s(outPath, 512, test_aircraft_path);
+}
+
+extern XPLMPluginID XPLMFindPluginBySignature(const char* inSignature)
+{
+	return (XPLMPluginID)0;
+}
+
+extern void XPLMGetPluginInfo(XPLMPluginID inPlugin, char* outName, char* outFilePath, char* outSignature, char* outDescription)
+{
+	if (outName)
+		strcpy(outName, "XPanel ver " PLUGIN_VERSION);
+	
+	if (outFilePath)
+		strcpy(outFilePath, "./");
+	
+	if (outSignature)
+		strcpy(outSignature, PLUGIN_SIGNATURE);
+
+	if (outDescription)
+		strcpy(outDescription, "xpanel");
 }
 
 extern XPLMMenuID XPLMFindPluginsMenu()

@@ -81,8 +81,8 @@ PLUGIN_API int XPluginStart(
 	Logger::set_log_level(TLogLevel::logINFO);
 	Logger(TLogLevel::logINFO) << "plugin start" << std::endl;
 
-	strcpy_s(outName, 16, "XPanel ver 1.0");
-	strcpy_s(outSig, 16, "xpanel");
+	strcpy_s(outName, 16, "XPanel ver " PLUGIN_VERSION);
+	strcpy_s(outSig, 16, PLUGIN_SIGNATURE);
 	strcpy_s(outDesc, 64, "A plugin to handle control devices using hidapi interface");
 
 	g_menu_container_idx = XPLMAppendMenuItem(XPLMFindPluginsMenu(), "XPanel", 0, 0);
@@ -177,6 +177,21 @@ std::filesystem::path absolute_path(std::string aircraft_path, std::string file_
 	init_path /= file_name;
 
 	return init_path;
+}
+
+extern std::filesystem::path get_plugin_path()
+{
+	char plugin_directory[256];
+	XPLMPluginID plugin_id = XPLMFindPluginBySignature(PLUGIN_SIGNATURE);
+	if (plugin_id == XPLM_NO_PLUGIN_ID)
+	{
+		Logger(TLogLevel::logERROR) << "get_plugin_path: unable to find plugin by signature: " << PLUGIN_SIGNATURE << std::endl;
+	}
+	XPLMGetPluginInfo(plugin_id, NULL, plugin_directory, NULL, NULL);
+
+	std::filesystem::path plugin_path = std::filesystem::path(plugin_directory);
+
+	return plugin_path;
 }
 
 int init_and_start_xpanel_plugin(void)

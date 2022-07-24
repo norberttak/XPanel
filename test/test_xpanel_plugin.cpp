@@ -44,7 +44,7 @@ namespace test
 
 		TEST_METHOD(TestPluginCheckPluginName)
 		{
-			Assert::AreEqual("XPanel ver 1.0", outName);
+			Assert::AreEqual("XPanel ver " PLUGIN_VERSION, outName);
 		}
 
 		TEST_METHOD(TestPluginReload)
@@ -54,7 +54,7 @@ namespace test
 
 			int MENU_ITEM_RELOAD = 0;
 			test_call_menu_handler(0, NULL, &MENU_ITEM_RELOAD);
-			Assert::AreEqual("XPanel ver 1.0", outName);
+			Assert::AreEqual("XPanel ver " PLUGIN_VERSION, outName);
 			
 			test_call_registered_flight_loop();
 			std::this_thread::sleep_for(150ms);
