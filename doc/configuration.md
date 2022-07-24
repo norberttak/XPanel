@@ -115,22 +115,32 @@ Every button shall be defined as a new section and need to have a pre-defined id
 
 
 ### Arduino based IO board
-| Button ID | Register[bit] | Recommended Function  |
-|---|---|---|
-STROBE|1[0]|Strobe light
-DOME|1[1]|Cockpit dome light
-LAND|1[2]|Landing light
-TAXI|1[3]|Taxi light
-BEACON|1[4]|Beacon light
-CAUTION|1[5]|Caution clear button
-START_L|1[6]|Engine start left
-WARNING|1[7]|Warning clear button
-START_R|2[0]|Engine start right
-PITOT|2[1]|Pitot heat
-SEAT_BELT|2[2]|Seat belt sign
-PROP_SYNC|2[3]|Propeller sync
-AUTO_COARS|2[4]|Autocoarsen
-XPDR|2[5]|Transponder idle <-> TA mode
+If you have a USB HID capable IO board (like I have an Arduino Lenoardo) you 
+can define the logical (or symbolic) names for each register bits in a configuration file. A USB HID report
+is based on bytes so the config file follows this order as well.
+
+To define a symbolic name you need to select the register (1 byte long registers with  0 based index) 
+and then the bit index. In the example bellow we define two symbolic names (STROBE and DOME)
+which are in the register 1 and assign to the 0 and the 1 bit respectively.
+
+```ini
+[register:adr=1]
+button:id="STROBE",bit=0
+button:id="DOME",bit=1
+```
+In the aircraft specific configuration files you can use these symbolic names.
+
+The board sepcific config file is not aircraft specific therefore you should have only one instance
+of this config and put it to the same folder where the plugin binary installed (for example: 
+c:\xplane11\resources\plugins\XPanel\64\board-config.ini)
+
+The release package contains my board-config.ini but for sure you have to modify it
+according to your HW design.
+
+```
+It is a limitation that the board-config.ini can define input devices (button). 
+Support for other devices will be created soon.
+```
 
 ### Define an action for a button
 Every button can define multiple push and release actions. An action could be either
