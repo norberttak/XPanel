@@ -107,7 +107,9 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;liblua54.a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(SolutionDir)LUA\lua54.dll" "$(OutDir)" </Command>
+      <Command>xcopy /y /d "$(SolutionDir)LUA\lua54.dll" "$(OutDir)" 
+xcopy /y /d "$(SolutionDir)config\board-config.ini" "$(OutDir)" 
+</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy lua dll to output directory</Message>
@@ -171,7 +173,9 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(SolutionDir)LUA\lua54.dll" "$(OutDir)" </Command>
+      <Command>xcopy /y /d "$(SolutionDir)LUA\lua54.dll" "$(OutDir)" 
+xcopy /y /d "$(SolutionDir)config\board-config.ini" "$(OutDir)" 
+</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy lua dll to output directory</Message>
