@@ -3,6 +3,7 @@
 #include "XPLMPlugin.h"
 #include "XPLMPlanes.h"
 #include "XPLMDisplay.h"
+#include "XPLMPlugin.h"
 
 #include "CppUnitTest.h"
 #include "ArduinoHomeCockpit.h"

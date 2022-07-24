@@ -1,8 +1,10 @@
 #include <stdlib.h>
 #include <iostream>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <regex>
+#include "XPLMPlugin.h"
 #include "ArduinoHomeCockpit.h"
 #include "UsbHidDevice.h"
 #include "logger.h"
@@ -10,9 +12,14 @@
 #define WRITE_BUFFER_SIZE 9
 #define READ_BUFFER_SIZE 9
 
+std::filesystem::path get_plugin_path();
+
 ArduinoHomeCockpit::ArduinoHomeCockpit(DeviceConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
-{
-	if (read_board_configuration("board-config.ini", config.vid, config.pid) != EXIT_SUCCESS)
+{	
+	std::filesystem::path board_config_path = get_plugin_path();
+	board_config_path /= "board-config.ini";
+
+	if (read_board_configuration(board_config_path.string(), config.vid, config.pid) != EXIT_SUCCESS)
 	{
 		Logger(TLogLevel::logERROR) << "Arduino home cockpit. Error parsing board config file" << std::endl;
 		return;
