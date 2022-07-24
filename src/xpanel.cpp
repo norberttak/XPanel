@@ -85,6 +85,9 @@ PLUGIN_API int XPluginStart(
 	strcpy_s(outSig, 16, PLUGIN_SIGNATURE);
 	strcpy_s(outDesc, 64, "A plugin to handle control devices using hidapi interface");
 
+	Logger(TLogLevel::logINFO) << "XPanel ver " PLUGIN_VERSION << std::endl;
+	Logger(TLogLevel::logINFO) << "Built at " __DATE__ " " __TIME__ << std::endl;
+
 	g_menu_container_idx = XPLMAppendMenuItem(XPLMFindPluginsMenu(), "XPanel", 0, 0);
 	g_menu_id = XPLMCreateMenu("XPanel Plugin", XPLMFindPluginsMenu(), g_menu_container_idx, menu_handler, NULL);
 	XPLMAppendMenuItem(g_menu_id, "Reload Plugin", (void*)&menu_item_reload, 1);
@@ -181,15 +184,16 @@ std::filesystem::path absolute_path(std::string aircraft_path, std::string file_
 
 extern std::filesystem::path get_plugin_path()
 {
-	char plugin_directory[256];
+	char plugin_xpl_path[256];
 	XPLMPluginID plugin_id = XPLMFindPluginBySignature(PLUGIN_SIGNATURE);
 	if (plugin_id == XPLM_NO_PLUGIN_ID)
 	{
 		Logger(TLogLevel::logERROR) << "get_plugin_path: unable to find plugin by signature: " << PLUGIN_SIGNATURE << std::endl;
 	}
-	XPLMGetPluginInfo(plugin_id, NULL, plugin_directory, NULL, NULL);
+	XPLMGetPluginInfo(plugin_id, NULL, plugin_xpl_path, NULL, NULL);
 
-	std::filesystem::path plugin_path = std::filesystem::path(plugin_directory);
+	std::filesystem::path plugin_path = std::filesystem::path(plugin_xpl_path);
+	plugin_path = plugin_path.remove_filename();
 
 	return plugin_path;
 }
