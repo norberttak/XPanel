@@ -12,6 +12,8 @@ public:
 	MultiPurposeDisplay();
 	// called during init phase
 	void add_condition(std::string selector_sw_name, XPLMDataRef data);
+	void add_condition(std::string selector_sw_name, double const_value);
+	void add_condition(std::string selector_sw_name, std::string lua_str);
 
 	// called from UsbHidDevice worker thread
 	void set_condition_active(std::string selector_sw_name);
@@ -23,6 +25,8 @@ public:
 	void set_nr_digits(int _nr_of_digits);
 private:
 	std::map<std::string, XPLMDataRef> conditions;
+	std::map<std::string, double> const_values;
+	std::map<std::string, std::string> lua_functions;
 	std::map<std::string, XPLMDataTypeID> data_ref_types;
 	std::string active_condition;
 	bool get_decimal_components(int number, int max_dec_pos, unsigned char* buffer);

@@ -1,5 +1,6 @@
 #include <limits>
 #include "multi_purpose_display.h"
+#include "lua_helper.h"
 #include "logger.h"
 
 MultiPurposeDisplay::MultiPurposeDisplay()
@@ -26,9 +27,32 @@ void MultiPurposeDisplay::add_condition(std::string selector_sw_name, XPLMDataRe
 	data_ref_types[selector_sw_name] = XPLMGetDataRefTypes(data);
 }
 
+void MultiPurposeDisplay::add_condition(std::string selector_sw_name, double const_value)
+{
+	if (conditions.find(selector_sw_name) != conditions.end())
+	{
+		Logger(TLogLevel::logWARNING) << "MultiPurposeDisplay: selector switch (" << selector_sw_name << ") already registered. Overwrite it." << std::endl;
+	}
+	const_values[selector_sw_name] = const_value;
+	data_ref_types[selector_sw_name] = xplmType_Unknown;
+}
+
+void MultiPurposeDisplay::add_condition(std::string selector_sw_name, std::string lua_str)
+{
+	if (conditions.find(selector_sw_name) != conditions.end())
+	{
+		Logger(TLogLevel::logWARNING) << "MultiPurposeDisplay: selector switch (" << selector_sw_name << ") already registered. Overwrite it." << std::endl;
+	}
+
+	lua_functions[selector_sw_name] = lua_str;
+	data_ref_types[selector_sw_name] = xplmType_Unknown;
+}
+
 void MultiPurposeDisplay::set_condition_active(std::string selector_sw_name)
 {
-	if (conditions.find(selector_sw_name) == conditions.end())
+	if (conditions.find(selector_sw_name) == conditions.end() &&
+		const_values.find(selector_sw_name) == const_values.end() &&
+		lua_functions.find(selector_sw_name) == lua_functions.end())
 	{
 		Logger(TLogLevel::logERROR) << "MultiPurposeDisplay: unregistered selector switch: " << selector_sw_name << std::endl;
 		return;
@@ -42,7 +66,9 @@ bool MultiPurposeDisplay::is_registered_selector(std::string selector_sw_name)
 {
 	bool _registered;
 	guard.lock();
-	_registered = (conditions.count(selector_sw_name) != 0);
+	_registered = (conditions.count(selector_sw_name) != 0 ||
+		const_values.count(selector_sw_name) != 0 ||
+		lua_functions.count(selector_sw_name) != 0);
 	guard.unlock();
 	Logger(TLogLevel::logTRACE) << "MultiPurposeDisplay:is_registered_selector:" << selector_sw_name << " " << _registered << std::endl;
 	return _registered;
@@ -86,7 +112,9 @@ bool MultiPurposeDisplay::get_display_value(unsigned char* digits)
 void MultiPurposeDisplay::evaluate_and_store_dataref_value()
 {
 	guard.lock();
-	if (conditions.count(active_condition) != 0)
+	if (conditions.count(active_condition) != 0 || 
+		const_values.count(active_condition) != 0 || 
+		lua_functions.count(active_condition) !=0 )
 	{
 		turn_off = false;
 	
@@ -101,13 +129,18 @@ void MultiPurposeDisplay::evaluate_and_store_dataref_value()
 			display_value = XPLMGetDatad(conditions[active_condition]);
 			break;
 		default:
-			//return;
+			if (const_values.count(active_condition) != 0)
+				display_value = const_values[active_condition];
+			else if (lua_functions.count(active_condition) != 0)
+				display_value = LuaHelper::get_instace()->do_string("return "+lua_functions[active_condition]);
+
 			break;
 		}
 	}
 	else
 	{
 		turn_off = true;
+		display_value_changed = true;
 	}
 	guard.unlock();
 

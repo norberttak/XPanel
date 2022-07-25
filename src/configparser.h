@@ -58,6 +58,8 @@ private:
 	// Multi function Display
 	const std::string TOKEN_MULTI_DISPLAY = "\\[multi_display:id=\"([a-zA-Z0-9_-]+)\"\\]";
 	const std::string TOKEN_MULTI_DISPLAY_LINE = "line=\"on_select:([a-zA-Z0-9_-]+),dataref:"+RE_REF+"\"";
+	const std::string TOKEN_MULTI_DISPLAY_LINE_CONST = "line=\"on_select:([a-zA-Z0-9_-]+),const:" + RE_FLOAT + "\"";
+	const std::string TOKEN_MULTI_DISPLAY_LINE_LUA = "line=\"on_select:([a-zA-Z0-9_-]+),lua:" + RE_LUA + "\"";
 
 	std::string section_id = "";
 	std::string last_error_message = "";

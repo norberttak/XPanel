@@ -17,7 +17,7 @@ public:
 	void push_global_string(std::string name, std::string value);
 	int load_script_file(std::string file_name);
 	int do_flight_loop();
-	int do_string(std::string lua_str);
+	double do_string(std::string lua_str);
 	XPLMCommandRef get_commandref(std::string commandref_str);
 	XPLMDataRef get_dataref(std::string dataref_str);
 	XPLMDataTypeID get_dataref_type(XPLMDataRef dataref);

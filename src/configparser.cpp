@@ -466,6 +466,19 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		return EXIT_SUCCESS;
 	}
 
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_MULTI_DISPLAY_LINE_CONST)))
+	{
+		double const_value = std::stod(m[2].str().c_str());
+		config.device_configs.back().multi_displays[section_id]->add_condition(m[1], const_value);
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_MULTI_DISPLAY_LINE_LUA)))
+	{
+		config.device_configs.back().multi_displays[section_id]->add_condition(m[1], m[2]);
+		return EXIT_SUCCESS;
+	}
+	
 	//
 	//TOKEN_MULTI_KNOB_CHANGE_COMMANDREF
 
