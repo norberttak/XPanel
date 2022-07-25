@@ -53,6 +53,8 @@ private:
 	const std::string TOKEN_LIGHT = "\\[light:id=\"([a-zA-Z0-9_-]+)\"\\]";
 	const std::string TOKEN_TRIGGER_LIT = "trigger_lit=\"dataref:"+RE_REF+":"+RE_FLOAT+"\"";
 	const std::string TOKEN_TRIGGER_UNLIT = "trigger_unlit=\"dataref:"+RE_REF+":"+RE_FLOAT+"\"";
+	const std::string TOKEN_TRIGGER_LIT_LUA = "trigger_lit=\"lua:" + RE_LUA + ":" + RE_FLOAT + "\"";
+	const std::string TOKEN_TRIGGER_UNLIT_LUA = "trigger_unlit=\"lua:" + RE_LUA + ":" + RE_FLOAT + "\"";
 	const std::string TOKEN_TRIGGER_BLINK = "trigger_blink=\"dataref:"+RE_REF+":"+RE_FLOAT+"\"";
 
 	// Multi function Display

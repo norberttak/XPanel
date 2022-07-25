@@ -446,6 +446,22 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		return EXIT_SUCCESS;
 	}
 
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_TRIGGER_LIT_LUA)))
+	{
+		Trigger* lit_trigger = new Trigger(m[1], stoi(m[2]), TriggerType::LIT);
+		Logger(TLogLevel::logDEBUG) << "parser: light lit lua " << m[1].str() << std::endl;
+		config.device_configs.back().light_triggers[section_id].push_back(lit_trigger);
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_TRIGGER_UNLIT_LUA)))
+	{
+		Trigger* unlit_trigger = new Trigger(m[1], stoi(m[2]), TriggerType::UNLIT);
+		Logger(TLogLevel::logDEBUG) << "parser: light unlit lua " << m[1].str() << std::endl;
+		config.device_configs.back().light_triggers[section_id].push_back(unlit_trigger);
+		return EXIT_SUCCESS;
+	}
+
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_MULTI_DISPLAY)))
 	{
 		section_id = m[1];
