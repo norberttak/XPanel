@@ -1,4 +1,4 @@
-# XPanel v1.0 Configiration file format
+# XPanel v1.2 Configiration file format
 ## General description
 The configuration file format is _similar_ to the ini file format. It is divided into sections. A section can have properties. A section is marked by square brackets ([ ]). Every section shall have a unique id.
 ```ini
@@ -163,9 +163,13 @@ on_push="dataref:/sim/data/data_array[0]:1"
 ```
 
 You can define actions that change a dataref value by a given delta. This can be used for rotation knob handlers where you change some proportional value (like heading or course). You can also define a min and max value and the plugin won't change above or bellow the given limits.
-```
+```ini
 on_push="dataref:<dataref_name>:<delta>:<min>:<max>"
 ```
+These kind of conditional action can be used for multipurpose handlers/displays.
+A good example is the Saitek Multi Panel. There is a rotation switch (left side of the display)
+where you can slect the function of the silver rotation knob KNOB_MINUS/KNOB_PLUS (right side of display) also 
+the display value on the display.
 
 ```ini
 [button:id="KNOB_PLUS"]
@@ -174,7 +178,7 @@ on_push="on_select:SW_HDG,dataref:test/dynamic_speed_test:1:0:359"
 [button:id="KNOB_MINUS"]
 on_push="on_select:SW_HDG,dataref:test/dynamic_speed_test:-1:0:359"
 ```
-The above example will increase or decrease (conditionaly if the selector switch is at SW_HDG position) the dataref value. The minimum is 0 and the maximum is 359.
+The above example will change the dataref value if the selector switch is at SW_HDG position. The minimum is 0 and the maximum is 359.
 
 #### Dynamic speed feature for the dataref change actions
 It is very boring to rotate the knobs for a long time when you need to change the values on a wide range. To help this you can define speed factors for the action. It measures the time elapsed between the same actions (rotation in + direction for example) and based on the time interval it will apply a multiplier for the dataref change delta.
@@ -194,10 +198,57 @@ on_push="commandref:/sim/cmd/HDG:begin"
 on_push="commandref:/sim/cmd/HDG:end"
 ```
 
+## Lights
+
+A light means an LED on the panel. This can be as a standalone LED or a background lit of a Saitek Panel's
+button.
+
+To decide about turn on/of the light you need to define triggers. A trigger means a condition
+and when the condition is true the lit (turn on) or unlit (turn off) will happen.
+
+If neither lit nor unlit condition meets it means we don't change the the sate of the light.
+
+For sure you can define multiple lit/unlit condition for a trigger. All the triggers will be evaluated
+and the last true condition will be the dominant.
+
+You can use either dataref value or return value of a LUA function for triggers:
+```ini
+[light:id="NAV_L"]
+trigger_lit="dataref:sim/custom/lights/button/absu_stab_h:1"
+trigger_unlit="dataref:sim/custom/lights/button/absu_stab_h:0"
+
+[light:id="AP_L"]
+trigger_lit="lua:get_led_status():1"
+trigger_unlit="lua:get_led_status():0"
+```
+
+The first section of the above config snippet, is for the background light of the NAV button
+on a Saitek Multi panel. The LED will be turned on if the dataref value is 1 and will be turned off when
+the dataref value is 0.
+
+The secound snippet use LUA function. The plugin will call the lua function (get_led_status in this example)
+and check the return value.
+
+## Displays
+
+A display is a charachter based 7 segment display device. It can be used for display numeric values.
+The display value can be either from a dataref or from a LUA function. The display value can a conditional
+display which means the value to display is depends on the position of a switch.
+
+```ini
+[multi_display:id="MULTI_DISPLAY_UP"]
+line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L"
+line="on_select:SW_VS,lua:get_my_display_value()"
+```
+
+The firts line will display the actual value of the dataref. The secound line will
+call the LUA function and displays the return value of the function.
+
+The SW_ALT or SW_VS will determine which value will be displayed.
 ## Example configuration file
 ```ini
 log_level="TRACE"
-script_file="tu154-saitket-multipanel.lua"
+script_file="tu154-saitek-multipanel.lua"
 aircraft_acf="generic.acf"
 
 ;----------- Saitek Multi Panel --------------
@@ -212,10 +263,28 @@ on_release="dataref:/hello/bello:0"
 on_push="dataref:/sim/hello/AP:1"
 on_push="dataref:/sim/hello/AP2:1"
 
+;AP button light
+[light:id="AP_L"]
+trigger_lit="lua:get_led_status():1"
+trigger_unlit="lua:get_led_status():0"
+
 ;NAV button
 [button:id="NAV"]
 on_push="commandref:/sim/cmd/NAV:begin"
 on_release="commandref:/sim/cmd/NAV:end"
+
+[light:id="NAV_L"]
+trigger_lit="dataref:sim/custom/lights/button/absu_stab_h:1"
+trigger_unlit="dataref:sim/custom/lights/button/absu_stab_h:0"
+
+[multi_display:id="MULTI_DISPLAY_UP"]
+line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L"
+line="on_select:SW_VS,dataref:sim/custom/gauges/compas/pkp_helper_course_L"
+line="on_select:SW_HDG,dataref:sim/custom/gauges/compas/pkp_helper_course_L"
+
+[multi_display:id="MULTI_DISPLAY_DOWN"]
+line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L"
+line="on_select:SW_VS,dataref:sim/custom/gauges/compas/pkp_helper_course_L"
 
 ;---------------- Arduino based IO board ------
 [device:id="aurduino_homecockpit"]
