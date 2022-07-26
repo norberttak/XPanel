@@ -318,9 +318,17 @@ int LuaHelper::do_flight_loop()
     return EXIT_SUCCESS;
 }
 
-int LuaHelper::do_string(std::string lua_str)
+double LuaHelper::do_string(std::string lua_str)
 {
     Logger(TLogLevel::logTRACE) << "LuaHelper do_string: " << lua_str << std::endl;
-    luaL_dostring(lua, lua_str.c_str());
-    return EXIT_SUCCESS;
+    
+    if (luaL_dostring(lua, lua_str.c_str()) != 0)
+    {
+        Logger(TLogLevel::logERROR) << "Lua error in: " << lua_str << std::endl;
+        return 0;
+    }
+
+    double return_value = lua_tonumber(lua, -1);
+    Logger(TLogLevel::logTRACE) << "LuaHelper do_string return value: " << return_value << std::endl;
+    return return_value;
 }

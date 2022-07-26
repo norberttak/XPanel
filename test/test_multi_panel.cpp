@@ -130,14 +130,14 @@ namespace test
 			std::this_thread::sleep_for(150ms);
 			unsigned char write_buffer[13];
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
-			Assert::AreEqual(0x10, (int)write_buffer[11]);
+			Assert::AreEqual(0x10, (int)write_buffer[11] & 0x10);
 
 			// ALT button light set to UNLIT
 			XPLMSetDatai(dataref, 0);
 			test_flight_loop(config.device_configs); // evaluate triggers
 			std::this_thread::sleep_for(150ms);
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
-			Assert::AreEqual(0x00, (int)write_buffer[11]);
+			Assert::AreEqual(0x00, (int)write_buffer[11] & 0x10);
 		}
 
 		TEST_METHOD(TestHdgButtonLight)
@@ -149,14 +149,24 @@ namespace test
 			std::this_thread::sleep_for(150ms);
 			unsigned char write_buffer[13];
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
-			Assert::AreEqual(0x02, (int)write_buffer[11]);
+			Assert::AreEqual(0x02, (int)write_buffer[11] & 0x02);
 
 			// HDG button light set to UNLIT
 			XPLMSetDatai(dataref, 0);
 			test_flight_loop(config.device_configs); // evaluate triggers
 			std::this_thread::sleep_for(150ms);
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
-			Assert::AreEqual(0x00, (int)write_buffer[11]);
+			Assert::AreEqual(0x00, (int)write_buffer[11] & 0x02);
+		}
+
+		TEST_METHOD(TestApButtonLight)
+		{
+			// in the test this LED has a lua handler ('get_led_status()') which return with a constant 1 value
+			test_flight_loop(config.device_configs); // evaluate triggers
+			std::this_thread::sleep_for(150ms);
+			unsigned char write_buffer[13];
+			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
+			Assert::AreEqual(0x01, (int)write_buffer[11] & 0x01);
 		}
 
 		TEST_METHOD(TestMultiDisplayConfig)

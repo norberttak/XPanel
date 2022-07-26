@@ -1,5 +1,6 @@
 #include <limits>
 #include "trigger.h"
+#include "lua_helper.h"
 #include "logger.h"
 
 Trigger::Trigger()
@@ -9,38 +10,54 @@ Trigger::Trigger()
 	trigger_value = 0;
 	trigger_action = TriggerType::NO_CHANGE;
 	stored_action = TriggerType::NO_CHANGE;
-	last_dataref_value = -1;
+	last_value = -1;
 }
 
-Trigger::Trigger(XPLMDataRef data, int val, TriggerType _trig_action)
+Trigger::Trigger(XPLMDataRef data, double val, TriggerType _trigger_action)
 {
 	data_ref = data;
 	data_ref_type = XPLMGetDataRefTypes(data_ref);
 	trigger_value = val;
-	trigger_action = _trig_action;
+	trigger_action = _trigger_action;
 	stored_action = TriggerType::NO_CHANGE;
-	last_dataref_value = -1;
+	last_value = -1;
 }
 
-/* call this fumction only from an XPlane flight loop !*/
+Trigger::Trigger(std::string _lua_str, double val, TriggerType _trigger_action)
+{
+	lua_str = _lua_str;
+	trigger_value = val;
+	trigger_action = _trigger_action;
+	stored_action = TriggerType::NO_CHANGE;
+	last_value = -1;
+}
+
+/* call this function only from an XPlane flight loop !*/
 void Trigger::evaluate_and_store_action()
 {
 	double act_value;
-	if (data_ref_type == xplmType_Int)
-		act_value = (double)XPLMGetDatai(data_ref);
-	else if (data_ref_type == xplmType_Float)
-		act_value = (double)XPLMGetDataf(data_ref);
+	if (lua_str.empty())
+	{		
+		if (data_ref_type == xplmType_Int)
+			act_value = (double)XPLMGetDatai(data_ref);
+		else if (data_ref_type == xplmType_Float)
+			act_value = (double)XPLMGetDataf(data_ref);
+		else
+			act_value = XPLMGetDatad(data_ref);
+	}
 	else
-		act_value = XPLMGetDatad(data_ref);
+	{
+		act_value = LuaHelper::get_instace()->do_string("return " + lua_str);
+	}
 
 	guard.lock();
-	if (abs(act_value - trigger_value) <= 0.001 && abs(last_dataref_value - act_value) >= 0.01)
+	if (abs(act_value - trigger_value) <= 0.001 && abs(last_value - act_value) >= 0.01)
 	{
 		stored_action = trigger_action;
 	}
 	guard.unlock();
 
-	last_dataref_value = act_value;
+	last_value = act_value;
 }
 
 TriggerType Trigger::get_and_clear_stored_action()

@@ -92,6 +92,45 @@ namespace test
 			Assert::AreEqual(1, (int)write_buffer[5]);
 		}
 
+		TEST_METHOD(Test_Const_Value)
+		{
+			// set rotation switch to SW_UP_ADF position
+			unsigned char buffer[4] = { 0x10,0,0,0 };
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+
+			test_flight_loop(config.device_configs);
+			std::this_thread::sleep_for(150ms);
+
+			unsigned char write_buffer[23];
+			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
+			// value shall be the the const 12345
+			Assert::AreEqual(1, (int)write_buffer[1]);
+			Assert::AreEqual(2, (int)write_buffer[2]);
+			Assert::AreEqual(3, (int)write_buffer[3]);
+			Assert::AreEqual(4, (int)write_buffer[4]);
+			Assert::AreEqual(5, (int)write_buffer[5]);		
+		}
+				
+		TEST_METHOD(Test_Lua_Function)
+		{
+			// set rotation switch to SW_UP_DME position
+			unsigned char buffer[4] = { 0x20,0,0,0 };
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+
+			test_flight_loop(config.device_configs);
+			std::this_thread::sleep_for(150ms);
+
+			unsigned char write_buffer[23];
+			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
+			// value shall is from the test-script.lua. the lua function returns 67890
+			Assert::AreEqual(6, (int)write_buffer[1]);
+			Assert::AreEqual(7, (int)write_buffer[2]);
+			Assert::AreEqual(8, (int)write_buffer[3]);
+			Assert::AreEqual(9, (int)write_buffer[4]);
+			Assert::AreEqual(0, (int)write_buffer[5]);
+		}
 		TEST_METHOD(Test_KNOB_UP_BIG_PLUS)
 		{
 			// set rotation switch to SW_NAV_1 position

@@ -41,16 +41,16 @@ extern XPLMPluginID XPLMFindPluginBySignature(const char* inSignature)
 extern void XPLMGetPluginInfo(XPLMPluginID inPlugin, char* outName, char* outFilePath, char* outSignature, char* outDescription)
 {
 	if (outName)
-		strcpy(outName, "XPanel ver " PLUGIN_VERSION);
+		strcpy_s(outName, 16, "XPanel ver " PLUGIN_VERSION);
 	
 	if (outFilePath)
-		strcpy(outFilePath, "./");
+		strcpy_s(outFilePath, 16, "./");
 	
 	if (outSignature)
-		strcpy(outSignature, PLUGIN_SIGNATURE);
+		strcpy_s(outSignature, 16, PLUGIN_SIGNATURE);
 
 	if (outDescription)
-		strcpy(outDescription, "xpanel");
+		strcpy_s(outDescription, 16, "xpanel");
 }
 
 extern XPLMMenuID XPLMFindPluginsMenu()

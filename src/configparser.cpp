@@ -446,6 +446,22 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		return EXIT_SUCCESS;
 	}
 
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_TRIGGER_LIT_LUA)))
+	{
+		Trigger* lit_trigger = new Trigger(m[1], stoi(m[2]), TriggerType::LIT);
+		Logger(TLogLevel::logDEBUG) << "parser: light lit lua " << m[1].str() << std::endl;
+		config.device_configs.back().light_triggers[section_id].push_back(lit_trigger);
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_TRIGGER_UNLIT_LUA)))
+	{
+		Trigger* unlit_trigger = new Trigger(m[1], stoi(m[2]), TriggerType::UNLIT);
+		Logger(TLogLevel::logDEBUG) << "parser: light unlit lua " << m[1].str() << std::endl;
+		config.device_configs.back().light_triggers[section_id].push_back(unlit_trigger);
+		return EXIT_SUCCESS;
+	}
+
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_MULTI_DISPLAY)))
 	{
 		section_id = m[1];
@@ -466,6 +482,19 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		return EXIT_SUCCESS;
 	}
 
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_MULTI_DISPLAY_LINE_CONST)))
+	{
+		double const_value = std::stod(m[2].str().c_str());
+		config.device_configs.back().multi_displays[section_id]->add_condition(m[1], const_value);
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_MULTI_DISPLAY_LINE_LUA)))
+	{
+		config.device_configs.back().multi_displays[section_id]->add_condition(m[1], m[2]);
+		return EXIT_SUCCESS;
+	}
+	
 	//
 	//TOKEN_MULTI_KNOB_CHANGE_COMMANDREF
 

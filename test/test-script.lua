@@ -19,3 +19,12 @@ function button_AP(action)
         log_msg("ERROR","invalid action parameter "..action) 
     end
 end
+
+function get_display_value()
+    log_msg("TRACE","get_display_value() called")
+    return 67890
+end
+
+function get_led_status()
+    return 1
+end
