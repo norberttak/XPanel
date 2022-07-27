@@ -446,6 +446,20 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		return EXIT_SUCCESS;
 	}
 
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_TRIGGER_BLINK)))
+	{
+		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+		if (dataRef == NULL)
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+			return EXIT_FAILURE;
+		}
+		Trigger* unlit_trigger = new Trigger(dataRef, stoi(m[2]), TriggerType::BLINK);
+		Logger(TLogLevel::logDEBUG) << "parser: light blink dataref " << m[1].str() << std::endl;
+		config.device_configs.back().light_triggers[section_id].push_back(unlit_trigger);
+		return EXIT_SUCCESS;
+	}
+	
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_TRIGGER_LIT_LUA)))
 	{
 		Trigger* lit_trigger = new Trigger(m[1], stoi(m[2]), TriggerType::LIT);

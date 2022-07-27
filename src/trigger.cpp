@@ -37,7 +37,7 @@ void Trigger::evaluate_and_store_action()
 {
 	double act_value;
 	if (lua_str.empty())
-	{		
+	{
 		if (data_ref_type == xplmType_Int)
 			act_value = (double)XPLMGetDatai(data_ref);
 		else if (data_ref_type == xplmType_Float)
@@ -51,10 +51,10 @@ void Trigger::evaluate_and_store_action()
 	}
 
 	guard.lock();
+
 	if (abs(act_value - trigger_value) <= 0.001 && abs(last_value - act_value) >= 0.01)
-	{
 		stored_action = trigger_action;
-	}
+
 	guard.unlock();
 
 	last_value = act_value;
