@@ -155,42 +155,50 @@ void UsbHidDevice::register_displays(std::vector<PanelDisplay>& _displays)
 	panel_displays = _displays;
 }
 
+#define BLINK_TIME_PERIOD 25 // 25*20*2ms = 1 sec blink period time
+
 bool UsbHidDevice::updateLightStates()
 {
 	bool write_buffer_changed = false;
 
+	if (update_cycle > BLINK_TIME_PERIOD)
+		update_cycle = 0;
+	else
+		update_cycle++;
+
 	for (auto it : config.light_triggers)
 	{
-		int bit_nr = -1;
-		for (auto light : lights)
+		std::vector<PanelLight>::iterator panel_light_it;
+
+		for (panel_light_it = lights.begin(); panel_light_it != lights.end(); ++panel_light_it)
 		{
-			if (light.config_name == it.first)
-				bit_nr = light.bit;
+			if (!panel_light_it->config_name.empty() && panel_light_it->config_name == it.first)
+				break;
 		}
 
 		// light doesn't exist in this configuration
-		if (bit_nr == -1)
+		if (panel_light_it == lights.end())
 			continue;
 
 		for (auto trigger : it.second)
 		{
 			TriggerType light_change = trigger->get_and_clear_stored_action();
-
 			switch (light_change) {
 			case TriggerType::LIT:
 				Logger(TLogLevel::logDEBUG) << " " << it.first << " activated LIT" << std::endl;
-				set_bit_value(write_buffer, bit_nr, 1);
+				set_bit_value(write_buffer, panel_light_it->bit, 1);
 				write_buffer_changed = true;
+				panel_light_it->blink_active = false;
 				break;
 			case TriggerType::UNLIT:
 				Logger(TLogLevel::logDEBUG) << " " << it.first << " activated UNLIT" << std::endl;
-				set_bit_value(write_buffer, bit_nr, 0);
+				set_bit_value(write_buffer, panel_light_it->bit, 0);
 				write_buffer_changed = true;
+				panel_light_it->blink_active = false;
 				break;
 			case TriggerType::BLINK:
-				invert_bit_value(write_buffer, bit_nr);
-				write_buffer_changed = true;
-				Logger(TLogLevel::logWARNING) << " " << it.first << ": light blink function not yet implemented" << std::endl;
+				Logger(TLogLevel::logDEBUG) << " " << it.first << " activated BLINK" << std::endl;
+				panel_light_it->blink_active = true;
 				break;
 			case TriggerType::NO_CHANGE:
 				//
@@ -198,6 +206,12 @@ bool UsbHidDevice::updateLightStates()
 			default:
 				Logger(TLogLevel::logERROR) << " " << it.first << ": unknown trigger type: " << light_change << std::endl;
 			}
+		}
+
+		if (panel_light_it->blink_active && update_cycle == BLINK_TIME_PERIOD)
+		{
+			invert_bit_value(write_buffer, panel_light_it->bit);
+			write_buffer_changed = true;
 		}
 	}
 	return write_buffer_changed;
@@ -303,7 +317,7 @@ void UsbHidDevice::process_and_store_button_states()
 
 void UsbHidDevice::thread_func()
 {
-	Logger(TLogLevel::logTRACE) << "UsbHidDevice::thread_func: started for vid="<<vid<<" pid="<< pid << std::endl;
+	Logger(TLogLevel::logTRACE) << "UsbHidDevice::thread_func: started for vid=" << vid << " pid=" << pid << std::endl;
 	memset(write_buffer, 0, write_buffer_size);
 	bool write_buffer_changed = false;
 
@@ -320,7 +334,7 @@ void UsbHidDevice::thread_func()
 		if (write_buffer_changed)
 			if (write_device(write_buffer, write_buffer_size) == EXIT_FAILURE)
 			{
-				Logger(TLogLevel::logERROR) << "UsbHidDevice thread_func: error writing HID device. vid="<< vid << " pid=" << pid << std::endl;
+				Logger(TLogLevel::logERROR) << "UsbHidDevice thread_func: error writing HID device. vid=" << vid << " pid=" << pid << std::endl;
 				break;
 			}
 
@@ -341,7 +355,7 @@ void UsbHidDevice::thread_func()
 
 void UsbHidDevice::release()
 {
-	if (device_handle != NULL) 
+	if (device_handle != NULL)
 	{
 		Logger(TLogLevel::logDEBUG) << "UsbHidDevice::release called for vid=" << vid << " pid=" << pid << std::endl;
 		hid_close(device_handle);
