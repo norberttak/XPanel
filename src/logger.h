@@ -2,6 +2,7 @@
 #include <sstream>
 #include <list>
 #include <mutex>
+#include <ctime>
 #include "XPLMUtilities.h"
 
 enum TLogLevel
@@ -47,7 +48,9 @@ public:
 	}
 
 	~Logger()
-	{
+	{		
+		auto time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
 		if (current_log_level >= last_message_log_level)
 		{
 			std::string log_level_str = "";
@@ -70,7 +73,7 @@ public:
 			default:
 				log_level_str = "[UNKNOWN]:";
 			} 
-			XPLMDebugString(("XPanel "+log_level_str+str()).c_str());
+			XPLMDebugString(("XPanel ["+ std::to_string(time_since_epoch & 0xffff) + "] " + log_level_str + str()).c_str());
 
 			if (last_message_log_level == TLogLevel::logERROR || last_message_log_level == TLogLevel::logWARNING)
 			{
