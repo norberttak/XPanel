@@ -76,6 +76,13 @@ bool MultiPurposeDisplay::is_registered_selector(std::string selector_sw_name)
 
 bool MultiPurposeDisplay::get_decimal_components(int number, int max_dec_pos, unsigned char* buffer)
 {
+	bool negative = false;
+	if (number < 0)
+	{
+		number = abs(number);
+		negative = true;
+	}
+
 	if (number >= pow(10, max_dec_pos + 1))
 		return false;
 
@@ -85,6 +92,10 @@ bool MultiPurposeDisplay::get_decimal_components(int number, int max_dec_pos, un
 		buffer[max_dec_pos - dec_pos] = remain / (int)pow(10, dec_pos);
 		remain = remain % (int)pow(10, dec_pos);
 	}
+
+	if (negative)
+		buffer[0] = 0xfe; // minus sign
+
 	return true;
 }
 
@@ -112,12 +123,12 @@ bool MultiPurposeDisplay::get_display_value(unsigned char* digits)
 void MultiPurposeDisplay::evaluate_and_store_dataref_value()
 {
 	guard.lock();
-	if (conditions.count(active_condition) != 0 || 
-		const_values.count(active_condition) != 0 || 
-		lua_functions.count(active_condition) !=0 )
+	if (conditions.count(active_condition) != 0 ||
+		const_values.count(active_condition) != 0 ||
+		lua_functions.count(active_condition) != 0)
 	{
 		turn_off = false;
-	
+
 		switch (data_ref_types[active_condition]) {
 		case xplmType_Int:
 			display_value = (double)XPLMGetDatai(conditions[active_condition]);
@@ -132,7 +143,7 @@ void MultiPurposeDisplay::evaluate_and_store_dataref_value()
 			if (const_values.count(active_condition) != 0)
 				display_value = const_values[active_condition];
 			else if (lua_functions.count(active_condition) != 0)
-				display_value = LuaHelper::get_instace()->do_string("return "+lua_functions[active_condition]);
+				display_value = LuaHelper::get_instace()->do_string("return " + lua_functions[active_condition]);
 
 			break;
 		}
