@@ -187,6 +187,7 @@ xcopy /y /d "$(SolutionDir)config\board-config.ini" "$(OutDir)"
     <ClCompile Include="..\src\configparser.cpp" />
     <ClCompile Include="..\src\configuration.cpp" />
     <ClCompile Include="..\src\Device.cpp" />
+    <ClCompile Include="..\src\generic_display.cpp" />
     <ClCompile Include="..\src\logger.cpp" />
     <ClCompile Include="..\src\lua_helper.cpp" />
     <ClCompile Include="..\src\message_window.cpp" />

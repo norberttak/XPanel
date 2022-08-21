@@ -54,7 +54,7 @@ SaitekMultiPanel::SaitekMultiPanel(DeviceConfiguration& config) :UsbHidDevice(co
 
 	for (auto config_display : config.multi_displays)
 	{
-		config_display.second->set_nr_digits(5);
+		config_display.second->set_nr_bytes(5);
 	}
 }
 
