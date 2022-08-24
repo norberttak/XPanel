@@ -45,5 +45,6 @@ public:
 	std::map<std::string, std::list<Action*>> release_actions;
 	std::map<std::string, std::list<Trigger*>> light_triggers;
 	std::map<std::string, MultiPurposeDisplay*> multi_displays;
+	std::map<std::string, GenericDisplay*> generic_displays;
 };
 

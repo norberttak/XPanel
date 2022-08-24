@@ -39,6 +39,7 @@ DeviceConfiguration& DeviceConfiguration::operator=(const DeviceConfiguration& o
 	release_actions = other.release_actions;
 	light_triggers = other.light_triggers;
 	multi_displays = other.multi_displays;
+	generic_displays = other.generic_displays;
 
 	return *this;
 }
