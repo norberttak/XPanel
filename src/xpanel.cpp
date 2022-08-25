@@ -133,6 +133,11 @@ float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 		{
 			display.second->evaluate_and_store_dataref_value();
 		}
+
+		for (auto display : it.generic_displays)
+		{
+			display.second->evaluate_and_store_dataref_value();
+		}
 	}
 
 	// execute lua scrip defined flight_loop function

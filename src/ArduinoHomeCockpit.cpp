@@ -26,6 +26,18 @@ ArduinoHomeCockpit::ArduinoHomeCockpit(DeviceConfiguration& config) :UsbHidDevic
 	}
 
 	register_buttons(arduino_buttons);
+	register_displays(arduino_displays);
+
+	for (auto config_display : config.generic_displays)
+	{
+		int nr_of_bytes = 0;
+		for (auto panel_display : arduino_displays)
+		{
+			if (panel_display.config_name == config_display.first)
+				nr_of_bytes = panel_display.width;
+		}
+		config_display.second->set_nr_bytes(nr_of_bytes);
+	}
 }
 
 int ArduinoHomeCockpit::read_board_configuration(std::string file_name, int expected_vid, int expected_pid)
@@ -107,6 +119,15 @@ int ArduinoHomeCockpit::read_board_configuration(std::string file_name, int expe
 			arduino_buttons.push_back(PanelButton(register_index*8 + bit_index, m[1]));
 
 			Logger(TLogLevel::logDEBUG) << "board config: add button: " << m[1] << " [" << register_index << "," << bit_index << "]" << std::endl;
+			continue;
+		}
+
+		if (std::regex_match(line.c_str(), m, std::regex(TOKEN_DISPLAY)))
+		{
+			unsigned int width = stoi(m[2]);
+			arduino_displays.push_back(PanelDisplay(register_index, width, m[1]));
+
+			Logger(TLogLevel::logDEBUG) << "board config: add display: " << m[1] << " [" << register_index << "," << width << "]" << std::endl;
 			continue;
 		}
 

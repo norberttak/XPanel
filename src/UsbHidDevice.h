@@ -35,12 +35,14 @@ struct PanelLight
 
 struct PanelDisplay
 {
-	PanelDisplay(int _reg_index, std::string _config_name)
+	PanelDisplay(int _reg_index, int _width, std::string _config_name)
 	{
 		reg_index = _reg_index;
+		width = _width;
 		config_name = _config_name;
 	}
 	int reg_index;
+	int width;
 	std::string config_name;
 };
 
@@ -84,6 +86,7 @@ private:
 	void set_bit_value(unsigned char* buf, int bit_nr, int bit_val);
 	void invert_bit_value(unsigned char* buf, int bit_nr);
 	bool updateLightStates();
+	bool updateOneDisplay(std::pair<std::string, GenericDisplay*> config_display);
 	bool updateDisplays();
 	void process_and_store_button_states();
 	void process_selector_switch();
