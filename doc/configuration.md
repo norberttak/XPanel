@@ -127,6 +127,9 @@ which are in the register 1 and assign to the 0 and the 1 bit respectively.
 [register:adr=1]
 button:id="STROBE",bit=0
 button:id="DOME",bit=1
+
+[register:adr=5]
+display:id="ALTIMETER_GAUGE",width=2
 ```
 In the aircraft specific configuration files you can use these symbolic names.
 
@@ -136,11 +139,6 @@ c:\xplane11\resources\plugins\XPanel\64\board-config.ini)
 
 The release package contains my board-config.ini but for sure you have to modify it
 according to your HW design.
-
-```
-It is a limitation that the board-config.ini can define input devices (button). 
-Support for other devices will be created soon.
-```
 
 ### Define an action for a button
 Every button can define multiple push and release actions. An action could be either
@@ -231,9 +229,14 @@ and check the return value.
 
 ## Displays
 
-A display is a charachter based 7 segment display device. It can be used for display numeric values.
+A display is a charachter based 7 segment display device or an analogue gauge. It can be used for display numeric values.
 The display value can be either from a dataref or from a LUA function. The display value can a conditional
-display which means the value to display is depends on the position of a switch.
+display which means the value to display is depends on the position of a switch. A display taht contains conditions called
+multi purpose displya (multi_display). 
+
+The 'on_select:HW input name' part defines a condition. If the HW input is in logical 1 state
+the display will show you the dataref or lua script value in that line, Thi is somehow similar to a 
+switch-case instruction in C.
 
 ```ini
 [multi_display:id="MULTI_DISPLAY_UP"]
@@ -245,6 +248,15 @@ The firts line will display the actual value of the dataref. The secound line wi
 call the LUA function and displays the return value of the function.
 
 The SW_ALT or SW_VS will determine which value will be displayed.
+
+If you need a display device without any condition (it means the display will show the same dataeref or lua value all the time)
+you can define a simple display device in the configuration like this:
+
+```ini
+[display:id="ALTIMETER"]
+line="dataref:sim/test/altimeter"
+```
+
 ## Example configuration file
 ```ini
 log_level="TRACE"
