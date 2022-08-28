@@ -187,6 +187,7 @@ xcopy /y /d "$(SolutionDir)config\board-config.ini" "$(OutDir)"
     <ClCompile Include="..\src\configparser.cpp" />
     <ClCompile Include="..\src\configuration.cpp" />
     <ClCompile Include="..\src\Device.cpp" />
+    <ClCompile Include="..\src\generic_display.cpp" />
     <ClCompile Include="..\src\logger.cpp" />
     <ClCompile Include="..\src\lua_helper.cpp" />
     <ClCompile Include="..\src\message_window.cpp" />
@@ -202,6 +203,7 @@ xcopy /y /d "$(SolutionDir)config\board-config.ini" "$(OutDir)"
     <ClCompile Include="test_arduino_home.cpp" />
     <ClCompile Include="test_config_parser.cpp" />
     <ClCompile Include="test_dynamic_speed.cpp" />
+    <ClCompile Include="test_generic_display.cpp" />
     <ClCompile Include="test_lua.cpp" />
     <ClCompile Include="test_multi_panel.cpp" />
     <ClCompile Include="test_radio_panel.cpp" />

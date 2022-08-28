@@ -217,26 +217,40 @@ bool UsbHidDevice::updateLightStates()
 	return write_buffer_changed;
 }
 
-bool UsbHidDevice::updateDisplays()
+bool UsbHidDevice::updateOneDisplay(std::pair<std::string, GenericDisplay*> config_display)
 {
 	bool write_buffer_changed = false;
 
-	for (auto config_display : config.multi_displays)
+	int reg_index = -1;
+	for (auto display : panel_displays)
 	{
-		int reg_index = -1;
-		for (auto display : panel_displays)
+		if (display.config_name == config_display.first)
 		{
-			if (display.config_name == config_display.first)
-			{
-				reg_index = display.reg_index;
-				break;
-			}
-		}
-		if (reg_index != -1 && config_display.second != NULL)
-		{
-			write_buffer_changed |= config_display.second->get_display_value(&write_buffer[reg_index]);
+			reg_index = display.reg_index;
+			break;
 		}
 	}
+	if (reg_index != -1 && config_display.second != NULL)
+	{
+		write_buffer_changed |= config_display.second->get_display_value(&write_buffer[reg_index]);
+	}
+
+	return write_buffer_changed;
+}
+
+bool UsbHidDevice::updateDisplays()
+{
+	bool write_buffer_changed = false;
+	for (auto config_display : config.multi_displays)
+	{
+		write_buffer_changed |= updateOneDisplay(config_display);
+	}
+
+	for (auto config_display : config.generic_displays)
+	{
+		write_buffer_changed |= updateOneDisplay(config_display);
+	}
+
 	return write_buffer_changed;
 }
 

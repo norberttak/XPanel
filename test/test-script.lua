@@ -28,3 +28,10 @@ end
 function get_led_status()
     return 1
 end
+
+function get_variometer()
+    log_msg("TRACE","get_variometer() called")
+    vario = get_dataref("sim/test/variometer")
+    log_msg("TRACE","vario = "..tostring(vario))
+    return vario
+end

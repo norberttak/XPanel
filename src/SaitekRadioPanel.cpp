@@ -40,16 +40,18 @@ SaitekRadioPanel::SaitekRadioPanel(DeviceConfiguration& config) :UsbHidDevice(co
 	radio_buttons.push_back(PanelButton(1 * 8 + 7, "ACT_STBY_DOWN"));
 	register_buttons(radio_buttons);
 
-	radio_displays.push_back(PanelDisplay(6, "RADIO_DISPLAY_STBY_UP"));
-	radio_displays.push_back(PanelDisplay(1, "RADIO_DISPLAY_ACTIVE_UP"));
-	radio_displays.push_back(PanelDisplay(16, "RADIO_DISPLAY_STBY_DOWN"));
-	radio_displays.push_back(PanelDisplay(11, "RADIO_DISPLAY_ACTIVE_DOWN"));
+	int display_width = 5;
+
+	radio_displays.push_back(PanelDisplay(6, display_width, "RADIO_DISPLAY_STBY_UP"));
+	radio_displays.push_back(PanelDisplay(1, display_width, "RADIO_DISPLAY_ACTIVE_UP"));
+	radio_displays.push_back(PanelDisplay(16, display_width, "RADIO_DISPLAY_STBY_DOWN"));
+	radio_displays.push_back(PanelDisplay(11, display_width, "RADIO_DISPLAY_ACTIVE_DOWN"));
 
 	register_displays(radio_displays);
 
 	for (auto config_display : config.multi_displays)
 	{
-		config_display.second->set_nr_digits(5);
+		config_display.second->set_nr_bytes(display_width);
 	}
 }
 

@@ -57,6 +57,12 @@ private:
 	const std::string TOKEN_TRIGGER_UNLIT_LUA = "trigger_unlit=\"lua:" + RE_LUA + ":" + RE_FLOAT + "\"";
 	const std::string TOKEN_TRIGGER_BLINK = "trigger_blink=\"dataref:"+RE_REF+":"+RE_FLOAT+"\"";
 
+	// Generic display
+	const std::string TOKEN_DISPLAY = "\\[display:id=\"([a-zA-Z0-9_-]+)\",bcd=\"(yes|no)\"\\]";
+	const std::string TOKEN_DISPLAY_LINE = "line=\"dataref:" + RE_REF + "\"";
+	const std::string TOKEN_DISPLAY_LINE_CONST = "line=\"const:" + RE_FLOAT + "\"";
+	const std::string TOKEN_DISPLAY_LINE_LUA = "line=\"lua:" + RE_LUA + "\"";
+
 	// Multi function Display
 	const std::string TOKEN_MULTI_DISPLAY = "\\[multi_display:id=\"([a-zA-Z0-9_-]+)\"\\]";
 	const std::string TOKEN_MULTI_DISPLAY_LINE = "line=\"on_select:([a-zA-Z0-9_-]+),dataref:"+RE_REF+"\"";

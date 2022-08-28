@@ -12,6 +12,7 @@
 #include <map>
 #include <queue>
 #include "configuration.h"
+#include "logger.h"
 
 std::map<std::string, int> internal_dataref;
 std::map<std::string, int> internal_command_ref;
@@ -97,61 +98,71 @@ extern XPLMDataRef XPLMFindDataRef(const char* datarefstr)
 	if (internal_dataref.find(datarefstr) == internal_dataref.end())
 		internal_dataref[datarefstr] = 0;
 
+	Logger(TLogLevel::logTRACE) << "TEST " << "XPLMFindDataRef " << datarefstr << ":" << (XPLMDataRef)&internal_dataref[datarefstr] << std::endl;
 	return (XPLMDataRef)&internal_dataref[datarefstr];
 }
 
 extern void XPLMUnregisterDataAccessor(XPLMDataRef dataref)
 {
-
+	//
 }
 
 extern void XPLMSetDatai(XPLMDataRef dataref, int inValue)
 {
+	Logger(TLogLevel::logTRACE) << "TEST " << "XPLMSetDatai " << dataref << "=" << inValue << std::endl;
 	*(int*)dataref = inValue;
 }
 
 extern void XPLMSetDatad(XPLMDataRef dataref, double inValue)
 {
+	Logger(TLogLevel::logTRACE) << "TEST " << "XPLMSetDatad " << dataref << "=" << inValue << std::endl;
 	*(int*)dataref = (int)inValue;
 }
 
 extern void XPLMSetDataf(XPLMDataRef dataref, float inValue)
 {
+	Logger(TLogLevel::logTRACE) << "TEST " << "XPLMSetDataf " << dataref << "=" << inValue << std::endl;
 	*(int*)dataref = (int)inValue;
 }
 
 extern float XPLMGetDataf(XPLMDataRef dataref)
 {
 	int val_int = *(int*)dataref;
+	Logger(TLogLevel::logTRACE) << "TEST " << "XPLMGetDataf " << dataref << "=" << val_int << std::endl;
 	return (float)val_int;
 }
 
 extern double XPLMGetDatad(XPLMDataRef dataref)
 {
 	int val_int = *(int*)dataref;
+	Logger(TLogLevel::logTRACE) << "TEST " << "XPLMGetDatad " << dataref << "=" << val_int << std::endl;
 	return (double)val_int;
 }
 
 extern int XPLMGetDatavi(XPLMDataRef dataref, int* inValues, int inOffset, int inCount)
 {
 	int val_int = *(int*)dataref;
+	Logger(TLogLevel::logTRACE) << "TEST " << "XPLMGetDatavi " << dataref << "=" << val_int << std::endl;
 	return (double)val_int;
 }
 
 extern int XPLMGetDatavd(XPLMDataRef dataref, double* inValues, int inOffset, int inCount)
 {
 	int val_int = *(int*)dataref;
+	Logger(TLogLevel::logTRACE) << "TEST " << "XPLMGetDatavd " << dataref << "=" << val_int << std::endl;
 	return (double)val_int;
 }
 
 extern int XPLMGetDatavf(XPLMDataRef dataref, float* inValues, int inOffset, int inCount)
 {
 	int val_int = *(int*)dataref;
+	Logger(TLogLevel::logTRACE) << "TEST " << "XPLMGetDatavf " << dataref << "=" << val_int << std::endl;
 	return (double)val_int;
 }
 
 extern int XPLMGetDatai(XPLMDataRef dataref)
 {
+	Logger(TLogLevel::logTRACE) << "TEST " << "XPLMGetDatai " << dataref << "=" << *(int*)dataref << std::endl;
 	return *(int*)dataref;
 }
 
@@ -272,6 +283,11 @@ void test_flight_loop(std::vector<DeviceConfiguration> config)
 		}
 
 		for (auto display : it.multi_displays)
+		{
+			display.second->evaluate_and_store_dataref_value();
+		}
+
+		for (auto display : it.generic_displays)
 		{
 			display.second->evaluate_and_store_dataref_value();
 		}

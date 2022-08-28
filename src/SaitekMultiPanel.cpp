@@ -47,14 +47,16 @@ SaitekMultiPanel::SaitekMultiPanel(DeviceConfiguration& config) :UsbHidDevice(co
 
 	register_lights(multi_lights);
 
-	multi_displays.push_back(PanelDisplay(1, "MULTI_DISPLAY_UP"));
-	multi_displays.push_back(PanelDisplay(6, "MULTI_DISPLAY_DOWN"));
+	int display_width = 5;
+
+	multi_displays.push_back(PanelDisplay(1, display_width, "MULTI_DISPLAY_UP"));
+	multi_displays.push_back(PanelDisplay(6, display_width, "MULTI_DISPLAY_DOWN"));
 
 	register_displays(multi_displays);
 
 	for (auto config_display : config.multi_displays)
 	{
-		config_display.second->set_nr_digits(5);
+		config_display.second->set_nr_bytes(display_width);
 	}
 }
 
