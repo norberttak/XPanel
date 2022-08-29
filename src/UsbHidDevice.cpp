@@ -258,44 +258,44 @@ void UsbHidDevice::process_selector_switch()
 {
 	for (auto sel : selectors)
 	{
-		if (is_bit_changed(read_buffer, read_buffer_old, sel.bit))
-		{
-			if (get_bit_value(read_buffer, sel.bit))
-			{
-				for (auto button : buttons)
-				{
-					for (auto act : config.push_actions[button.config_name.c_str()])
-					{
-						act->set_condition_active(sel.config_name);
-					}
-					for (auto act : config.release_actions[button.config_name.c_str()])
-					{
-						act->set_condition_active(sel.config_name);
-					}
-				}
+		if (!is_bit_changed(read_buffer, read_buffer_old, sel.bit))
+			continue;
 
-				/* update condition for displays */
-				for (auto display : panel_displays)
+		if (get_bit_value(read_buffer, sel.bit))
+		{
+			for (auto button : buttons)
+			{
+				for (auto act : config.push_actions[button.config_name.c_str()])
 				{
-					if (config.multi_displays.count(display.config_name) > 0 && config.multi_displays[display.config_name] != NULL && config.multi_displays[display.config_name]->is_registered_selector(sel.config_name))
-					{
-						Logger(TLogLevel::logTRACE) << "UsbHidDevice " << sel.config_name << " mode selector switch for " << display.config_name << " is activated" << std::endl;
-						config.multi_displays[display.config_name]->set_condition_active(sel.config_name);
-					}
+					act->set_condition_active(sel.config_name);
+				}
+				for (auto act : config.release_actions[button.config_name.c_str()])
+				{
+					act->set_condition_active(sel.config_name);
 				}
 			}
-			else
+
+			/* update condition for displays */
+			for (auto display : panel_displays)
 			{
-				for (auto button : buttons)
+				if (config.multi_displays.count(display.config_name) > 0 && config.multi_displays[display.config_name] != NULL && config.multi_displays[display.config_name]->is_registered_selector(sel.config_name))
 				{
-					for (auto act : config.push_actions[button.config_name.c_str()])
-					{
-						act->set_condition_inactive(sel.config_name);
-					}
-					for (auto act : config.release_actions[button.config_name.c_str()])
-					{
-						act->set_condition_inactive(sel.config_name);
-					}
+					Logger(TLogLevel::logTRACE) << "UsbHidDevice " << sel.config_name << " mode selector switch for " << display.config_name << " is activated" << std::endl;
+					config.multi_displays[display.config_name]->set_condition_active(sel.config_name);
+				}
+			}
+		}
+		else
+		{
+			for (auto button : buttons)
+			{
+				for (auto act : config.push_actions[button.config_name.c_str()])
+				{
+					act->set_condition_inactive(sel.config_name);
+				}
+				for (auto act : config.release_actions[button.config_name.c_str()])
+				{
+					act->set_condition_inactive(sel.config_name);
 				}
 			}
 		}
