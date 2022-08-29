@@ -136,6 +136,9 @@ int ArduinoHomeCockpit::read_board_configuration(std::string file_name, int expe
 	}
 
 	input_file.close();
+	
+	register_selectors(arduino_buttons);
+
 	return exit_status;
 }
 
