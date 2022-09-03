@@ -6,12 +6,14 @@ LuaHelper* LuaHelper::instance = NULL;
 lua_State* lua = NULL;
 
 extern "C" {
-#define LUA_FUNC_NAME_COMMAND_ONCE "command_once"
+#define LUA_FUNC_NAME_COMMAND_ONCE	"command_once"
 #define LUA_FUNC_NAME_COMMAND_BEGIN "command_begin"
-#define LUA_FUNC_NAME_COMMAND_END "command_end"
-#define LUA_FUNC_NAME_GET_DATAREF "get_dataref"
-#define LUA_FUNC_NAME_SET_DATAREF "set_dataref"
-#define LUA_FUNC_NAME_LOG   "log_msg"
+#define LUA_FUNC_NAME_COMMAND_END	"command_end"
+#define LUA_FUNC_NAME_GET_DATAREF	"get_dataref"
+#define LUA_FUNC_NAME_SET_DATAREF	"set_dataref"
+#define LUA_FUNC_NAME_LOG			"log_msg"
+#define LUA_FUNC_NAME_GET_BUTTON_STATE	"hid_get_button_state"
+#define LUA_FUNC_NAME_GET_LIGHT_STATE "hid_get_light"
 
 	static int LuaCommand(lua_State* L, const char* command_name)
 	{
@@ -201,6 +203,82 @@ extern "C" {
 		Logger(log_level) << "LUA script: " << log_msg << std::endl;
 		return 1;
 	}
+
+	// hid_get_button_state(vid,pid,button_name)
+	int LuaGetButtonState(lua_State* L)
+	{
+		if (!(lua_isnumber(L, 1) && lua_isnumber(L, 2) && lua_isstring(L,3)))
+		{
+			Logger(TLogLevel::logERROR) << "lua: wrong arguments to function hid_get_button_state()" << std::endl;
+			return 0;
+		}
+
+		int vid = (int)lua_tonumber(L, 1);
+		int pid = (int)lua_tonumber(L, 2);
+		std::string button_name = lua_tostring(L, 3);
+
+		int state = LuaHelper::get_instace()->get_button_state(vid, pid, button_name);
+
+		std::string button_state_str = "";
+
+		if (state == -1)
+		{
+			Logger(TLogLevel::logWARNING) << "lua: error in get_button_state(" << vid << "," << pid << "," << button_name << ")" << std::endl;
+			button_state_str = "UNKNOWN";
+		}
+
+		if (state == 1)
+			button_state_str = "ON";
+		else if (state == 0)
+			button_state_str = "OFF";
+		else
+			button_state_str = "UNKNOWN";
+
+		Logger(TLogLevel::logTRACE) << "lua: LuaGetButtonState "<< lua_tostring(L, 3) <<" return: " << button_state_str << std::endl;
+
+		lua_pushstring(L, button_state_str.c_str());
+		return 1;
+	}
+
+	// hid_get_light_state(vid,pid,light_name)
+	int LuaGetLightState(lua_State* L)
+	{
+		if (!(lua_isnumber(L, 1) && lua_isnumber(L, 2) && lua_isstring(L, 3)))
+		{
+			Logger(TLogLevel::logERROR) << "lua: wrong arguments to function hid_get_light_state()" << std::endl;
+			return 0;
+		}
+
+		int vid = (int)lua_tonumber(L, 1);
+		int pid = (int)lua_tonumber(L, 2);
+		std::string light_name = lua_tostring(L, 3);
+
+		TriggerType state = LuaHelper::get_instace()->get_light_state(vid, pid, light_name);
+
+		if (state == TriggerType::UNKNOWN)
+		{
+			Logger(TLogLevel::logWARNING) << "lua: error in get_light_state(" << vid << "," << pid << "," << light_name << ")" << std::endl;
+		}
+
+		std::string state_str = "";
+
+		switch (state) {
+		case TriggerType::BLINK: state_str = "BLINK"; 
+			break;
+		case TriggerType::LIT: state_str = "LIT"; 
+			break;
+		case TriggerType::UNLIT: state_str = "UNLIT";
+			break;
+		default:
+			state_str = "UNKOWN";
+			break;
+		}
+
+		Logger(TLogLevel::logTRACE) << "lua: LuaGetLightState " << lua_tostring(L, 3) << " return: " << state_str << std::endl;
+
+		lua_pushstring(L, state_str.c_str());
+		return 1;
+	}
 }
 
 LuaHelper::LuaHelper()
@@ -213,6 +291,41 @@ LuaHelper* LuaHelper::get_instace()
 	if (instance == NULL)
 		instance = new LuaHelper();
 	return instance;
+}
+
+void LuaHelper::register_hid_device(UsbHidDevice* _device)
+{
+	hid_devices.push_back(_device);
+}
+
+int LuaHelper::get_button_state(int vid, int pid, std::string button_name)
+{
+	for (auto dev : hid_devices)
+	{
+		if (dev->get_vid() == vid && dev->get_pid() == pid)
+		{
+			int buttonstate = dev->get_stored_button_state(button_name);
+			if (buttonstate != -1)
+				return buttonstate;
+		}
+	}
+
+	return -1; // error case
+}
+
+TriggerType LuaHelper::get_light_state(int vid, int pid, std::string light_name)
+{
+	for (auto dev : hid_devices)
+	{
+		if (dev->get_vid() == vid && dev->get_pid() == pid)
+		{
+			TriggerType lightstate = dev->get_stored_light_state(light_name);
+			if (lightstate != TriggerType::UNKNOWN)
+				return lightstate;
+		}
+	}
+
+	return TriggerType::UNKNOWN; // error case
 }
 
 int LuaHelper::load_script_file(std::string file_name)
@@ -242,6 +355,8 @@ int LuaHelper::init()
 	lua_register(lua, LUA_FUNC_NAME_GET_DATAREF, LuaGet);
 	lua_register(lua, LUA_FUNC_NAME_SET_DATAREF, LuaSet);
 	lua_register(lua, LUA_FUNC_NAME_LOG, LuaLogMsg);
+	lua_register(lua, LUA_FUNC_NAME_GET_BUTTON_STATE, LuaGetButtonState);
+	lua_register(lua, LUA_FUNC_NAME_GET_LIGHT_STATE, LuaGetLightState);
 
 	last_flight_loop_call = std::chrono::system_clock::now();
 	return EXIT_SUCCESS;

@@ -263,6 +263,7 @@ int init_and_start_xpanel_plugin(void)
 			device->connect();
 			device->start();
 			device->thread_handle = new std::thread(&SaitekMultiPanel::thread_func, (SaitekMultiPanel*)device);
+			LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
 			break;
 		case DeviceType::HOME_COCKPIT:
 			// set default vid & pid if it's not set in config file
@@ -276,6 +277,7 @@ int init_and_start_xpanel_plugin(void)
 			device->connect();
 			device->start();
 			device->thread_handle = new std::thread(&ArduinoHomeCockpit::thread_func, (ArduinoHomeCockpit*)device);
+			LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
 			break;
 		case DeviceType::SAITEK_RADIO:
 			// set default vid & pid if it's not set in config file
@@ -289,6 +291,7 @@ int init_and_start_xpanel_plugin(void)
 			device->connect();
 			device->start();
 			device->thread_handle = new std::thread(&SaitekRadioPanel::thread_func, (SaitekRadioPanel*)device);
+			LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
 			break;
 		default:
 			Logger(TLogLevel::logERROR) << "unknown device type" << std::endl;
