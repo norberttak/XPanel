@@ -3,6 +3,8 @@
 #include <ctime>
 #include <string>
 #include <map>
+#include <vector>
+#include "UsbHidDevice.h"
 #include "XPLMPlugin.h"
 #include "XPLMUtilities.h"
 #include "XPLMDataAccess.h"
@@ -21,11 +23,15 @@ public:
 	XPLMCommandRef get_commandref(std::string commandref_str);
 	XPLMDataRef get_dataref(std::string dataref_str);
 	XPLMDataTypeID get_dataref_type(XPLMDataRef dataref);
+	void register_hid_device(UsbHidDevice* _device);
+	int get_button_state(int vid, int pid, std::string button_name);
+	TriggerType get_light_state(int vid, int pid, std::string light_name);
 private:
 	static LuaHelper* instance;
 	std::map<std::string,XPLMCommandRef> command_refs;
 	std::map<std::string, XPLMDataRef> data_refs;
 	std::map<XPLMDataRef, XPLMDataTypeID> data_ref_types;
+	std::vector<UsbHidDevice*> hid_devices;
 	bool flight_loop_defined;
 	std::chrono::system_clock::time_point last_flight_loop_call;
 	LuaHelper();
