@@ -189,16 +189,19 @@ bool UsbHidDevice::updateLightStates()
 				set_bit_value(write_buffer, panel_light_it->bit, 1);
 				write_buffer_changed = true;
 				panel_light_it->blink_active = false;
+				stored_light_states[it.first] = light_change;
 				break;
 			case TriggerType::UNLIT:
 				Logger(TLogLevel::logDEBUG) << " " << it.first << " activated UNLIT" << std::endl;
 				set_bit_value(write_buffer, panel_light_it->bit, 0);
 				write_buffer_changed = true;
 				panel_light_it->blink_active = false;
+				stored_light_states[it.first] = light_change;
 				break;
 			case TriggerType::BLINK:
 				Logger(TLogLevel::logDEBUG) << " " << it.first << " activated BLINK" << std::endl;
 				panel_light_it->blink_active = true;
+				stored_light_states[it.first] = light_change;
 				break;
 			case TriggerType::NO_CHANGE:
 				//
@@ -259,10 +262,12 @@ void UsbHidDevice::process_selector_switch()
 	for (auto sel : selectors)
 	{
 		if (!is_bit_changed(read_buffer, read_buffer_old, sel.bit))
-			continue;
+			continue;		
 
 		if (get_bit_value(read_buffer, sel.bit))
 		{
+			stored_button_states[sel.config_name] = 1;
+
 			for (auto button : buttons)
 			{
 				for (auto act : config.push_actions[button.config_name.c_str()])
@@ -287,6 +292,8 @@ void UsbHidDevice::process_selector_switch()
 		}
 		else
 		{
+			stored_button_states[sel.config_name] = 0;
+
 			for (auto button : buttons)
 			{
 				for (auto act : config.push_actions[button.config_name.c_str()])
@@ -308,6 +315,8 @@ void UsbHidDevice::process_and_store_button_states()
 	{
 		if (is_bit_changed(read_buffer, read_buffer_old, button.bit))
 		{
+			stored_button_states[button.config_name] = get_bit_value(read_buffer, button.bit);
+
 			Logger(TLogLevel::logTRACE) << "UsbHidDevice " << button.config_name << " button bit changed " << std::endl;
 			if (get_bit_value(read_buffer, button.bit) && config.push_actions.find(button.config_name.c_str()) != config.push_actions.end())
 			{
@@ -327,6 +336,28 @@ void UsbHidDevice::process_and_store_button_states()
 			}
 		}
 	}
+}
+
+int UsbHidDevice::get_stored_button_state(std::string button_name)
+{
+	if (stored_button_states.count(button_name) == 0)
+	{
+		Logger(TLogLevel::logWARNING) << "get_stored_button_state: unknown button name: " << button_name << std::endl;
+		return -1;
+	}
+
+	return stored_button_states[button_name];
+}
+
+TriggerType UsbHidDevice::get_stored_light_state(std::string light_name)
+{
+	if (stored_light_states.count(light_name) == 0)
+	{
+		Logger(TLogLevel::logWARNING) << "get_stored_light_state: unknown light name: " << light_name << std::endl;
+		return TriggerType::UNKNOWN;
+	}
+
+	return stored_light_states[light_name];
 }
 
 void UsbHidDevice::thread_func()

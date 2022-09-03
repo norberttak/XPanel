@@ -52,6 +52,10 @@ public:
 	UsbHidDevice(DeviceConfiguration& config, int _read_buffer_size, int _write_buffer_size);
 	~UsbHidDevice();
 	virtual void thread_func();
+	int get_vid() { return vid; }
+	int get_pid() { return pid; }
+	int get_stored_button_state(std::string button_name);
+	TriggerType get_stored_light_state(std::string light_name);
 protected:
 	int connect();
 	virtual void start();
@@ -66,6 +70,8 @@ protected:
 	hid_device* device_handle = NULL;
 private:
 	std::vector<PanelButton> buttons;
+	std::map<std::string, int> stored_button_states;
+	std::map<std::string, TriggerType> stored_light_states;
 	std::vector<PanelButton> selectors;
 	std::vector<PanelLight> lights;
 	std::vector<PanelDisplay> panel_displays;
