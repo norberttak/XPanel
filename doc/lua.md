@@ -36,6 +36,32 @@ The dataref types are listed [here](https://developer.x-plane.com/sdk/XPLMDataAc
 You may know that it's a high cost call into the XPlane system to find an internal dataref by the name (more details [here](https://developer.x-plane.com/sdk/XPLMDataAccess/)) Therefore the plugin will 
 store the dataref pointer so the costly XPLMFindDataRef will be called only once.
 
+## Get the value of an Input or Output HW line
+You can query the value of input/output HW lines. For example you can read the position of a switch or a light state.
+### To read the state of a button/switch:
+```lua
+hid_get_button_state(vid,pid,button_name)
+```
+,where vid and pid are the integer value of the USB HID device's VID and PID. Please note you can query only those devices which are in your active configuration. The button_name is a string parameter and it shall be match with the button names used in the configuration.
+
+The return value is a string type:
+
+"ON", "OFF", "UNKNOWN"
+
+UNKNOWN could mean either the button_name is not valid or the button didn't changed its state.
+
+### To read the state of a light:
+```lua
+hid_get_light_state(vid,pid,light_name)
+```
+,where vid and pid are the integer value of the USB HID device's VID and PID. Please note you can query only those devices which are in your active configuration. The light_name is a string parameter and it shall be match with the light names used in the configuration.
+
+The return value is a string type:
+
+"LIT", "UNLIT", "BLINK", ""UNKNOWN"
+
+UNKNOWN could mean either the light_name is not valid or the light didn't changed its state.
+
 ## Logger command
 To put a log line into the xplane's log file you can use this lua command. 
 The first parameter determines the log level. If the actual log level is higher than your message here (for example you call log_msg with first parameter as 'TRACE' and the log level is set to INFO by the [config file](configuration.md)) 
