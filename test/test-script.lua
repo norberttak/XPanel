@@ -29,6 +29,19 @@ function get_led_status()
     return 1
 end
 
+function get_hid_input_status(button_name)
+    ret_hid_val_str = hid_get_button_state(0x12AB,0x34CD,button_name)
+    log_msg("TRACE","get_hid_input_status(\""..button_name.."\")=>"..tostring(ret_hid_val_str))
+
+    if (ret_hid_val_str == "ON") then
+        ret_hid_val = 1
+    else
+        ret_hid_val = 0
+    end
+
+    return ret_hid_val
+end
+
 function get_variometer()
     log_msg("TRACE","get_variometer() called")
     vario = get_dataref("sim/test/variometer")

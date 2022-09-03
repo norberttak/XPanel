@@ -42,6 +42,7 @@ namespace test
 			device->connect();
 			device->start();
 			t = new std::thread(&SaitekMultiPanel::thread_func, (SaitekMultiPanel*)device);
+			LuaHelper::get_instace()->register_hid_device(device);
 		}
 
 		TEST_METHOD(Test_VID_PID)
@@ -239,6 +240,23 @@ namespace test
 			std::this_thread::sleep_for(250ms);
 			test_flight_loop(config.device_configs);
 			Assert::AreEqual(0, test_get_dataref_value(dataref_str.c_str()));
+		}
+
+		TEST_METHOD(TestMultiPanelLuaReadHid)
+		{
+			// Press REV button
+			unsigned char buffer[4] = { 0,0x40,0,0 };
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+			test_flight_loop(config.device_configs);
+			Assert::AreEqual(1, (int)LuaHelper::get_instace()->do_string("return get_hid_input_status('REV')"));
+			
+			// Release REV button
+			buffer[1] = 0;
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+			test_flight_loop(config.device_configs);
+			Assert::AreEqual(0, (int)LuaHelper::get_instace()->do_string("return get_hid_input_status('REV')"));
 		}
 
 		TEST_METHOD_CLEANUP(TestMultiPanelCleanup)
