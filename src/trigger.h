@@ -10,7 +10,8 @@ typedef enum {
 	NO_CHANGE,
 	LIT,
 	UNLIT,
-	BLINK
+	BLINK,
+	UNKNOWN
 } TriggerType;
 
 class Trigger
