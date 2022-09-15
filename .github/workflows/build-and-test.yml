@@ -33,6 +33,12 @@ jobs:
       - name: Run tests
         run: vstest.console.exe /Platform:x64 x64/Release/test.dll
 
+      - name: Upload built plugin
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-plugin
+          path: Release/plugins/XPanel/64/*
+
       - name: Upload test logs
         uses: actions/upload-artifact@v3
         with:
