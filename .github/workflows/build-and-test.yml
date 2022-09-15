@@ -1,4 +1,4 @@
-name: MSBuild
+name: Build and Test
 
 on:
   push:
@@ -19,19 +19,21 @@ permissions:
   contents: read
 
 jobs:
-  build_and_test:
+  build-and-test:
+    name: Build and Test
+
     runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Add MSBuild to PATH
+      - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.0.2
 
-      - name: Setup VSTest Path
+      - name: Setup VSTest
         uses: darenm/Setup-VSTest@v1
 
-      - name: Restore NuGet packages
+      - name: Install dependencies
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: nuget restore ${{env.SOLUTION_FILE_PATH}}
 
@@ -41,11 +43,12 @@ jobs:
         # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
         run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}  
 
-      - name: Tests
+      - name: Run tests
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: vstest.console.exe /Platform:x64 ./x64/Release/test.dll
 
-      - uses: actions/upload-artifact@v3
+      - name: Upload test logs
+        uses: actions/upload-artifact@v3
         with:
           name: test_log
           path: ${{env.SOLUTION_FILE_PATH}}/x64/Release/test_log.txt
