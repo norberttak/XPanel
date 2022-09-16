@@ -1,0 +1,47 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and Test
+
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Install dependencies
+        run: nuget restore .
+
+      - name: Build
+        run: msbuild /m /p:Configuration=Release .
+
+      - name: Setup VSTest
+        uses: darenm/Setup-VSTest@v1
+
+      - name: Run tests
+        run: vstest.console.exe /Platform:x64 x64/Release/test.dll
+
+      - name: Upload built plugin
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-plugin
+          path: Release/plugins/XPanel/64/*
+
+      - name: Upload test logs
+        uses: actions/upload-artifact@v3
+        with:
+          name: test_log
+          path: x64/Release/test_log.txt
