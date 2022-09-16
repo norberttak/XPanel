@@ -35,6 +35,11 @@ jobs:
           name: built-plugin
           path: built-plugin/plugins/XPanel/64/
 
+      - name: Copy 3rd party dlls
+        run: |
+          cp LUA/lua54.dll built-plugin/plugins/XPanel/64/
+          cp hidapi/lib/hidapi.dll built-plugin/plugins/XPanel/64/
+
       - name: Create release plugin zip
         run: |
           cd built-plugin
