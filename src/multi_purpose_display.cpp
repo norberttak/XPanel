@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include <cfloat>
 #include <limits>
 #include "multi_purpose_display.h"
 #include "lua_helper.h"
@@ -79,7 +80,7 @@ bool MultiPurposeDisplay::is_registered_selector(std::string selector_sw_name)
 void MultiPurposeDisplay::evaluate_and_store_dataref_value()
 {
 	guard.lock();
-	
+
 	if (conditions.count(active_condition) != 0 && data_ref_types[active_condition] != 0)
 	{
 		condition = conditions[active_condition];
@@ -104,7 +105,7 @@ void MultiPurposeDisplay::evaluate_and_store_dataref_value()
 	guard.unlock();
 
 	GenericDisplay::evaluate_and_store_dataref_value();
-	
+
 	if (abs(display_value - display_value_old) >= 0.001)
 		display_value_changed = true;
 

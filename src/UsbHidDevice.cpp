@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include <cstring>
 #include "UsbHidDevice.h"
 #include "logger.h"
 
@@ -268,7 +269,7 @@ void UsbHidDevice::process_selector_switch()
 	for (auto sel : selectors)
 	{
 		if (!is_bit_changed(read_buffer, read_buffer_old, sel.bit))
-			continue;		
+			continue;
 
 		if (get_bit_value(read_buffer, sel.bit))
 		{

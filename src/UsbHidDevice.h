@@ -5,7 +5,7 @@
  */
 
 #pragma once
-#include <stdlib.h>
+#include <cstdlib>
 #include <thread>
 #include <atomic>
 #include <chrono>

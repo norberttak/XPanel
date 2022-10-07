@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include <cstring>
 #include "lua_helper.h"
 #include "lua.hpp"
 #include "logger.h"
@@ -269,9 +270,9 @@ extern "C" {
 		std::string state_str = "";
 
 		switch (state) {
-		case TriggerType::BLINK: state_str = "BLINK"; 
+		case TriggerType::BLINK: state_str = "BLINK";
 			break;
-		case TriggerType::LIT: state_str = "LIT"; 
+		case TriggerType::LIT: state_str = "LIT";
 			break;
 		case TriggerType::UNLIT: state_str = "UNLIT";
 			break;

@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include <cmath>
+#include <cfloat>
 #include "generic_display.h"
 #include "lua_helper.h"
 #include "logger.h"
@@ -65,7 +67,7 @@ void GenericDisplay::evaluate_and_store_dataref_value()
 		if (const_value > DBL_MIN)
 			display_value = const_value;
 		else if (!lua_function.empty())
-			display_value = LuaHelper::get_instace()->do_string("return " + lua_function);		
+			display_value = LuaHelper::get_instace()->do_string("return " + lua_function);
 		break;
 	}
 	guard.unlock();
@@ -77,7 +79,7 @@ void GenericDisplay::evaluate_and_store_dataref_value()
 }
 
 bool GenericDisplay::get_decimal_components(int number, unsigned char* buffer)
-{	
+{
 	bool negative = false;
 	if (number < 0)
 	{
