@@ -11,7 +11,8 @@
 #include <chrono>
 #include <utility>
 #include <filesystem>
-#include <string.h>
+#include <cstring>
+#include <cstdio>
 #include "lua.hpp"
 #include "XPLMGraphics.h"
 #include "XPLMPlugin.h"
@@ -87,9 +88,9 @@ PLUGIN_API int XPluginStart(
 	Logger::set_log_level(TLogLevel::logINFO);
 	Logger(TLogLevel::logINFO) << "plugin start" << std::endl;
 
-	strcpy_s(outName, 16, "XPanel ver " PLUGIN_VERSION);
-	strcpy_s(outSig, 16, PLUGIN_SIGNATURE);
-	strcpy_s(outDesc, 64, "A plugin to handle control devices using hidapi interface");
+	snprintf(outName, 256, "XPanel ver %s", PLUGIN_VERSION);
+	snprintf(outSig, 256, "%s", PLUGIN_SIGNATURE);
+	snprintf(outDesc, 256, "A plugin to handle control devices using hidapi interface");
 
 	Logger(TLogLevel::logINFO) << "XPanel ver " PLUGIN_VERSION << std::endl;
 	Logger(TLogLevel::logINFO) << "Built at " __DATE__ " " __TIME__ << std::endl;
