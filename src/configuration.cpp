@@ -16,6 +16,8 @@ Configuration& Configuration::operator=(const Configuration& other)
 	version = other.version;
 
 	device_configs = other.device_configs;
+
+	return *this;
 }
 
 void Configuration::clear()
