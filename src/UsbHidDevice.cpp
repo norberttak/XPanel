@@ -9,7 +9,7 @@
 #include "logger.h"
 
 int UsbHidDevice::ref_count = 0;
-bool UsbHidDevice::hid_api_initialized = FALSE;
+bool UsbHidDevice::hid_api_initialized = false;
 
 UsbHidDevice::UsbHidDevice(DeviceConfiguration& config, int _read_buffer_size, int _write_buffer_size) :Device(config)
 {
@@ -20,7 +20,7 @@ UsbHidDevice::UsbHidDevice(DeviceConfiguration& config, int _read_buffer_size, i
 	read_buffer_size = _read_buffer_size;
 	write_buffer_size = _write_buffer_size;
 
-	_thread_run.store(FALSE);
+	_thread_run.store(false);
 	vid = config.vid;
 	pid = config.pid;
 
@@ -28,7 +28,7 @@ UsbHidDevice::UsbHidDevice(DeviceConfiguration& config, int _read_buffer_size, i
 	{
 		Logger(TLogLevel::logDEBUG) << "UsbHidDevice: call hid_init()" << std::endl;
 		hid_init();
-		hid_api_initialized = TRUE;
+		hid_api_initialized = true;
 	}
 }
 
@@ -126,15 +126,15 @@ bool UsbHidDevice::is_bit_changed(unsigned char* buf, unsigned char* buf_old, in
 void UsbHidDevice::start()
 {
 	Logger(TLogLevel::logDEBUG) << "UsbHidDevice::start" << std::endl;
-	_thread_run.store(TRUE);
+	_thread_run.store(true);
 }
 
 void UsbHidDevice::stop(int time_out_msec)
 {
 	Logger(TLogLevel::logDEBUG) << "UsbHidDevice::stop" << std::endl;
-	_thread_run.store(FALSE);
+	_thread_run.store(false);
 	int time_to_wait = time_out_msec;
-	while (_thread_finish.load() == FALSE && time_to_wait > 0)
+	while (_thread_finish.load() == false && time_to_wait > 0)
 	{
 		std::this_thread::sleep_for(1ms);
 		time_to_wait--;
@@ -375,7 +375,7 @@ void UsbHidDevice::thread_func()
 
 	_thread_finish.store(false);
 
-	while (_thread_run.load() == TRUE)
+	while (_thread_run.load() == true)
 	{
 		std::this_thread::sleep_for(20ms);
 
