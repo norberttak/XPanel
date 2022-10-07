@@ -23,17 +23,45 @@ Please don't forget to remove any other plugins that want to connect to your USB
 If you have any errors during the plugin load or run please check the main xplane log file. If you want more detailed logs from the plugin, please set the log level to DEBUG or even TRACE. See the details at [config syntax](doc/configuration.md)
 
 ## Build
-The project can be built by Visual Studio 2022 on windows machines. It can be ported to Linux systems as well but that will be in a later phase only.
+The project can be built on Windows and Linux machines.
 
 Check out the latest source file from [github](https://github.com/norberttak/XPanel)
 
-### Build the plugin and unit tests
+### Linux
+#### Dependencies
+- C++ toolchain
+- CMake
+- pkg-config
+- hidapi
+- Lua
+
+#### Build and install the plugin
+```
+$ cmake --install-prefix /tmp/xpanel-install -S . -B build
+$ cmake --build build
+$ cmake --install build
+```
+
+Copy or link the `/tmp/xpanel-install/XPanel` directory into the X-Plane plugin folder.
+
+#### Device permissions
+
+Add the appropriate udev rules to grant device access permissions, for example:
+
+```
+/etc/udev/rules.d/99-leonardo.rules:
+
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="2341", ATTRS{idProduct}=="8036", MODE:="0666"
+```
+
+### Windows
+#### Build the plugin and unit tests
 Open the solution file (XPanel.sln) with Visual Studio. Select either Release or Debug build configuration. The solution file contains two projects. One for the xpanel plugin and one for the unit tests.
 
 The build artifact of the plugin is generated in the Release|Debug/plugin/xpanel folder (win.xpl file)
 
-### Run unit tests
-To run the unit tests, open the Visual Studio test menu and select Test Explorer. Push the run-all button and check the test results. 
+#### Run unit tests
+To run the unit tests, open the Visual Studio test menu and select Test Explorer. Push the run-all button and check the test results.
 
 ## Report bugs
 If you find any bug in the plugin or need help please open a new bug report at [github](https://github.com/norberttak/XPanel/issues) Please always attach the Xplane log file and make sure you set the highest log level (TRACE) in the plugin config file. Also attach your plugin configuration file as well. 
