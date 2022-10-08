@@ -46,7 +46,7 @@ ArduinoHomeCockpit::ArduinoHomeCockpit(DeviceConfiguration& config) :UsbHidDevic
 	}
 }
 
-int ArduinoHomeCockpit::read_board_configuration(std::string file_name, int expected_vid, int expected_pid)
+int ArduinoHomeCockpit::read_board_configuration(std::string file_name, unsigned int expected_vid, unsigned int expected_pid)
 {
 	std::ifstream input_file(file_name);
 	Logger(TLogLevel::logINFO) << "board config: parse file: " << file_name << std::endl;
