@@ -5,6 +5,7 @@
  */
 
 #include <cstring>
+#include <string>
 #include "lua_helper.h"
 #include "lua.hpp"
 #include "logger.h"
@@ -32,9 +33,8 @@ extern "C" {
 			return 0;
 		}
 
-		char dataref_str[1024];
-		strncpy_s(dataref_str, lua_tostring(L, 1), sizeof(dataref_str));
-		XPLMCommandRef CommandId = XPLMFindCommand(dataref_str);
+		std::string dataref_str = lua_tostring(L, 1);
+		XPLMCommandRef CommandId = XPLMFindCommand(dataref_str.c_str());
 		if (CommandId == NULL)
 		{
 			Logger(TLogLevel::logERROR) << "Lua command: invalid dataref :" << dataref_str << std::endl;
@@ -72,7 +72,6 @@ extern "C" {
 
 	static int LuaGet(lua_State* L)
 	{
-		char dataref_str[1024];
 		int  dataref_array_index = 0;
 
 		if (!lua_isstring(L, 1))
@@ -80,8 +79,8 @@ extern "C" {
 			Logger(TLogLevel::logERROR) << "Lua get: invalid parameter. not a string?" << std::endl;
 			return 0;
 		}
-		strncpy_s(dataref_str, lua_tostring(L, 1), sizeof(dataref_str));
 
+		std::string dataref_str = lua_tostring(L, 1);
 		XPLMDataRef dataref = LuaHelper::get_instace()->get_dataref(dataref_str);
 		if (dataref == NULL)
 		{
@@ -131,15 +130,14 @@ extern "C" {
 
 	static int LuaSet(lua_State* L)
 	{
-		char dataref_str[1024];
 
 		if (!(lua_isstring(L, 1) && lua_isnumber(L, 2)))
 		{
 			Logger(TLogLevel::logERROR) << "lua set: wrong arguments to function set()" << std::endl;
 			return 0;
 		}
-		strncpy_s(dataref_str, lua_tostring(L, 1), sizeof(dataref_str));
 
+		std::string dataref_str = lua_tostring(L, 1);
 		XPLMDataRef dataref = LuaHelper::get_instace()->get_dataref(dataref_str);
 		if (dataref == NULL)
 		{
@@ -179,30 +177,25 @@ extern "C" {
 	/*lua function: log_msg("ERROR","your log message")*/
 	int LuaLogMsg(lua_State* L)
 	{
-		char log_level_str[64];
-		memset(log_level_str, 0, sizeof(log_level_str));
-
-		char log_msg[1024];
-		memset(log_msg, 0, sizeof(log_msg));
-
 		if (!(lua_isstring(L, 1) && lua_isstring(L, 2)))
 		{
 			Logger(TLogLevel::logERROR) << "lua set: wrong arguments to function log_msg()" << std::endl;
 			return 0;
 		}
-		strncpy_s(log_level_str, lua_tostring(L, 1), sizeof(log_level_str));
-		strncpy_s(log_msg, lua_tostring(L, 2), sizeof(log_msg));
+
+		std::string log_level_str = lua_tostring(L, 1);
+		std::string log_msg = lua_tostring(L, 2);
 
 		TLogLevel log_level;
-		if (strcmp("ERROR", log_level_str) == 0)
+		if (log_level_str == "ERROR")
 			log_level = TLogLevel::logERROR;
-		else if (strcmp("WARNING", log_level_str) == 0)
+		else if (log_level_str == "WARNING")
 			log_level = TLogLevel::logWARNING;
-		else if (strcmp("INFO", log_level_str) == 0)
+		else if (log_level_str == "INFO")
 			log_level = TLogLevel::logINFO;
-		else if (strcmp("DEBUG", log_level_str) == 0)
+		else if (log_level_str == "DEBUG")
 			log_level = TLogLevel::logDEBUG;
-		else if (strcmp("TRACE", log_level_str) == 0)
+		else if (log_level_str == "TRACE")
 			log_level = TLogLevel::logTRACE;
 		else
 			log_level = TLogLevel::logTRACE;
