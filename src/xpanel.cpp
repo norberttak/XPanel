@@ -122,7 +122,7 @@ PLUGIN_API int  XPluginEnable(void)
 	return 1;
 }
 
-float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon)
+float flight_loop_callback(float, float, int, void*)
 {
 	for (auto it : config.device_configs)
 	{
@@ -154,7 +154,7 @@ float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 	return FLIGHT_LOOP_TIME_PERIOD;
 }
 
-float error_display_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon)
+float error_display_callback(float, float, int, void*)
 {
 	// Nothing to display. Call me back later.
 	if (Logger::number_of_stored_messages() == 0)
@@ -311,7 +311,7 @@ int init_and_start_xpanel_plugin(void)
 	return EXIT_SUCCESS;
 }
 
-PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inParam)
+PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void*)
 {
 	if (inFrom == XPLM_PLUGIN_XPLANE)
 	{
@@ -332,7 +332,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inPa
 	}
 }
 
-void menu_handler(void* in_menu_ref, void* in_item_ref)
+void menu_handler(void*, void* in_item_ref)
 {
 	MenuItemType menu_item = *(MenuItemType*)in_item_ref;
 

@@ -7,42 +7,42 @@
 #include "message_window.h"
 
 int dummy_mouse_handler(
-	XPLMWindowID         inWindowID,
-	int                  x,
-	int                  y,
-	XPLMMouseStatus      inMouse,
-	void* inRefcon)
+	XPLMWindowID,
+	int,
+	int,
+	XPLMMouseStatus,
+	void*)
 {
 	return 0;
 }
 
 int dummy_wheel_handler(
-	XPLMWindowID         inWindowID,
-	int                  x,
-	int                  y,
-	int                  wheel,
-	int                  clicks,
-	void* inRefcon)
+	XPLMWindowID,
+	int,
+	int,
+	int,
+	int,
+	void*)
 {
 	return 0;
 }
 
 void dummy_key_handler(
-	XPLMWindowID         inWindowID,
-	char                 inKey,
-	XPLMKeyFlags         inFlags,
-	char                 inVirtualKey,
-	void* inRefcon,
-	int                  losingFocus)
+	XPLMWindowID,
+	char,
+	XPLMKeyFlags,
+	char,
+	void*,
+	int)
 {
 
 }
 
 XPLMCursorStatus dummy_cursor_status_handler(
-	XPLMWindowID         inWindowID,
-	int                  x,
-	int                  y,
-	void* inRefcon)
+	XPLMWindowID,
+	int,
+	int,
+	void*)
 {
 	return xplm_CursorDefault;
 }
