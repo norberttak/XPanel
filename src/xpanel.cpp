@@ -118,7 +118,7 @@ PLUGIN_API int  XPluginEnable(void)
 
 float flight_loop_callback(float, float, int, void*)
 {
-	for (auto it : config.device_configs)
+	for (const auto& it : config.device_configs)
 	{
 		// check and set LED states
 		for (auto triggers : it.light_triggers)
@@ -248,7 +248,7 @@ int init_and_start_xpanel_plugin(void)
 
 	Device* device;
 
-	for (auto it : config.device_configs)
+	for (auto& it : config.device_configs)
 	{
 		switch (it.device_type) {
 		case DeviceType::SAITEK_MULTI:
