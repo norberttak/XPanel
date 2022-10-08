@@ -5,6 +5,7 @@
  */
 
 #pragma once
+#include <cstddef>
 #include <sstream>
 #include <list>
 #include <mutex>
@@ -29,17 +30,17 @@ public:
 		current_log_level = level;
 	}
 
-	static int number_of_stored_messages()
-	{	
+	static std::size_t number_of_stored_messages()
+	{
 		guard.lock();
-		int number_of_messages = saved_errors_and_warnings.size();
+		std::size_t number_of_messages = saved_errors_and_warnings.size();
 		guard.unlock();
 
 		return number_of_messages;
 	}
 
 	static std::list<std::string> get_and_clear_stored_messages()
-	{	
+	{
 		guard.lock();
 		std::list<std::string> messages = saved_errors_and_warnings;
 		saved_errors_and_warnings.clear();
@@ -54,7 +55,7 @@ public:
 	}
 
 	~Logger()
-	{		
+	{
 		auto time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
 		if (current_log_level >= last_message_log_level)
@@ -78,7 +79,7 @@ public:
 				break;
 			default:
 				log_level_str = "[UNKNOWN]:";
-			} 
+			}
 			XPLMDebugString(("XPanel ["+ std::to_string(time_since_epoch & 0xffff) + "] " + log_level_str + str()).c_str());
 
 			if (last_message_log_level == TLogLevel::logERROR || last_message_log_level == TLogLevel::logWARNING)
