@@ -159,7 +159,7 @@ int Configparser::parse_line(std::string line, Configuration& config)
 	{
 		time_low = stof(m[1]);
 		multi_low = stoi(m[2]);
-		
+
 		time_high = stof(m[3]);
 		multi_high = stoi(m[4]);
 
@@ -312,12 +312,14 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		CommandType command_type = CommandType::NONE;
 
 		if (m.size() >= 3)
+		{
 			if (m[2] == "begin")
 				command_type = CommandType::BEGIN;
 			else if (m[2] == "end")
 				command_type = CommandType::END;
 			else
 				command_type = CommandType::ONCE;
+		}
 
 		Action* push_action = new Action(commandRef, command_type);
 		Logger(TLogLevel::logDEBUG) << "parser: button push command " << m[1].str() << std::endl;
@@ -336,12 +338,14 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		CommandType command_type = CommandType::ONCE;
 
 		if (m.size() >= 3)
+		{
 			if (m[2] == "begin")
 				command_type = CommandType::BEGIN;
 			else if (m[2] == "end")
 				command_type = CommandType::END;
 			else
 				command_type = CommandType::ONCE;
+		}
 
 		Action* release_action = new Action(commandRef, command_type);
 		Logger(TLogLevel::logDEBUG) << "parser: button release command " << m[1].str() << std::endl;
@@ -360,12 +364,14 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		CommandType command_type = CommandType::NONE;
 
 		if (m.size() >= 4)
+		{
 			if (m[3] == "begin")
 				command_type = CommandType::BEGIN;
 			else if (m[3] == "end")
 				command_type = CommandType::END;
 			else
 				command_type = CommandType::ONCE;
+		}
 
 		Action* push_action = new Action(commandRef, command_type);
 		push_action->add_condition(m[1]);
@@ -394,12 +400,14 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		CommandType command_type = CommandType::NONE;
 
 		if (m.size() >= 4)
+		{
 			if (m[3] == "begin")
 				command_type = CommandType::BEGIN;
 			else if (m[3] == "end")
 				command_type = CommandType::END;
 			else
 				command_type = CommandType::ONCE;
+		}
 
 		Action* release_action = new Action(commandRef, command_type);
 		release_action->add_condition(m[1]);
@@ -465,7 +473,7 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		config.device_configs.back().light_triggers[section_id].push_back(unlit_trigger);
 		return EXIT_SUCCESS;
 	}
-	
+
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_TRIGGER_LIT_LUA)))
 	{
 		Trigger* lit_trigger = new Trigger(m[1], stoi(m[2]), TriggerType::LIT);
@@ -551,7 +559,7 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		config.device_configs.back().multi_displays[section_id]->add_condition(m[1], m[2]);
 		return EXIT_SUCCESS;
 	}
-	
+
 	//
 	//TOKEN_MULTI_KNOB_CHANGE_COMMANDREF
 
