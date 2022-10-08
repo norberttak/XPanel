@@ -155,7 +155,7 @@ float error_display_callback(float, float, int, void*)
 		return ERROR_DISPLAY_TIME_PERIOD;
 
 	std::list<std::string> error_msgs = Logger::get_and_clear_stored_messages();
-	MessageWindow* msg_window = new MessageWindow(std::string("Xpanel: Errors and Warnings"), error_msgs, true);
+	new MessageWindow(std::string("Xpanel: Errors and Warnings"), error_msgs, true);
 
 	return ERROR_DISPLAY_TIME_PERIOD;
 }
