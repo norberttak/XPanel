@@ -1,3 +1,9 @@
+/*
+ * Copyright 2022 Norbert Takacs
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 #pragma once
 #include <string>
 #include <vector>
@@ -80,4 +86,3 @@ private:
 public:
 	int parse_file(std::string file_name, Configuration& config);
 };
-

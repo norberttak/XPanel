@@ -1,3 +1,9 @@
+/*
+ * Copyright 2022 Norbert Takacs
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 #include "Action.h"
 #include "lua_helper.h"
 #include "XPLMUtilities.h"

@@ -1,3 +1,9 @@
+/*
+ * Copyright 2022 Norbert Takacs
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 #include "logger.h"
 
 TLogLevel Logger::current_log_level = TLogLevel::logINFO;

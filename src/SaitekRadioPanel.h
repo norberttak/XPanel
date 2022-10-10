@@ -1,3 +1,9 @@
+/*
+ * Copyright 2022 Norbert Takacs
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 #pragma once
 #include <vector>
 #include "device.h"
@@ -16,4 +22,3 @@ public:
 	void start();
 	void stop(int timeout);
 };
-

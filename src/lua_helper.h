@@ -1,3 +1,9 @@
+/*
+ * Copyright 2022 Norbert Takacs
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 #pragma once
 #include <chrono>
 #include <ctime>
@@ -36,4 +42,3 @@ private:
 	std::chrono::system_clock::time_point last_flight_loop_call;
 	LuaHelper();
 };
-
