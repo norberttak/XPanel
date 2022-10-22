@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <filesystem>
 #include <fstream>
@@ -21,7 +21,7 @@
 std::filesystem::path get_plugin_path();
 
 ArduinoHomeCockpit::ArduinoHomeCockpit(DeviceConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
-{	
+{
 	std::filesystem::path board_config_path = get_plugin_path();
 	board_config_path /= "board-config.ini";
 
@@ -46,7 +46,7 @@ ArduinoHomeCockpit::ArduinoHomeCockpit(DeviceConfiguration& config) :UsbHidDevic
 	}
 }
 
-int ArduinoHomeCockpit::read_board_configuration(std::string file_name, int expected_vid, int expected_pid)
+int ArduinoHomeCockpit::read_board_configuration(std::string file_name, unsigned int expected_vid, unsigned int expected_pid)
 {
 	std::ifstream input_file(file_name);
 	Logger(TLogLevel::logINFO) << "board config: parse file: " << file_name << std::endl;
@@ -76,8 +76,8 @@ int ArduinoHomeCockpit::read_board_configuration(std::string file_name, int expe
 		if (line.size() == 0)
 			continue;
 
-		std::cmatch m; 
-		
+		std::cmatch m;
+
 		if (std::regex_match(line.c_str(), m, std::regex(TOKEN_DEVICE)))
 		{
 			Logger(TLogLevel::logDEBUG) << "board config: device id = " << m[1] << std::endl;
@@ -103,7 +103,7 @@ int ArduinoHomeCockpit::read_board_configuration(std::string file_name, int expe
 			std::stringstream ss;
 			ss << std::hex << m[1];
 			unsigned int pid;
-			ss >> pid; 
+			ss >> pid;
 			if (pid != expected_pid)
 			{
 				Logger(TLogLevel::logWARNING) << "board config: pid " << pid << " doesn't match with expected " << expected_pid << std::endl;
@@ -120,7 +120,7 @@ int ArduinoHomeCockpit::read_board_configuration(std::string file_name, int expe
 		}
 
 		if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON)))
-		{				
+		{
 			unsigned int bit_index = stoi(m[2]);
 			arduino_buttons.push_back(PanelButton(register_index*8 + bit_index, m[1]));
 
@@ -142,7 +142,7 @@ int ArduinoHomeCockpit::read_board_configuration(std::string file_name, int expe
 	}
 
 	input_file.close();
-	
+
 	register_selectors(arduino_buttons);
 
 	return exit_status;

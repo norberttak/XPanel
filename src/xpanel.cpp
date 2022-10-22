@@ -11,7 +11,8 @@
 #include <chrono>
 #include <utility>
 #include <filesystem>
-#include <string.h>
+#include <cstring>
+#include <cstdio>
 #include "lua.hpp"
 #include "XPLMGraphics.h"
 #include "XPLMPlugin.h"
@@ -43,15 +44,8 @@ BOOL APIENTRY DllMain(HANDLE hModule,
 	case DLL_PROCESS_DETACH:
 		break;
 	}
-	return TRUE;
+	return true;
 }
-#endif
-#if LIN
-#include <GL/gl.h>
-#elif __GNUC__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
 #endif
 
 #ifndef XPLM300
@@ -87,9 +81,9 @@ PLUGIN_API int XPluginStart(
 	Logger::set_log_level(TLogLevel::logINFO);
 	Logger(TLogLevel::logINFO) << "plugin start" << std::endl;
 
-	strcpy_s(outName, 16, "XPanel ver " PLUGIN_VERSION);
-	strcpy_s(outSig, 16, PLUGIN_SIGNATURE);
-	strcpy_s(outDesc, 64, "A plugin to handle control devices using hidapi interface");
+	snprintf(outName, 256, "XPanel ver %s", PLUGIN_VERSION);
+	snprintf(outSig, 256, "%s", PLUGIN_SIGNATURE);
+	snprintf(outDesc, 256, "A plugin to handle control devices using hidapi interface");
 
 	Logger(TLogLevel::logINFO) << "XPanel ver " PLUGIN_VERSION << std::endl;
 	Logger(TLogLevel::logINFO) << "Built at " __DATE__ " " __TIME__ << std::endl;
@@ -122,9 +116,9 @@ PLUGIN_API int  XPluginEnable(void)
 	return 1;
 }
 
-float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon)
+float flight_loop_callback(float, float, int, void*)
 {
-	for (auto it : config.device_configs)
+	for (const auto& it : config.device_configs)
 	{
 		// check and set LED states
 		for (auto triggers : it.light_triggers)
@@ -154,14 +148,14 @@ float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinc
 	return FLIGHT_LOOP_TIME_PERIOD;
 }
 
-float error_display_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon)
+float error_display_callback(float, float, int, void*)
 {
 	// Nothing to display. Call me back later.
 	if (Logger::number_of_stored_messages() == 0)
 		return ERROR_DISPLAY_TIME_PERIOD;
 
 	std::list<std::string> error_msgs = Logger::get_and_clear_stored_messages();
-	MessageWindow* msg_window = new MessageWindow(std::string("Xpanel: Errors and Warnings"), error_msgs, true);
+	new MessageWindow(std::string("Xpanel: Errors and Warnings"), error_msgs, true);
 
 	return ERROR_DISPLAY_TIME_PERIOD;
 }
@@ -219,7 +213,6 @@ int init_and_start_xpanel_plugin(void)
 	std::filesystem::path init_path = absolute_path(aircraft_path, "xpanel.ini");
 
 	Configparser p;
-	Logger(TLogLevel::logINFO) << "parse config file: " << init_path.string() << std::endl;
 	int result = p.parse_file(init_path.string(), config);
 	if (result != EXIT_SUCCESS)
 	{
@@ -254,7 +247,7 @@ int init_and_start_xpanel_plugin(void)
 
 	Device* device;
 
-	for (auto it : config.device_configs)
+	for (auto& it : config.device_configs)
 	{
 		switch (it.device_type) {
 		case DeviceType::SAITEK_MULTI:
@@ -311,7 +304,7 @@ int init_and_start_xpanel_plugin(void)
 	return EXIT_SUCCESS;
 }
 
-PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inParam)
+PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void*)
 {
 	if (inFrom == XPLM_PLUGIN_XPLANE)
 	{
@@ -332,7 +325,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inPa
 	}
 }
 
-void menu_handler(void* in_menu_ref, void* in_item_ref)
+void menu_handler(void*, void* in_item_ref)
 {
 	MenuItemType menu_item = *(MenuItemType*)in_item_ref;
 

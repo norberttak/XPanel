@@ -5,12 +5,13 @@
  */
 
 #pragma once
-#include <stdlib.h>
+#include <cstdlib>
 #include <thread>
 #include <atomic>
 #include <chrono>
 #include <utility>
 #include <vector>
+#include <string>
 
 #include"hidapi.h"
 #include "Device.h"
@@ -102,4 +103,5 @@ private:
 	bool updateDisplays();
 	void process_and_store_button_states();
 	void process_selector_switch();
+	std::string hidapi_error(hid_device *dev);
 };

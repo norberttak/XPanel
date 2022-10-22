@@ -4,11 +4,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include <cstring>
+#include <cstdlib>
+#include <string>
 #include "UsbHidDevice.h"
 #include "logger.h"
 
 int UsbHidDevice::ref_count = 0;
-bool UsbHidDevice::hid_api_initialized = FALSE;
+bool UsbHidDevice::hid_api_initialized = false;
 
 UsbHidDevice::UsbHidDevice(DeviceConfiguration& config, int _read_buffer_size, int _write_buffer_size) :Device(config)
 {
@@ -19,7 +22,7 @@ UsbHidDevice::UsbHidDevice(DeviceConfiguration& config, int _read_buffer_size, i
 	read_buffer_size = _read_buffer_size;
 	write_buffer_size = _write_buffer_size;
 
-	_thread_run.store(FALSE);
+	_thread_run.store(false);
 	vid = config.vid;
 	pid = config.pid;
 
@@ -27,7 +30,7 @@ UsbHidDevice::UsbHidDevice(DeviceConfiguration& config, int _read_buffer_size, i
 	{
 		Logger(TLogLevel::logDEBUG) << "UsbHidDevice: call hid_init()" << std::endl;
 		hid_init();
-		hid_api_initialized = TRUE;
+		hid_api_initialized = true;
 	}
 }
 
@@ -48,7 +51,7 @@ int UsbHidDevice::read_device(unsigned char* buf, int buf_size)
 	}
 	if (hid_read(device_handle, buf, buf_size) == -1)
 	{
-		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::hid_read" << std::endl;
+		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::hid_read" << " reason=" << hidapi_error(device_handle) << std::endl;
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
@@ -65,7 +68,7 @@ int UsbHidDevice::write_device(unsigned char* buf, int length)
 	if (hid_send_feature_report(device_handle, buf, length) == -1)
 	{
 		return EXIT_FAILURE;
-		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::hid_send_feature_report" << std::endl;
+		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::hid_send_feature_report" << " reason=" << hidapi_error(device_handle) << std::endl;
 	}
 
 	return EXIT_SUCCESS;
@@ -75,13 +78,13 @@ int UsbHidDevice::connect()
 {
 	device_handle = hid_open(vid, pid, NULL);
 	if (!device_handle) {
-		Logger(TLogLevel::logERROR) << "error opening hid device vid=" << vid << " pid=" << pid << std::endl;
+		Logger(TLogLevel::logERROR) << "error opening hid device vid=" << vid << " pid=" << pid << " reason=" << hidapi_error(NULL) << std::endl;
 		return EXIT_FAILURE;
 	}
 	ref_count++;
 
 	if (hid_set_nonblocking(device_handle, 1) == -1) {
-		Logger(TLogLevel::logERROR) << "error in hid_set_nonblocking vid=" << vid << " pid=" << pid << std::endl;
+		Logger(TLogLevel::logERROR) << "error in hid_set_nonblocking vid=" << vid << " pid=" << pid << " reason=" << hidapi_error(device_handle) << std::endl;
 		return EXIT_FAILURE;
 	}
 
@@ -125,15 +128,15 @@ bool UsbHidDevice::is_bit_changed(unsigned char* buf, unsigned char* buf_old, in
 void UsbHidDevice::start()
 {
 	Logger(TLogLevel::logDEBUG) << "UsbHidDevice::start" << std::endl;
-	_thread_run.store(TRUE);
+	_thread_run.store(true);
 }
 
 void UsbHidDevice::stop(int time_out_msec)
 {
 	Logger(TLogLevel::logDEBUG) << "UsbHidDevice::stop" << std::endl;
-	_thread_run.store(FALSE);
+	_thread_run.store(false);
 	int time_to_wait = time_out_msec;
-	while (_thread_finish.load() == FALSE && time_to_wait > 0)
+	while (_thread_finish.load() == false && time_to_wait > 0)
 	{
 		std::this_thread::sleep_for(1ms);
 		time_to_wait--;
@@ -268,7 +271,7 @@ void UsbHidDevice::process_selector_switch()
 	for (auto sel : selectors)
 	{
 		if (!is_bit_changed(read_buffer, read_buffer_old, sel.bit))
-			continue;		
+			continue;
 
 		if (get_bit_value(read_buffer, sel.bit))
 		{
@@ -374,7 +377,7 @@ void UsbHidDevice::thread_func()
 
 	_thread_finish.store(false);
 
-	while (_thread_run.load() == TRUE)
+	while (_thread_run.load() == true)
 	{
 		std::this_thread::sleep_for(20ms);
 
@@ -419,4 +422,11 @@ void UsbHidDevice::release()
 		Logger(TLogLevel::logDEBUG) << "All USB HID devices are closed. call hid_exit()" << std::endl;
 		hid_exit();
 	}
+}
+
+std::string UsbHidDevice::hidapi_error(hid_device *dev)
+{
+	char error_msg[256];
+	std::wcstombs(error_msg, hid_error(dev), 256);
+	return std::string(error_msg);
 }

@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  build-and-test:
-    name: Build and Test
+  build-and-test-msbuild:
+    name: Build and Test (Visual Studio)
 
     runs-on: windows-latest
 
@@ -45,3 +45,30 @@ jobs:
         with:
           name: test_log
           path: x64/Release/test_log.txt
+
+  build-and-test-cmake:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    name: Build and Test (CMake, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update -qq && sudo apt-get install -y build-essential cmake liblua5.3-dev libhidapi-dev
+
+      - name: Build
+        run: |
+          cmake -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/install" -S . -B build
+          cmake --build build
+
+      - name: Run tests
+        run: ctest build
+
+      - name: Install
+        run: cmake --build build --target install

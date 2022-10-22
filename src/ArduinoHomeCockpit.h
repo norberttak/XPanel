@@ -5,7 +5,7 @@
  */
 
 #pragma once
-#include <stdlib.h>
+#include <cstdlib>
 #include "UsbHidDevice.h"
 
 class ArduinoHomeCockpit :public UsbHidDevice
@@ -13,7 +13,7 @@ class ArduinoHomeCockpit :public UsbHidDevice
 private:
 	std::vector<PanelButton> arduino_buttons;
 	std::vector<PanelDisplay> arduino_displays;
-	int read_board_configuration(std::string file_name, int expected_vid, int expected_pid);
+	int read_board_configuration(std::string file_name, unsigned int expected_vid, unsigned int expected_pid);
 
 	unsigned int register_index;
 	const std::string TOKEN_DEVICE = "\\[device:id=\"([a-zA-Z0-9_-]+)\"\\]";

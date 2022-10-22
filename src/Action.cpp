@@ -221,6 +221,9 @@ void Action::activate()
 		case CommandType::ONCE:
 			XPLMCommandOnce(commandref);
 			break;
+
+		default:
+			break;
 		}
 	}
 	//do a lua script

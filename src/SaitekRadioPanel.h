@@ -6,7 +6,7 @@
 
 #pragma once
 #include <vector>
-#include "device.h"
+#include "Device.h"
 #include "UsbHidDevice.h"
 #include "configuration.h"
 

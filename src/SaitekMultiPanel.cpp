@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 #include "UsbHidDevice.h"
 #include "SaitekMultiPanel.h"
 #include "logger.h"

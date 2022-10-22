@@ -7,42 +7,42 @@
 #include "message_window.h"
 
 int dummy_mouse_handler(
-	XPLMWindowID         inWindowID,
-	int                  x,
-	int                  y,
-	XPLMMouseStatus      inMouse,
-	void* inRefcon)
+	XPLMWindowID,
+	int,
+	int,
+	XPLMMouseStatus,
+	void*)
 {
 	return 0;
 }
 
 int dummy_wheel_handler(
-	XPLMWindowID         inWindowID,
-	int                  x,
-	int                  y,
-	int                  wheel,
-	int                  clicks,
-	void* inRefcon)
+	XPLMWindowID,
+	int,
+	int,
+	int,
+	int,
+	void*)
 {
 	return 0;
 }
 
 void dummy_key_handler(
-	XPLMWindowID         inWindowID,
-	char                 inKey,
-	XPLMKeyFlags         inFlags,
-	char                 inVirtualKey,
-	void* inRefcon,
-	int                  losingFocus)
+	XPLMWindowID,
+	char,
+	XPLMKeyFlags,
+	char,
+	void*,
+	int)
 {
 
 }
 
 XPLMCursorStatus dummy_cursor_status_handler(
-	XPLMWindowID         inWindowID,
-	int                  x,
-	int                  y,
-	void* inRefcon)
+	XPLMWindowID,
+	int,
+	int,
+	void*)
 {
 	return xplm_CursorDefault;
 }
@@ -67,7 +67,7 @@ void draw_message_display_window(XPLMWindowID in_window_id, void* in_refcon)
 	XPLMGetWindowGeometry(in_window_id, &l, &t, &r, &b);
 
 	float col_white[] = { 1.0, 1.0, 1.0 }; // red, green, blue
-	
+
 	int vertical_offset = 30;
 	for (std::string msg : msg_window->get_messages())
 	{
@@ -85,7 +85,7 @@ MessageWindow::MessageWindow(std::string _title, std::list<std::string> _message
 {
 	messages = _messages;
 
-	// code based on this example: 
+	// code based on this example:
 	// https://developer.x-plane.com/code-sample/hello-world-sdk-3/
 	XPLMCreateWindow_t params;
 	params.structSize = sizeof(params);
