@@ -78,6 +78,11 @@ extern int HID_API_EXPORT HID_API_CALL hid_send_feature_report(hid_device* devic
 	return 0;
 }
 
+HID_API_EXPORT const wchar_t* HID_API_CALL hid_error(hid_device* device)
+{
+	return NULL;
+}
+
 void test_hid_get_write_data(unsigned char* data, size_t length)
 {
 	memcpy(data, write_buffer, length);

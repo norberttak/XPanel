@@ -5,6 +5,8 @@
  */
 
 #include <cstring>
+#include <cstdlib>
+#include <string>
 #include "UsbHidDevice.h"
 #include "logger.h"
 
@@ -49,7 +51,7 @@ int UsbHidDevice::read_device(unsigned char* buf, int buf_size)
 	}
 	if (hid_read(device_handle, buf, buf_size) == -1)
 	{
-		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::hid_read" << std::endl;
+		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::hid_read" << " reason=" << hidapi_error(device_handle) << std::endl;
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
@@ -66,7 +68,7 @@ int UsbHidDevice::write_device(unsigned char* buf, int length)
 	if (hid_send_feature_report(device_handle, buf, length) == -1)
 	{
 		return EXIT_FAILURE;
-		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::hid_send_feature_report" << std::endl;
+		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::hid_send_feature_report" << " reason=" << hidapi_error(device_handle) << std::endl;
 	}
 
 	return EXIT_SUCCESS;
@@ -76,13 +78,13 @@ int UsbHidDevice::connect()
 {
 	device_handle = hid_open(vid, pid, NULL);
 	if (!device_handle) {
-		Logger(TLogLevel::logERROR) << "error opening hid device vid=" << vid << " pid=" << pid << std::endl;
+		Logger(TLogLevel::logERROR) << "error opening hid device vid=" << vid << " pid=" << pid << " reason=" << hidapi_error(NULL) << std::endl;
 		return EXIT_FAILURE;
 	}
 	ref_count++;
 
 	if (hid_set_nonblocking(device_handle, 1) == -1) {
-		Logger(TLogLevel::logERROR) << "error in hid_set_nonblocking vid=" << vid << " pid=" << pid << std::endl;
+		Logger(TLogLevel::logERROR) << "error in hid_set_nonblocking vid=" << vid << " pid=" << pid << " reason=" << hidapi_error(device_handle) << std::endl;
 		return EXIT_FAILURE;
 	}
 
@@ -420,4 +422,11 @@ void UsbHidDevice::release()
 		Logger(TLogLevel::logDEBUG) << "All USB HID devices are closed. call hid_exit()" << std::endl;
 		hid_exit();
 	}
+}
+
+std::string UsbHidDevice::hidapi_error(hid_device *dev)
+{
+	char error_msg[256];
+	std::wcstombs(error_msg, hid_error(dev), 256);
+	return std::string(error_msg);
 }
