@@ -213,7 +213,6 @@ int init_and_start_xpanel_plugin(void)
 	std::filesystem::path init_path = absolute_path(aircraft_path, "xpanel.ini");
 
 	Configparser p;
-	Logger(TLogLevel::logINFO) << "parse config file: " << init_path.string() << std::endl;
 	int result = p.parse_file(init_path.string(), config);
 	if (result != EXIT_SUCCESS)
 	{
