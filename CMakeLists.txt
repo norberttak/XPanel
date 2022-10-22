@@ -27,3 +27,4 @@ add_subdirectory(test)
 
 install(DIRECTORY config/ DESTINATION sample_configs)
 install(DIRECTORY doc/ DESTINATION doc)
+install(FILES config/board-config.ini DESTINATION ${PLUGIN_INSTALL_DIR})
