@@ -5,6 +5,8 @@ if (WIN32)
         IMPORTED_IMPLIB ${CMAKE_CURRENT_SOURCE_DIR}/lib/hidapi.lib
     )
     target_include_directories(hidapi::hidapi INTERFACE headers)
+
+    install(FILES lib/hidapi.dll DESTINATION ${PLUGIN_INSTALL_DIR})
 else()
     find_package(hidapi REQUIRED)
 endif()

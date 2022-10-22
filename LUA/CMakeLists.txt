@@ -5,6 +5,8 @@ if (WIN32)
         IMPORTED_IMPLIB ${CMAKE_CURRENT_SOURCE_DIR}/liblua54.a
     )
     target_include_directories(Lua::Lua INTERFACE include)
+
+    install(FILES lua54.dll DESTINATION ${PLUGIN_INSTALL_DIR})
 else()
     find_package(Lua REQUIRED)
 

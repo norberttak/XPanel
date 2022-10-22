@@ -32,4 +32,4 @@ set_target_properties(xpanel PROPERTIES PREFIX "")
 set_target_properties(xpanel PROPERTIES OUTPUT_NAME ${XPANEL_PLUGIN_FILENAME})
 set_target_properties(xpanel PROPERTIES SUFFIX ".xpl")
 
-install(TARGETS xpanel DESTINATION ${PROJECT_NAME}/64)
+install(TARGETS xpanel DESTINATION ${PLUGIN_INSTALL_DIR})
