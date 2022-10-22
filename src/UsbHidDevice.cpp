@@ -426,6 +426,9 @@ void UsbHidDevice::release()
 
 std::string UsbHidDevice::hidapi_error(hid_device *dev)
 {
+#if defined(_WIN32)
+	return "unknown";
+#else
 	const wchar_t* hid_err = hid_error(dev);
 	if (!hid_err)
 		return "no error";
@@ -435,4 +438,5 @@ std::string UsbHidDevice::hidapi_error(hid_device *dev)
 		return "could not render error message";
 
 	return error_msg;
+#endif
 }
