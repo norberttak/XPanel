@@ -18,6 +18,7 @@
 #include <map>
 #include <queue>
 #include "Configuration.h"
+#include "FIPScreen.h"
 #include "Logger.h"
 
 std::map<std::string, int> internal_dataref;
@@ -296,6 +297,11 @@ void test_flight_loop(std::vector<DeviceConfiguration> config)
 		for (auto display : it.generic_displays)
 		{
 			display.second->evaluate_and_store_dataref_value();
+		}
+
+		for (auto fip_screen : it.fip_screens)
+		{
+			fip_screen.second->evaluate_and_store_screen_action();
 		}
 	}
 
