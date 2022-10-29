@@ -139,5 +139,5 @@ bool GenericDisplay::get_display_value(unsigned char* buffer)
 	guard.unlock();
 
 	Logger(TLogLevel::logTRACE) << "GenericDisplay: get_display_value: " << _val << std::endl;
-	return use_bcd ? get_decimal_components(_val, buffer) : get_binary_components(int(_val), buffer);
+	return use_bcd ? get_decimal_components((int)_val, buffer) : get_binary_components(int(_val), buffer);
 }
