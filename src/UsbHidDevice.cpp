@@ -426,7 +426,8 @@ void UsbHidDevice::release()
 
 std::string UsbHidDevice::hidapi_error(hid_device *dev)
 {
-	char error_msg[256];
-	std::wcstombs(error_msg, hid_error(dev), 256);
-	return std::string(error_msg);
+	const wchar_t* hid_err = hid_error(dev);
+	std::wstring ws(hid_err);
+	std::string hid_err_str(ws.begin(), ws.end());
+	return hid_err_str;
 }
