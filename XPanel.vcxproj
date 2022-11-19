@@ -125,7 +125,7 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WINVER=0x0601;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;_WIN32_WINDOWS=0x0601;WIN32;_DEBUG;_WINDOWS;_USRDLL;SIMDATA_EXPORTS;IBM=1;XPLM200=1;XPLM210=1;XPLM300=1;XPLM301=1;XPLM302=1;PLUGIN_SIGNATURE="xpanel";PLUGIN_VERSION="1.2";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\hidapi\headers;$(SolutionDir)\LUA\include;$(SolutionDir)\SDK\CHeaders\XPLM;$(SolutionDir)\SDK\CHeaders\Widgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\hidapi\headers;$(SolutionDir)\LUA\include;$(SolutionDir)\SDK\CHeaders\XPLM;$(SolutionDir)\FIP-SDK\include;$(SolutionDir)\SDK\CHeaders\Widgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -148,7 +148,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS=1;IBM=1;XPLM200=1;XPLM210=1;XPLM300=1;XPLM301=1;XPLM302=1;PLUGIN_SIGNATURE="xpanel";PLUGIN_VERSION="1.2";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)\hidapi\headers;$(SolutionDir)\LUA\include;$(SolutionDir)\SDK\CHeaders\XPLM;$(SolutionDir)\SDK\CHeaders\Widgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\FIP-SDK\include;$(SolutionDir)\hidapi\headers;$(SolutionDir)\LUA\include;$(SolutionDir)\SDK\CHeaders\XPLM;$(SolutionDir)\SDK\CHeaders\Widgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>.\Release\64\</AssemblerListingLocation>
       <ObjectFileName>.\Release\64\</ObjectFileName>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -165,6 +165,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\GenericDisplay.cpp" />
+    <ClCompile Include="src\FIPDevice.cpp" />
+    <ClCompile Include="src\GenericScreen.cpp" />
+    <ClCompile Include="src\FIPDriver.cpp" />
+    <ClCompile Include="src\FIPPage.cpp" />
+    <ClCompile Include="src\FIPScreen.cpp" />
+    <ClCompile Include="src\RawBMP.cpp" />
     <ClCompile Include="src\SaitekRadioPanel.cpp" />
     <ClCompile Include="src\LuaHelper.cpp" />
     <ClCompile Include="src\MultiPurposeDisplay.cpp" />
@@ -187,6 +193,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GenericDisplay.h" />
+    <ClInclude Include="src\FIPDevice.h" />
+    <ClInclude Include="src\GenericScreen.h" />
+    <ClInclude Include="src\FIPDriver.h" />
+    <ClInclude Include="src\FIPPage.h" />
+    <ClInclude Include="src\FIPScreen.h" />
+    <ClInclude Include="src\RawBMP.h" />
     <ClInclude Include="src\SaitekRadioPanel.h" />
     <ClInclude Include="src\LuaHelper.h" />
     <ClInclude Include="src\MessageWindow.h" />
