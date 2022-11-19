@@ -14,9 +14,15 @@ add_library(xpanel SHARED
     Trigger.cpp
     UsbHidDevice.cpp
     XPanel.cpp
+    FIPDriver.cpp
+    FIPDevice.cpp
+    FIPPage.cpp
+    FIPScreen.cpp
+    GenericScreen.cpp
+    RawBMP.cpp
 )
 
-target_link_libraries(xpanel PRIVATE xpsdk::xpsdk hidapi::hidapi Lua::Lua)
+target_link_libraries(xpanel PRIVATE xpsdk::xpsdk hidapi::hidapi Lua::Lua FIPSDK::FIPSDK)
 set_target_properties(xpanel PROPERTIES CXX_VISIBILITY_PRESET hidden VISIBILITY_INLINES_HIDDEN TRUE)
 target_compile_definitions(xpanel PRIVATE PLUGIN_SIGNATURE="${PROJECT_NAME_LOWERCASE}" PLUGIN_VERSION="${PROJECT_VERSION}")
 

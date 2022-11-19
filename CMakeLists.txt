@@ -21,6 +21,7 @@ include(CTest)
 add_subdirectory(hidapi)
 add_subdirectory(LUA)
 add_subdirectory(SDK)
+add_subdirectory(FIP-SDK)
 
 add_subdirectory(src)
 add_subdirectory(test)
