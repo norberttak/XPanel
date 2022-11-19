@@ -7,7 +7,7 @@
 #include <list>
 #include <mutex>
 #include "Device.h"
-#include "configuration.h"
+#include "Configuration.h"
 #include "XPLMUtilities.h"
 #include "XPLMProcessing.h"
 

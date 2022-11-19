@@ -5,7 +5,7 @@
  */
 
 #include "Device.h"
-#include "logger.h"
+#include "Logger.h"
 
 Device::Device(DeviceConfiguration &_config, int _read_buffer_size, int _write_buffer_size)
 {

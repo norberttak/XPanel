@@ -6,7 +6,7 @@
 #pragma once
 #include <string>
 #include <map>
-#include "configuration.h"
+#include "Configuration.h"
 #include "GenericScreen.h"
 #include "FIPPage.h"
 

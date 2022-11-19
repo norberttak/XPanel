@@ -5,7 +5,7 @@
  */
 #include <stdlib.h>
 #include <iostream>
-#include "logger.h"
+#include "Logger.h"
 #include "RawBMP.h"
 
 RawBMP::RawBMP()

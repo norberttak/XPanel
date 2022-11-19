@@ -7,7 +7,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <mutex>
-#include "logger.h"
+#include "Logger.h"
 #include "FIPDriver.h"
 
 #ifdef WIN32

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 #include <math.h>
-#include "logger.h"
-#include "lua_helper.h"
+#include "Logger.h"
+#include "LuaHelper.h"
 #include "GenericScreen.h"
 
 GenericScreen::GenericScreen()

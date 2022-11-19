@@ -7,9 +7,9 @@
 #include <iostream>
 #include <vector>
 #include <filesystem>
-#include "lua_helper.h"
+#include "LuaHelper.h"
 #include "FIPScreen.h"
-#include "logger.h"
+#include "Logger.h"
 
 FIPScreen::FIPScreen() :GenericScreen()
 {

@@ -6,7 +6,7 @@
 #include "FIPPage.h"
 #include <math.h>
 #include <string.h>
-#include "logger.h"
+#include "Logger.h"
 
 FIPPage::FIPPage(int _screen_width, int _screen_height, int _bit_per_pixel, std::string _page_name)
 {

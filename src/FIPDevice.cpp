@@ -5,7 +5,7 @@
  */
  
 #include <cstring>
-#include "logger.h"
+#include "Logger.h"
 #include "FIPDevice.h"
 
 FIPDevice::FIPDevice(DeviceConfiguration& _config) :Device(_config,2,1)

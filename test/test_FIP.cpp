@@ -8,10 +8,10 @@
 #include "XPLMPlugin.h"
 #include "XPLMPlanes.h"
 #include "XPLMDisplay.h"
-#include "lua_helper.h"
+#include "LuaHelper.h"
 #include "CppUnitTest.h"
 #include "FIPDevice.h"
-#include "configparser.h"
+#include "Configparser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 void test_set_aircraft_path_and_filename(char* file_name, char* path);
