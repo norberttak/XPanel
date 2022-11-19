@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include "UsbHidDevice.h"
 #include "SaitekRadioPanel.h"
-#include "logger.h"
+#include "Logger.h"
 
 #define WRITE_BUFFER_SIZE 23
 #define READ_BUFFER_SIZE 5

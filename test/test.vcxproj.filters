@@ -18,13 +18,13 @@
     <ClCompile Include="test_config_parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\configparser.cpp">
+    <ClCompile Include="..\src\ConfigParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Action.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\configuration.cpp">
+    <ClCompile Include="..\src\Configuration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mock_xplane.cpp">
@@ -51,28 +51,28 @@
     <ClCompile Include="..\src\ArduinoHomeCockpit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\logger.cpp">
+    <ClCompile Include="..\src\Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\trigger.cpp">
+    <ClCompile Include="..\src\Trigger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\multi_purpose_display.cpp">
+    <ClCompile Include="..\src\MultiPurposeDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="test_xpanel_plugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\xpanel.cpp">
+    <ClCompile Include="..\src\XPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\lua_helper.cpp">
+    <ClCompile Include="..\src\LuaHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="test_lua.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\message_window.cpp">
+    <ClCompile Include="..\src\MessageWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mock_xplane_display.cpp">
@@ -87,7 +87,7 @@
     <ClCompile Include="test_radio_panel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\generic_display.cpp">
+    <ClCompile Include="..\src\GenericDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="test_generic_display.cpp">

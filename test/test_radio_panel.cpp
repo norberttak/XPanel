@@ -12,8 +12,8 @@
 
 #include "CppUnitTest.h"
 #include "SaitekRadioPanel.h"
-#include "lua_helper.h"
-#include "configparser.h"
+#include "LuaHelper.h"
+#include "ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

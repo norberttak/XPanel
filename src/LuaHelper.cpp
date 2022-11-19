@@ -6,9 +6,9 @@
 
 #include <cstring>
 #include <string>
-#include "lua_helper.h"
+#include "LuaHelper.h"
 #include "lua.hpp"
-#include "logger.h"
+#include "Logger.h"
 
 LuaHelper* LuaHelper::instance = NULL;
 lua_State* lua = NULL;

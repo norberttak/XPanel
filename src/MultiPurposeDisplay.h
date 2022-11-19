@@ -11,7 +11,7 @@
 #include <mutex>
 #include "XPLMDataAccess.h"
 #include "XPLMMenus.h"
-#include "generic_display.h"
+#include "GenericDisplay.h"
 
 class MultiPurposeDisplay : public GenericDisplay
 {

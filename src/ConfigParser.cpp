@@ -8,10 +8,10 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
-#include "configparser.h"
-#include "trigger.h"
-#include "multi_purpose_display.h"
-#include "logger.h"
+#include "ConfigParser.h"
+#include "Trigger.h"
+#include "MultiPurposeDisplay.h"
+#include "Logger.h"
 
 int Configparser::parse_file(std::string file_name, Configuration& config)
 {

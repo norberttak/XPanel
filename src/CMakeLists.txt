@@ -1,19 +1,19 @@
 add_library(xpanel SHARED
     Action.cpp
     ArduinoHomeCockpit.cpp
-    configparser.cpp
-    configuration.cpp
+    ConfigParser.cpp
+    Configuration.cpp
     Device.cpp
-    generic_display.cpp
-    logger.cpp
-    lua_helper.cpp
-    message_window.cpp
-    multi_purpose_display.cpp
+    GenericDisplay.cpp
+    Logger.cpp
+    LuaHelper.cpp
+    MessageWindow.cpp
+    MultiPurposeDisplay.cpp
     SaitekMultiPanel.cpp
     SaitekRadioPanel.cpp
-    trigger.cpp
+    Trigger.cpp
     UsbHidDevice.cpp
-    xpanel.cpp
+    XPanel.cpp
 )
 
 target_link_libraries(xpanel PRIVATE xpsdk::xpsdk hidapi::hidapi Lua::Lua)

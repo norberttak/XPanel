@@ -23,10 +23,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\configparser.cpp">
+    <ClCompile Include="src\ConfigParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\xpanel.cpp">
+    <ClCompile Include="src\XPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Device.cpp">
@@ -41,36 +41,36 @@
     <ClCompile Include="src\UsbHidDevice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\configuration.cpp">
+    <ClCompile Include="src\Configuration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ArduinoHomeCockpit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\logger.cpp">
+    <ClCompile Include="src\Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\trigger.cpp">
+    <ClCompile Include="src\Trigger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\multi_purpose_display.cpp">
+    <ClCompile Include="src\MultiPurposeDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\lua_helper.cpp">
+    <ClCompile Include="src\LuaHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\message_window.cpp">
+    <ClCompile Include="src\MessageWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SaitekRadioPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\generic_display.cpp">
+    <ClCompile Include="src\GenericDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\configparser.h">
+    <ClInclude Include="src\ConfigParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Device.h">
@@ -85,31 +85,31 @@
     <ClInclude Include="src\UsbHidDevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\configuration.h">
+    <ClInclude Include="src\Configuration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ArduinoHomeCockpit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\logger.h">
+    <ClInclude Include="src\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\trigger.h">
+    <ClInclude Include="src\Trigger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\multi_purpose_display.h">
+    <ClInclude Include="src\MultiPurposeDisplay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\lua_helper.h">
+    <ClInclude Include="src\LuaHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\message_window.h">
+    <ClInclude Include="src\MessageWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SaitekRadioPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\generic_display.h">
+    <ClInclude Include="src\GenericDisplay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

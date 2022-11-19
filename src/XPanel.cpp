@@ -22,12 +22,12 @@
 #include "SaitekMultiPanel.h"
 #include "SaitekRadioPanel.h"
 #include "ArduinoHomeCockpit.h"
-#include "configuration.h"
-#include "configparser.h"
+#include "Configuration.h"
+#include "ConfigParser.h"
 #include "Action.h"
-#include "lua_helper.h"
-#include "message_window.h"
-#include "logger.h"
+#include "LuaHelper.h"
+#include "MessageWindow.h"
+#include "Logger.h"
 
 #if IBM
 #include <windows.h>

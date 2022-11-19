@@ -10,8 +10,8 @@
 #include <list>
 #include <map>
 #include "Action.h"
-#include "trigger.h"
-#include "multi_purpose_display.h"
+#include "Trigger.h"
+#include "MultiPurposeDisplay.h"
 
 class DeviceConfiguration;
 

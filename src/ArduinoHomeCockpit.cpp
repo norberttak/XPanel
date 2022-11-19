@@ -13,7 +13,7 @@
 #include "XPLMPlugin.h"
 #include "ArduinoHomeCockpit.h"
 #include "UsbHidDevice.h"
-#include "logger.h"
+#include "Logger.h"
 
 #define WRITE_BUFFER_SIZE 9
 #define READ_BUFFER_SIZE 9

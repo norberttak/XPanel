@@ -164,21 +164,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\generic_display.cpp" />
+    <ClCompile Include="src\GenericDisplay.cpp" />
     <ClCompile Include="src\SaitekRadioPanel.cpp" />
-    <ClCompile Include="src\lua_helper.cpp" />
-    <ClCompile Include="src\multi_purpose_display.cpp" />
+    <ClCompile Include="src\LuaHelper.cpp" />
+    <ClCompile Include="src\MultiPurposeDisplay.cpp" />
     <ClCompile Include="src\ArduinoHomeCockpit.cpp" />
-    <ClCompile Include="src\configuration.cpp" />
+    <ClCompile Include="src\Configuration.cpp" />
     <ClCompile Include="src\Action.cpp" />
     <ClCompile Include="src\Device.cpp" />
-    <ClCompile Include="src\configparser.cpp" />
-    <ClCompile Include="src\logger.cpp" />
+    <ClCompile Include="src\ConfigParser.cpp" />
+    <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\SaitekMultiPanel.cpp" />
-    <ClCompile Include="src\message_window.cpp" />
-    <ClCompile Include="src\xpanel.cpp" />
+    <ClCompile Include="src\MessageWindow.cpp" />
+    <ClCompile Include="src\XPanel.cpp" />
     <ClCompile Include="src\UsbHidDevice.cpp" />
-    <ClCompile Include="src\trigger.cpp" />
+    <ClCompile Include="src\Trigger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config\device-generic.ini">
@@ -186,20 +186,20 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\generic_display.h" />
+    <ClInclude Include="src\GenericDisplay.h" />
     <ClInclude Include="src\SaitekRadioPanel.h" />
-    <ClInclude Include="src\lua_helper.h" />
-    <ClInclude Include="src\message_window.h" />
-    <ClInclude Include="src\multi_purpose_display.h" />
-    <ClInclude Include="src\logger.h" />
+    <ClInclude Include="src\LuaHelper.h" />
+    <ClInclude Include="src\MessageWindow.h" />
+    <ClInclude Include="src\MultiPurposeDisplay.h" />
+    <ClInclude Include="src\Logger.h" />
     <ClInclude Include="src\ArduinoHomeCockpit.h" />
-    <ClInclude Include="src\configuration.h" />
+    <ClInclude Include="src\Configuration.h" />
     <ClInclude Include="src\Action.h" />
     <ClInclude Include="src\Device.h" />
-    <ClInclude Include="src\configparser.h" />
+    <ClInclude Include="src\ConfigParser.h" />
     <ClInclude Include="src\SaitekMultiPanel.h" />
     <ClInclude Include="src\UsbHidDevice.h" />
-    <ClInclude Include="src\trigger.h" />
+    <ClInclude Include="src\Trigger.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "configuration.h"
+#include "Configuration.h"
 
 /*------ Plugin level configuration options ------------*/
 Configuration& Configuration::operator=(const Configuration& other)

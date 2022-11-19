@@ -6,9 +6,9 @@
 
 #include <cfloat>
 #include <limits>
-#include "multi_purpose_display.h"
-#include "lua_helper.h"
-#include "logger.h"
+#include "MultiPurposeDisplay.h"
+#include "LuaHelper.h"
+#include "Logger.h"
 
 MultiPurposeDisplay::MultiPurposeDisplay()
 {

@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include "UsbHidDevice.h"
 #include "SaitekMultiPanel.h"
-#include "logger.h"
+#include "Logger.h"
 
 #define WRITE_BUFFER_SIZE 13
 #define READ_BUFFER_SIZE 4
