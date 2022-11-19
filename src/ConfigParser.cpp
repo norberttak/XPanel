@@ -7,10 +7,12 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 #include <regex>
 #include "ConfigParser.h"
 #include "Trigger.h"
 #include "MultiPurposeDisplay.h"
+#include "FIPScreen.h"
 #include "Logger.h"
 
 int Configparser::parse_file(std::string file_name, Configuration& config)
@@ -72,6 +74,8 @@ int Configparser::parse_line(std::string line, Configuration& config)
 			config.device_configs.back().device_type = SAITEK_SWITCH;
 		else if (section_id == DEVICE_TYPE_ARDUINO_HOME_COCKPIT)
 			config.device_configs.back().device_type = HOME_COCKPIT;
+		else if (section_id == DEVICE_TYPE_SAITEK_FIP_SCREEN)
+			config.device_configs.back().device_type = LOGITECH_FIP;
 		else
 		{
 			Logger(TLogLevel::logERROR) << "parser: unknown device type (at line " << current_line_nr << "): " << line << std::endl;
@@ -96,6 +100,15 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		ss << std::hex << m[1];
 		ss >> config.device_configs.back().pid;
 		Logger(TLogLevel::logDEBUG) << "parser: pid=" << config.device_configs.back().pid << std::endl;
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_SERIAL)))
+	{
+		std::stringstream ss;
+		ss << std::hex << m[1];
+		ss >> config.device_configs.back().serial_number;
+		Logger(TLogLevel::logDEBUG) << "parser: serial=" << config.device_configs.back().serial_number  << std::endl;
 		return EXIT_SUCCESS;
 	}
 
@@ -559,9 +572,139 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		config.device_configs.back().multi_displays[section_id]->add_condition(m[1], m[2]);
 		return EXIT_SUCCESS;
 	}
+	
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_SCREEN)))
+	{
+		FIPScreen* screen = new FIPScreen();
+		config.device_configs.back().fip_screens[section_id] = screen;
+		return EXIT_SUCCESS;
+	}
 
-	//
-	//TOKEN_MULTI_KNOB_CHANGE_COMMANDREF
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_PAGE)))
+	{
+		config.device_configs.back().fip_screens[section_id]->add_page(m[1], false);
+		return EXIT_SUCCESS;
+	}
+
+ 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_LAYER)))
+	{
+		int page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
+		if (page_index >= 0)
+		{
+			std::filesystem::path bmp_file_absolute_path = std::filesystem::path(config.aircraft_path);
+			bmp_file_absolute_path /= std::string(m[1]);
+
+			if (config.device_configs.back().fip_screens[section_id]->add_layer_to_page(page_index, bmp_file_absolute_path.string(), stoi(m[2]), stoi(m[3]), stoi(m[4])) < 0)
+				return EXIT_FAILURE;
+			else
+				return EXIT_SUCCESS;
+		}
+		else
+		{
+			Logger(logERROR) << "Parser: invalid FIP page index" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_OFFSET_CONST)))
+	{
+		ScreenAction *action =new ScreenAction();
+		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
+		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);
+		action->constant_val = stoi(m[2]);
+		action->type = m[1] == "x" ? SC_TRANSLATION_X : SC_TRANSLATION_Y;
+
+		Logger(logTRACE) << "config parser: add FIP offset const: " << action->constant_val << std::endl;
+		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
+		return EXIT_SUCCESS;
+	}
+	
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_OFFSET_DATAREF)))
+	{
+		ScreenAction* action = new ScreenAction();
+
+		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
+		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);		
+		action->scale_factor = std::stod(m[3].str().c_str());
+
+		XPLMDataRef dataRef = XPLMFindDataRef(m[2].str().c_str());
+		if (dataRef == NULL)
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+			return EXIT_FAILURE;
+		}
+		action->data_ref = dataRef;
+		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
+		action->type = m[1] == "x" ? SC_TRANSLATION_X : SC_TRANSLATION_Y;
+		
+		Logger(logTRACE) << "config parser: add FIP offset dataref: " << action->data_ref << std::endl;
+		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_OFFSET_LUA)))
+	{
+		ScreenAction* action = new ScreenAction();
+
+		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
+		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);
+		action->lua_str = m[2];
+		action->type = m[1] == "x" ? SC_TRANSLATION_X : SC_TRANSLATION_Y;
+
+		Logger(logTRACE) << "config parser: add FIP offset lua: " << action->lua_str << std::endl;
+		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
+		return EXIT_SUCCESS;
+	}
+	
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_ROTATION_CONST)))
+	{
+		ScreenAction* action = new ScreenAction();
+
+		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
+		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);
+		action->constant_val = stoi(m[1]);
+		action->type = SC_ROTATION;
+
+		Logger(logTRACE) << "config parser: add FIP rotation const: " << action->constant_val << std::endl;
+		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
+		return EXIT_SUCCESS;
+	}
+	
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_ROTATION_DATAREF)))
+	{
+		ScreenAction* action = new ScreenAction();
+
+		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
+		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);
+		action->scale_factor = std::stod(m[2].str().c_str());
+		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+		if (dataRef == NULL)
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+			return EXIT_FAILURE;
+		}
+		action->data_ref = dataRef;
+		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
+		action->type = SC_ROTATION;
+
+		Logger(logTRACE) << "config parser: add FIP rotation dataref: " << action->data_ref << std::endl;
+		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_ROTATION_LUA)))
+	{
+		ScreenAction* action = new ScreenAction();
+
+		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
+		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);
+		action->lua_str = m[1];
+		action->type = SC_ROTATION;
+
+		Logger(logTRACE) << "config parser: add FIP rotation lua: " << action->lua_str << std::endl;
+		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
+		return EXIT_SUCCESS;
+	}
 
 	Logger(TLogLevel::logERROR) << "parser: unknown error (at line: " << current_line_nr << "): " << line << std::endl;
 	return EXIT_FAILURE;

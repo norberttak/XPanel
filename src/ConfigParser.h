@@ -21,10 +21,12 @@ private:
 	const std::string DEVICE_TYPE_SAITEK_RADIO = "saitek_radio";
 	const std::string DEVICE_TYPE_SAITEK_SWITCH = "saitek_switch";
 	const std::string DEVICE_TYPE_ARDUINO_HOME_COCKPIT = "aurduino_homecockpit";
+	const std::string DEVICE_TYPE_SAITEK_FIP_SCREEN = "saitek_fip_screen";
 
 	const std::string TOKEN_DEVICE  = "\\[device:id=\"([a-zA-Z09_-]+)\"\\]";
 	const std::string TOKEN_VID		= "vid=\"(.+)\"";
 	const std::string TOKEN_PID		= "pid=\"(.+)\"";
+	const std::string TOKEN_SERIAL  = "serial=\"(.+)\"";
 	const std::string TOKEN_SCRIPT	= "script_file=\"(.+)\"";
 	const std::string TOKEN_ACF		= "aircraft_acf=\"(.+)\"";
 
@@ -74,6 +76,17 @@ private:
 	const std::string TOKEN_MULTI_DISPLAY_LINE = "line=\"on_select:([a-zA-Z0-9_-]+),dataref:"+RE_REF+"\"";
 	const std::string TOKEN_MULTI_DISPLAY_LINE_CONST = "line=\"on_select:([a-zA-Z0-9_-]+),const:" + RE_FLOAT + "\"";
 	const std::string TOKEN_MULTI_DISPLAY_LINE_LUA = "line=\"on_select:([a-zA-Z0-9_-]+),lua:" + RE_LUA + "\"";
+
+	// FIP screen
+	const std::string TOKEN_FIP_SCREEN = "\\[screen:id=\"([a-zA-Z0-9_-]+)\"\\]";
+	const std::string TOKEN_FIP_PAGE  = "\\[page:id=\"([a-zA-Z0-9_-]+)\"\\]";	
+	const std::string TOKEN_FIP_LAYER = "\\[layer:image=\"([a-zA-Z0-9_\\-/\\.]+),ref_x:" + RE_INT + ",ref_y:" + RE_INT + ",base_rot=" + RE_INT + "\"\\]";
+	const std::string TOKEN_FIP_OFFSET_CONST = "offset_([xy]+)=\"const:" + RE_INT + "\"";
+	const std::string TOKEN_FIP_OFFSET_DATAREF = "offset_([xy]+)=\"dataref:" + RE_REF + ",scale:" + RE_FLOAT + "\"";
+	const std::string TOKEN_FIP_OFFSET_LUA = "offset_([xy]+)=\"lua:" + RE_LUA + "\"";
+	const std::string TOKEN_FIP_ROTATION_CONST = "rotation=\"const:" + RE_INT + "\"";
+	const std::string TOKEN_FIP_ROTATION_DATAREF = "rotation=\"dataref:" + RE_REF + ",scale:" + RE_FLOAT + "\"";
+	const std::string TOKEN_FIP_ROTATION_LUA = "rotation=\"lua:" + RE_LUA + "\"";
 
 	std::string section_id = "";
 	std::string last_error_message = "";
