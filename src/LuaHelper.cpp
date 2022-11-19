@@ -283,7 +283,7 @@ extern "C" {
 
 LuaHelper::LuaHelper()
 {
-	//
+	flight_loop_defined = false;
 }
 
 LuaHelper* LuaHelper::get_instace()

@@ -257,6 +257,9 @@ you can define a simple display device in the configuration like this:
 line="dataref:sim/test/altimeter"
 ```
 
+## Flight Istrument Panel (FIP) devices
+The configuration options for the FIP graphical devices can be found [here](doc/fip-screen.md)
+
 ## Example configuration file
 ```ini
 log_level="TRACE"

@@ -25,6 +25,7 @@
 #include "Configuration.h"
 #include "ConfigParser.h"
 #include "Action.h"
+#include "FIPDevice.h"
 #include "LuaHelper.h"
 #include "MessageWindow.h"
 #include "Logger.h"
@@ -60,8 +61,8 @@ int init_and_start_xpanel_plugin();
 
 Configuration config;
 std::vector<Device*> devices;
-const float FLIGHT_LOOP_TIME_PERIOD = 0.2;
-const float ERROR_DISPLAY_TIME_PERIOD = 2;
+const float FLIGHT_LOOP_TIME_PERIOD = 0.2f;
+const float ERROR_DISPLAY_TIME_PERIOD = 2.0f;
 
 int g_menu_container_idx;
 XPLMMenuID g_menu_id;
@@ -121,7 +122,7 @@ float flight_loop_callback(float, float, int, void*)
 	for (const auto& it : config.device_configs)
 	{
 		// check and set LED states
-		for (auto triggers : it.light_triggers)
+		for (const auto& triggers : it.light_triggers)
 		{
 			for (auto trigger : triggers.second)
 			{
@@ -129,14 +130,20 @@ float flight_loop_callback(float, float, int, void*)
 			}
 		}
 		// check and set 7 segment display states
-		for (auto display : it.multi_displays)
+		for (const auto& display : it.multi_displays)
 		{
 			display.second->evaluate_and_store_dataref_value();
 		}
 
-		for (auto display : it.generic_displays)
+		for (const auto& display : it.generic_displays)
 		{
 			display.second->evaluate_and_store_dataref_value();
+		}
+
+		// update the FIP devices
+		for (auto screen : it.fip_screens)
+		{
+			screen.second->evaluate_and_store_screen_action();
 		}
 	}
 
@@ -206,11 +213,16 @@ extern std::filesystem::path get_plugin_path()
 int init_and_start_xpanel_plugin(void)
 {
 	char aircraft_file_name[256];
-	char aircraft_path[512];
-	XPLMGetNthAircraftModel(0, aircraft_file_name, aircraft_path);
+	char aircraft_file_path[512];
+	XPLMGetNthAircraftModel(0, aircraft_file_name, aircraft_file_path);
 	Logger(TLogLevel::logINFO) << "aircraft file name: " << aircraft_file_name << std::endl;
 
-	std::filesystem::path init_path = absolute_path(aircraft_path, "xpanel.ini");
+	std::filesystem::path init_path = absolute_path(aircraft_file_path, "xpanel.ini");
+	Logger(logINFO) << "config file: " << init_path.string() << std::endl;
+
+	config.aircraft_path = std::filesystem::absolute(init_path).remove_filename().string();
+	Logger(TLogLevel::logINFO) << "aircraft path: " << config.aircraft_path << std::endl;
+
 
 	Configparser p;
 	int result = p.parse_file(init_path.string(), config);
@@ -230,11 +242,11 @@ int init_and_start_xpanel_plugin(void)
 
 	LuaHelper::get_instace()->init();
 	LuaHelper::get_instace()->push_global_string("AIRCRAFT_FILENAME", aircraft_file_name);
-	LuaHelper::get_instace()->push_global_string("AIRCRAFT_PATH", aircraft_path);
+	LuaHelper::get_instace()->push_global_string("AIRCRAFT_PATH", aircraft_file_path);
 
 	std::filesystem::path script_path;
 	if (config.script_file != "")
-		script_path = absolute_path(aircraft_path, config.script_file);
+		script_path = absolute_path(aircraft_file_path, config.script_file);
 	if (std::filesystem::exists(script_path))
 	{
 		if (LuaHelper::get_instace()->load_script_file(script_path.string()) != EXIT_SUCCESS)
@@ -291,6 +303,14 @@ int init_and_start_xpanel_plugin(void)
 			device->start();
 			device->thread_handle = new std::thread(&SaitekRadioPanel::thread_func, (SaitekRadioPanel*)device);
 			LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
+			break;
+		case DeviceType::LOGITECH_FIP:
+			Logger(TLogLevel::logDEBUG) << "add new FIP device" << std::endl;
+			device = new FIPDevice(it);
+			devices.push_back(device);
+			device->connect();
+			device->start();
+			device->thread_handle = new std::thread(&FIPDevice::thread_func, (FIPDevice*)device);
 			break;
 		default:
 			Logger(TLogLevel::logERROR) << "unknown device type" << std::endl;

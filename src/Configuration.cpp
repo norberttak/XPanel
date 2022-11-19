@@ -14,6 +14,7 @@ Configuration& Configuration::operator=(const Configuration& other)
 	aircraft_acf = other.aircraft_acf;
 	script_file = other.script_file;
 	version = other.version;
+	aircraft_path = other.aircraft_path;
 
 	device_configs = other.device_configs;
 
@@ -25,6 +26,7 @@ void Configuration::clear()
 	aircraft_acf = "";
 	script_file = "";
 	version = "";
+	aircraft_path = "";
 
 	device_configs.clear();
 }
@@ -43,11 +45,13 @@ DeviceConfiguration& DeviceConfiguration::operator=(const DeviceConfiguration& o
 	device_type = other.device_type;
 	pid = other.pid;
 	vid = other.vid;
+	serial_number = other.serial_number;
 	push_actions = other.push_actions;
 	release_actions = other.release_actions;
 	light_triggers = other.light_triggers;
 	multi_displays = other.multi_displays;
 	generic_displays = other.generic_displays;
+	fip_screens = other.fip_screens;
 
 	return *this;
 }

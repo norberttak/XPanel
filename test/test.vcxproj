@@ -108,11 +108,12 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(SolutionDir)LUA\lua54.dll" "$(OutDir)" 
-xcopy /y /d "$(SolutionDir)config\board-config.ini" "$(OutDir)" 
+xcopy /y /d "$(SolutionDir)config\board-config.ini" "$(OutDir)"
+xcopy /y /d /S /I "$(SolutionDir)test\fip-images\*" "$(OutDir)\fip-images" 
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>copy lua dll to output directory</Message>
+      <Message>copy external items to test output directory</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -174,11 +175,12 @@ xcopy /y /d "$(SolutionDir)config\board-config.ini" "$(OutDir)"
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(SolutionDir)LUA\lua54.dll" "$(OutDir)" 
-xcopy /y /d "$(SolutionDir)config\board-config.ini" "$(OutDir)" 
+xcopy /y /d "$(SolutionDir)config\board-config.ini" "$(OutDir)"
+xcopy /y /d /S /I "$(SolutionDir)test\fip-images\*" "$(OutDir)\fip-images" 
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>copy lua dll to output directory</Message>
+      <Message>copy external items to test output directory</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -192,17 +194,24 @@ xcopy /y /d "$(SolutionDir)config\board-config.ini" "$(OutDir)"
     <ClCompile Include="..\src\LuaHelper.cpp" />
     <ClCompile Include="..\src\MessageWindow.cpp" />
     <ClCompile Include="..\src\MultiPurposeDisplay.cpp" />
+    <ClCompile Include="..\src\FIPDevice.cpp" />
+    <ClCompile Include="..\src\FIPPage.cpp" />
+    <ClCompile Include="..\src\FIPScreen.cpp" />
+    <ClCompile Include="..\src\GenericScreen.cpp" />
+    <ClCompile Include="..\src\RawBMP.cpp" />
     <ClCompile Include="..\src\SaitekMultiPanel.cpp" />
     <ClCompile Include="..\src\SaitekRadioPanel.cpp" />
     <ClCompile Include="..\src\Trigger.cpp" />
     <ClCompile Include="..\src\UsbHidDevice.cpp" />
     <ClCompile Include="..\src\XPanel.cpp" />
+    <ClCompile Include="mock_FIPDriver.cpp" />
     <ClCompile Include="mock_hid_api.cpp" />
     <ClCompile Include="mock_xplane.cpp" />
     <ClCompile Include="mock_xplane_display.cpp" />
     <ClCompile Include="test_arduino_home.cpp" />
     <ClCompile Include="test_config_parser.cpp" />
     <ClCompile Include="test_dynamic_speed.cpp" />
+    <ClCompile Include="test_FIP.cpp" />
     <ClCompile Include="test_generic_display.cpp" />
     <ClCompile Include="test_lua.cpp" />
     <ClCompile Include="test_multi_panel.cpp" />
