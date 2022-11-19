@@ -10,7 +10,7 @@
 #include <list>
 #include <thread>
 #include "Action.h"
-#include "configuration.h"
+#include "Configuration.h"
 #include <queue>
 #include "Action.h"
 #include <thread>

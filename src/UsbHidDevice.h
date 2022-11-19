@@ -15,7 +15,7 @@
 
 #include"hidapi.h"
 #include "Device.h"
-#include "configuration.h"
+#include "Configuration.h"
 
 struct PanelButton
 {

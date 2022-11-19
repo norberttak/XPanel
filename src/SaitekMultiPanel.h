@@ -8,7 +8,7 @@
 #include <vector>
 #include "Device.h"
 #include "UsbHidDevice.h"
-#include "configuration.h"
+#include "Configuration.h"
 
 class SaitekMultiPanel : public UsbHidDevice
 {

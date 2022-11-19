@@ -17,8 +17,8 @@
 #include <fstream>
 #include <map>
 #include <queue>
-#include "configuration.h"
-#include "logger.h"
+#include "Configuration.h"
+#include "Logger.h"
 
 std::map<std::string, int> internal_dataref;
 std::map<std::string, int> internal_command_ref;

@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <string>
 #include "UsbHidDevice.h"
-#include "logger.h"
+#include "Logger.h"
 
 int UsbHidDevice::ref_count = 0;
 bool UsbHidDevice::hid_api_initialized = false;

@@ -7,7 +7,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "configuration.h"
+#include "Configuration.h"
 
 class Configparser
 {

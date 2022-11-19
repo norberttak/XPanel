@@ -13,8 +13,8 @@
 
 #include "CppUnitTest.h"
 #include "ArduinoHomeCockpit.h"
-#include "configparser.h"
-#include "logger.h"
+#include "ConfigParser.h"
+#include "Logger.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

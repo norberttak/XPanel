@@ -13,7 +13,7 @@
 
 #include "CppUnitTest.h"
 #include "SaitekMultiPanel.h"
-#include "configparser.h"
+#include "ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

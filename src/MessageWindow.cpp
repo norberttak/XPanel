@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "message_window.h"
+#include "MessageWindow.h"
 
 int dummy_mouse_handler(
 	XPLMWindowID,

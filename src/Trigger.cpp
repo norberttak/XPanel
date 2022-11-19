@@ -5,9 +5,9 @@
  */
 
 #include <limits>
-#include "trigger.h"
-#include "lua_helper.h"
-#include "logger.h"
+#include "Trigger.h"
+#include "LuaHelper.h"
+#include "Logger.h"
 
 Trigger::Trigger()
 {

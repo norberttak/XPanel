@@ -6,9 +6,9 @@
 
 #include <cmath>
 #include <cfloat>
-#include "generic_display.h"
-#include "lua_helper.h"
-#include "logger.h"
+#include "GenericDisplay.h"
+#include "LuaHelper.h"
+#include "Logger.h"
 
 GenericDisplay::GenericDisplay(bool _use_bcd)
 {

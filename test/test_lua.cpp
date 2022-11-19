@@ -9,10 +9,10 @@
 #include "XPLMPlugin.h"
 #include "XPLMPlanes.h"
 #include "XPLMDisplay.h"
-#include "lua_helper.h"
+#include "LuaHelper.h"
 
 #include "CppUnitTest.h"
-#include "configparser.h"
+#include "ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

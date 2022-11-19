@@ -5,10 +5,10 @@
  */
 
 #include "Action.h"
-#include "lua_helper.h"
+#include "LuaHelper.h"
 #include "XPLMUtilities.h"
 #include "XPLMProcessing.h"
-#include "logger.h"
+#include "Logger.h"
 
 Action::Action()
 {
