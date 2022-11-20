@@ -22,8 +22,10 @@ private:
 	const std::string DEVICE_TYPE_SAITEK_SWITCH = "saitek_switch";
 	const std::string DEVICE_TYPE_ARDUINO_HOME_COCKPIT = "aurduino_homecockpit";
 	const std::string DEVICE_TYPE_SAITEK_FIP_SCREEN = "saitek_fip_screen";
+	const std::string DEVICE_TYPE_TRC1000PFD = "trc1000_pfd";
+	const std::string DEVICE_TYPE_TRC1000AUDIO = "trc1000_audio";
 
-	const std::string TOKEN_DEVICE  = "\\[device:id=\"([a-zA-Z09_-]+)\"\\]";
+	const std::string TOKEN_DEVICE  = "\\[device:id=\"([a-zA-Z0-9_-]+)\"\\]";
 	const std::string TOKEN_VID		= "vid=\"(.+)\"";
 	const std::string TOKEN_PID		= "pid=\"(.+)\"";
 	const std::string TOKEN_SERIAL  = "serial=\"(.+)\"";
@@ -37,13 +39,11 @@ private:
 	const std::string TOKEN_LOG_LEVEL = "log_level=\"(.+)\"";
 	const std::string TOKEN_BUTTON_PUSH_DATAREF = "on_push=\"dataref:"+RE_REF+":"+RE_INT+"\"";
 	const std::string TOKEN_BUTTON_PUSH_DATAREF_ARRAY = "on_push=\"dataref:"+RE_REF+"\\["+RE_INT+"\\]:"+RE_INT+"\"";
-	const std::string TOKEN_BUTTON_PUSH_SCRIPT = "on_push=\"script:([a-zA-Z0-9/\\(\\)_-]+)";
 	const std::string TOKEN_BUTTON_PUSH_COMMANDREF = "on_push=\"commandref:"+RE_REF+":([begin|end|once]*)\"";
 	const std::string TOKEN_BUTTON_PUSH_LUA = "on_push=\"lua:" + RE_LUA+"\"";
 
 	const std::string TOKEN_BUTTON_RELEASE_DATAREF = "on_release=\"dataref:"+RE_REF+":"+RE_INT+"\"";
 	const std::string TOKEN_BUTTON_RELEASE_DATAREF_ARRAY = "on_release=\"dataref:"+RE_REF+"\\["+RE_INT+"\\]:"+RE_INT+"\"";
-	const std::string TOKEN_BUTTON_RELEASE_SCRIPT = "on_release=\"script:([a-zA-Z0-9/\\(\\)_]+)";
 	const std::string TOKEN_BUTTON_RELEASE_COMMANDREF = "on_release=\"commandref:"+RE_REF+":([begin|end|once]*)\"";
 	const std::string TOKEN_BUTTON_RELEASE_LUA = "on_release=\"lua:" + RE_LUA + "\"";
 
@@ -64,6 +64,13 @@ private:
 	const std::string TOKEN_TRIGGER_LIT_LUA = "trigger_lit=\"lua:" + RE_LUA + ":" + RE_FLOAT + "\"";
 	const std::string TOKEN_TRIGGER_UNLIT_LUA = "trigger_unlit=\"lua:" + RE_LUA + ":" + RE_FLOAT + "\"";
 	const std::string TOKEN_TRIGGER_BLINK = "trigger_blink=\"dataref:"+RE_REF+":"+RE_FLOAT+"\"";
+
+	// Rotary Encoder
+	const std::string TOKEN_ROT_ENCODER = "\\[encoder:id=\"([a-zA-Z0-9_-]+)\"\\]";
+	const std::string TOKEN_ROT_ENCODER_ON_INC_COMMANDREF = "on_increment=\"commandref:" + RE_REF + ":([begin|end|once]*)\"";
+	const std::string TOKEN_ROT_ENCODER_ON_DEC_COMMANDREF = "on_decrement=\"commandref:" + RE_REF + ":([begin|end|once]*)\"";
+	const std::string TOKEN_ROT_ENCODER_ON_INC_LUA = "on_increment=\"lua:" + RE_LUA + "\"";
+	const std::string TOKEN_ROT_ENCODER_ON_DEC_LUA = "on_decrement=\"lua:" + RE_LUA + "\"";
 
 	// Generic display
 	const std::string TOKEN_DISPLAY = "\\[display:id=\"([a-zA-Z0-9_-]+)\",bcd=\"(yes|no)\"\\]";
