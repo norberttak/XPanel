@@ -47,6 +47,23 @@ int UsbHidDevice::read_device(unsigned char* buf, int buf_size)
 	return EXIT_SUCCESS;
 }
 
+int UsbHidDevice::send_feature_report(unsigned char* buf, int length)
+{
+	if (device_handle == NULL)
+	{
+		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::send_feature_report. device handle is null" << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	if (hid_send_feature_report(device_handle, buf, length) == -1)
+	{
+		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::send_feature_report" << " reason=" << hidapi_error(device_handle) << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
+}
+
 int UsbHidDevice::write_device(unsigned char* buf, int length)
 {
 	if (device_handle == NULL)
@@ -55,10 +72,10 @@ int UsbHidDevice::write_device(unsigned char* buf, int length)
 		return EXIT_FAILURE;
 	}
 
-	if (hid_send_feature_report(device_handle, buf, length) == -1)
+	if (hid_write(device_handle, buf, length) == -1)
 	{
+		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::write_device" << " reason=" << hidapi_error(device_handle) << std::endl;
 		return EXIT_FAILURE;
-		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::hid_send_feature_report" << " reason=" << hidapi_error(device_handle) << std::endl;
 	}
 
 	return EXIT_SUCCESS;
@@ -158,7 +175,7 @@ void UsbHidDevice::thread_func()
 		write_buffer_changed |= updateDisplays();
 
 		if (write_buffer_changed)
-			if (write_device(write_buffer, write_buffer_size) == EXIT_FAILURE)
+			if (send_feature_report(write_buffer, write_buffer_size) == EXIT_FAILURE)
 			{
 				Logger(TLogLevel::logERROR) << "UsbHidDevice thread_func: error writing HID device. vid=" << vid << " pid=" << pid << std::endl;
 				break;
