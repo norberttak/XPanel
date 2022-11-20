@@ -201,6 +201,7 @@ xcopy /y /d /S /I "$(SolutionDir)test\fip-images\*" "$(OutDir)\fip-images"
     <ClCompile Include="..\src\RawBMP.cpp" />
     <ClCompile Include="..\src\SaitekMultiPanel.cpp" />
     <ClCompile Include="..\src\SaitekRadioPanel.cpp" />
+    <ClCompile Include="..\src\TRC1000PFD.cpp" />
     <ClCompile Include="..\src\Trigger.cpp" />
     <ClCompile Include="..\src\UsbHidDevice.cpp" />
     <ClCompile Include="..\src\XPanel.cpp" />
@@ -216,6 +217,7 @@ xcopy /y /d /S /I "$(SolutionDir)test\fip-images\*" "$(OutDir)\fip-images"
     <ClCompile Include="test_lua.cpp" />
     <ClCompile Include="test_multi_panel.cpp" />
     <ClCompile Include="test_radio_panel.cpp" />
+    <ClCompile Include="test_trc1000_pfd.cpp" />
     <ClCompile Include="test_xpanel_plugin.cpp" />
   </ItemGroup>
   <ItemGroup>
