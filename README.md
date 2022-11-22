@@ -1,8 +1,8 @@
 # XPanel
 ## What is this?
-This is a plugin for [XPlane 11](https://www.x-plane.com/) flight simulator. If you have or plan to build a home cockpit then it is good to check this. It can connect your USB HID hardware devices to the XPlane11 system.
+This is a plugin for [X-Plane 11](https://www.x-plane.com/) flight simulator. If you have or plan to build a home cockpit then it is good to check this. It can connect your USB HID hardware devices to the X-Plane 11 system.
 
-It has a configuration file where you can define the logical connections between hardware elements (buttons, switches, displays, etc) and the internal [dataref](https://developer.x-plane.com/sdk/) of XPlane.
+It has a configuration file where you can define the logical connections between hardware elements (buttons, switches, displays, etc) and the internal [dataref](https://developer.x-plane.com/sdk/) of X-Plane.
 
 Currently, it supports four types of USB devices:
 
@@ -17,11 +17,11 @@ For configuration file syntax please see the document [here](doc/configuration.m
 ## Install
 Get the latest release from [github](https://github.com/norberttak/XPanel/releases)
 
-Copy the xpanel folder into your XPlane plugin directory (in my case it is c:\XPlane11\resources\plugins).
+Copy the xpanel folder into your X-Plane plugin directory (in my case it is c:\XPlane11\resources\plugins).
 
 Please don't forget to remove any other plugins that want to connect to your USB Hid devices in the home cockpit.
 
-If you have any errors during the plugin load or run please check the main xplane log file. If you want more detailed logs from the plugin, please set the log level to DEBUG or even TRACE. See the details at [config syntax](doc/configuration.md)
+If you have any errors during the plugin load or run please check the main X-Plane log file. If you want more detailed logs from the plugin, please set the log level to DEBUG or even TRACE. See the details at [config syntax](doc/configuration.md)
 
 ## Build
 The project can be built on Windows and Linux machines.
@@ -65,4 +65,4 @@ The build artifact of the plugin is generated in the Release|Debug/plugin/xpanel
 To run the unit tests, open the Visual Studio test menu and select Test Explorer. Push the run-all button and check the test results.
 
 ## Report bugs
-If you find any bug in the plugin or need help please open a new bug report at [github](https://github.com/norberttak/XPanel/issues) Please always attach the Xplane log file and make sure you set the highest log level (TRACE) in the plugin config file. Also attach your plugin configuration file as well. 
+If you find any bug in the plugin or need help please open a new bug report at [github](https://github.com/norberttak/XPanel/issues) Please always attach the X-Plane log file and make sure you set the highest log level (TRACE) in the plugin config file. Also attach your plugin configuration file as well.

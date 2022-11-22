@@ -23,18 +23,18 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-** Xplane log file **
+** X-Plane log file **
 Please try to reproduce the issue with the loglevel set to TRACE in the plugin configuration file.
 
 Put this line to the begining of your xpanel.ini file:
 ```ini
 log_level="TRACE"
 ```
-Please attach the xplane log file to this error report (it could be quite big so please zip or tar.gz it before upload, thanks:-) )
+Please attach the X-Plane log file to this error report (it could be quite big so please zip or tar.gz it before upload, thanks:-) )
 
 **Desktop (please complete the following information):**
  - OS: [e.g. iOS, Windows11, Linux Ubuntu]
- - Xplane version [e.g. Xplane 11.53]
+ - X-Plane version [e.g. X-Plane 11.53]
 
 **Additional context**
 Add any other context about the problem here.
