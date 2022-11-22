@@ -1,6 +1,6 @@
 # XPanel
 ## What is this?
-This is a plugin for [X-Plane 11](https://www.x-plane.com/) flight simulator. If you have or plan to build a home cockpit then it is good to check this. It can connect your USB HID hardware devices to the X-Plane 11 system.
+This is a plugin for [X-Plane](https://www.x-plane.com/) >=11 flight simulator. If you have or plan to build a home cockpit then it is good to check this. It can connect your USB HID hardware devices to the X-Plane system.
 
 It has a configuration file where you can define the logical connections between hardware elements (buttons, switches, displays, etc) and the internal [dataref](https://developer.x-plane.com/sdk/) of X-Plane.
 
