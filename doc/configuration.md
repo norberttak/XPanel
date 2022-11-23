@@ -17,13 +17,13 @@ This plugin has a very simple log facility that can be used during debug session
 ```ini
 log_level="TRACE|DEBUG|INFO|WARNING|ERROR"
 ```
-Set the log level of the plugin. The log lines are written to XPlane's default log file. In normal use-cases set the log_level to ERROR.
+Set the log level of the plugin. The log lines are written to X-Plane's default log file. In normal use-cases set the log_level to ERROR.
 ```ini
 log_level="ERROR"
 ```
 ### Aircraft ACF file
 
-The ACF file is the main file for an XPlane aircraft. The plugin gets the ACF file name parameter from the XPLane system. The reason to put the ACF file name into the configuration is only for safety. During parse, we can check if accidentally a wrong configuration file (created for another aircraft) has been loaded.
+The ACF file is the main file for an X-Plane aircraft. The plugin gets the ACF file name parameter from the X-Plane system. The reason to put the ACF file name into the configuration is only for safety. During parse, we can check if accidentally a wrong configuration file (created for another aircraft) has been loaded.
 ```ini
 aircraft_acf="tu154.acf"
 ```
@@ -41,9 +41,9 @@ Devices can be defined by a new section in the configuration file. Currently, it
 [device:id="aurduino_homecockpit"]
 ```
 The devices have a few config options which can be set by the configuration file.
-* USB VID (Vendor ID), 
-* USB PID (Product ID), 
-* the aircraft .acf file (this is the main file of an XPlane aircraft. This uniquely identifies the loaded aircraft)
+* USB VID (Vendor ID),
+* USB PID (Product ID),
+* the aircraft .acf file (this is the main file of an X-Plane aircraft. This uniquely identifies the loaded aircraft)
 * LUA script file which will be loaded in parallel to the initialization of the plugin.
 
 ```ini
@@ -115,11 +115,11 @@ Every button shall be defined as a new section and need to have a pre-defined id
 
 
 ### Arduino based IO board
-If you have a USB HID capable IO board (like I have an Arduino Lenoardo) you 
+If you have a USB HID capable IO board (like I have an Arduino Lenoardo) you
 can define the logical (or symbolic) names for each register bits in a configuration file. A USB HID report
 is based on bytes so the config file follows this order as well.
 
-To define a symbolic name you need to select the register (1 byte long registers with  0 based index) 
+To define a symbolic name you need to select the register (1 byte long registers with  0 based index)
 and then the bit index. In the example bellow we define two symbolic names (STROBE and DOME)
 which are in the register 1 and assign to the 0 and the 1 bit respectively.
 
@@ -134,7 +134,7 @@ display:id="ALTIMETER_GAUGE",width=2
 In the aircraft specific configuration files you can use these symbolic names.
 
 The board sepcific config file is not aircraft specific therefore you should have only one instance
-of this config and put it to the same folder where the plugin binary installed (for example: 
+of this config and put it to the same folder where the plugin binary installed (for example:
 c:\xplane11\resources\plugins\XPanel\64\board-config.ini)
 
 The release package contains my board-config.ini but for sure you have to modify it
@@ -144,7 +144,7 @@ according to your HW design.
 Every button can define multiple push and release actions. An action could be either
 * set a `dataref` to a specific value (integer, float or an array)
 * increase or decrease a `dataref` by a delta
-* execute a `command` 
+* execute a `command`
 * execute a `lua` code
 
 It is possible to define an action with a condition. This could be used for multipurpose HW elements (like the sliver rotation knob on the Saitek multi panel)
@@ -166,7 +166,7 @@ on_push="dataref:<dataref_name>:<delta>:<min>:<max>"
 ```
 These kind of conditional action can be used for multipurpose handlers/displays.
 A good example is the Saitek Multi Panel. There is a rotation switch (left side of the display)
-where you can slect the function of the silver rotation knob KNOB_MINUS/KNOB_PLUS (right side of display) also 
+where you can select the function of the silver rotation knob KNOB_MINUS/KNOB_PLUS (right side of display) also
 the display value on the display.
 
 ```ini
@@ -186,10 +186,10 @@ You can define two times intervals: t_low and t_high. These are for pretty fast 
 dynamic_speed="t_low=0.5x2,t_high=0.25x4"
 on_push="on_select:SW_HDG,dataref:test/dynamic_speed_test:1:0:359"
 ```
-This will apply a x4 speed factor if the time elapsed between the two actions is less than 0.25 sec and will apply a x2 factor if the elapsed time is between 0.25..0.5 sec. If the time is over 0.5 sec the dynamic speed is disabled and a multiplier x1 will be applied. 
+This will apply a x4 speed factor if the time elapsed between the two actions is less than 0.25 sec and will apply a x2 factor if the elapsed time is between 0.25..0.5 sec. If the time is over 0.5 sec the dynamic speed is disabled and a multiplier x1 will be applied.
 
-The following is show how to use XPlane commands. When you push the button, it issues a command begin to Xplane with the given command ref. When you release the button, we issue a command end to Xplane.
-If you don't care about the length of a button press then you can use the commands with `:once` modifier. This will issue a single command to Xplane which contains a push and a release event as well. 
+The following is show how to use X-Plane commands. When you push the button, it issues a command begin to X-Plane with the given command ref. When you release the button, we issue a command end to X-Plane.
+If you don't care about the length of a button press then you can use the commands with `:once` modifier. This will issue a single command to X-Plane which contains a push and a release event as well.
 ```ini
 [button:id="HDG"]
 on_push="commandref:/sim/cmd/HDG:begin"
@@ -232,10 +232,10 @@ and check the return value.
 A display is a charachter based 7 segment display device or an analogue gauge. It can be used for display numeric values.
 The display value can be either from a dataref or from a LUA function. The display value can a conditional
 display which means the value to display is depends on the position of a switch. A display taht contains conditions called
-multi purpose displya (multi_display). 
+multi purpose displya (multi_display).
 
 The 'on_select:HW input name' part defines a condition. If the HW input is in logical 1 state
-the display will show you the dataref or lua script value in that line, Thi is somehow similar to a 
+the display will show you the dataref or lua script value in that line, Thi is somehow similar to a
 switch-case instruction in C.
 
 ```ini
@@ -272,7 +272,7 @@ vid="12AB"
 pid="34CD"
 
 ;AP button
-[button:id="AP"] 
+[button:id="AP"]
 on_release="dataref:/sim/hello/AP:0"; test for button press
 on_release="dataref:/hello/bello:0"
 on_push="dataref:/sim/hello/AP:1"

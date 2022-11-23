@@ -7,33 +7,33 @@ This plugin is independent of the [FlyWithLua plugin](https://github.com/X-Fries
 
 The following Lua command are defined by the plugin:
 
-## Do an XPlane command
-```lua 
+## Do an X-Plane command
+```lua
 command_once('/xplane/command')
 command_begin('/xplane/command')
 command_end('/xplane/command')
 ```
-The parameters are the xplane command names as a string.
+The parameters are the X-Plane command names as a string.
 
-You can trigger an xplane command on three different ways: The "begin" means like you keep push a button.
+You can trigger an X-Plane command on three different ways: The "begin" means like you keep push a button.
 The "end" means you release the button. If you don't care about the length of button press you can issue a single command as "once"
 This contains a begin and immediately an end.
 
-## Set or get XPlane datarefs
+## Set or get X-Plane datarefs
 ```lua
 value = get_dataref('/xplane/dataref')
 set_dataref('/xplane/dataref',value)
 ```
-The Xplane dataref values can set or get by these functions. The first parameter is the dataref name as a string.
+The X-Plane dataref values can set or get by these functions. The first parameter is the dataref name as a string.
 The get_dataref will return with the current value of the dataref.
 
 The set_dataref second parameter is the value what you want to set. Please be careful to pass the right type of value here.
-XPlane checks the value type and reject it if it doesn't match with the required type of the dataref.
+X-Plane checks the value type and reject it if it doesn't match with the required type of the dataref.
 
 The plugin tries to convert it to the required type but it could make tricky issues if you don't care about the type of values.
 The dataref types are listed [here](https://developer.x-plane.com/sdk/XPLMDataAccess/#XPLMDataTypeID)
 
-You may know that it's a high cost call into the XPlane system to find an internal dataref by the name (more details [here](https://developer.x-plane.com/sdk/XPLMDataAccess/)) Therefore the plugin will 
+You may know that it's a high cost call into the X-Plane system to find an internal dataref by the name (more details [here](https://developer.x-plane.com/sdk/XPLMDataAccess/)) Therefore the plugin will
 store the dataref pointer so the costly XPLMFindDataRef will be called only once.
 
 ## Get the value of an Input or Output HW line
@@ -63,8 +63,8 @@ The return value is a string type:
 UNKNOWN could mean either the light_name is not valid or the light didn't changed its state.
 
 ## Logger command
-To put a log line into the xplane's log file you can use this lua command. 
-The first parameter determines the log level. If the actual log level is higher than your message here (for example you call log_msg with first parameter as 'TRACE' and the log level is set to INFO by the [config file](configuration.md)) 
+To put a log line into X-Plane's log file you can use this lua command.
+The first parameter determines the log level. If the actual log level is higher than your message here (for example you call log_msg with first parameter as 'TRACE' and the log level is set to INFO by the [config file](configuration.md))
 your log message will be ignored.
 
 ```
@@ -87,7 +87,7 @@ function button_AP(action)
     elseif (action == "once") then
         command_once("/sim/test/lua/button_AP")
     else
-        log_msg("ERROR","invalid action parameter "..action) 
+        log_msg("ERROR","invalid action parameter "..action)
     end
 end
 ```
@@ -95,7 +95,7 @@ You can call the button_AP function from the config file like this:
 ```ini
 script_file="test-script.lua"
 
-[button:id="AP"] 
+[button:id="AP"]
 on_push="lua:button_AP('push')"
 on_release="lua:button_AP('release')"
 ```
