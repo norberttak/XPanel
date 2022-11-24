@@ -7,7 +7,7 @@
 #include "Device.h"
 #include "Logger.h"
 
-Device::Device(DeviceConfiguration &_config, int _read_buffer_size, int _write_buffer_size)
+Device::Device(DeviceConfiguration& _config, int _read_buffer_size, int _write_buffer_size)
 {
 	read_buffer = (unsigned char*)calloc(_read_buffer_size, sizeof(unsigned char));
 	read_buffer_old = (unsigned char*)calloc(_read_buffer_size, sizeof(unsigned char));
@@ -74,6 +74,11 @@ void Device::register_lights(std::vector<PanelLight>& _lights)
 void Device::register_displays(std::vector<PanelDisplay>& _displays)
 {
 	panel_displays = _displays;
+}
+
+void Device::register_rotary_encoders(std::vector<PanelRotaryEncoder>& _encoders)
+{
+	encoders = _encoders;
 }
 
 int Device::get_stored_button_state(std::string button_name)
@@ -217,7 +222,7 @@ void Device::process_selector_switch()
 
 void Device::process_and_store_button_states()
 {
-	for (auto button : buttons)
+	for (auto &button : buttons)
 	{
 		if (is_bit_changed(read_buffer, read_buffer_old, button.bit))
 		{
@@ -226,7 +231,7 @@ void Device::process_and_store_button_states()
 			Logger(TLogLevel::logTRACE) << "Device " << button.config_name << " button bit changed " << std::endl;
 			if (get_bit_value(read_buffer, button.bit) && config.push_actions.find(button.config_name.c_str()) != config.push_actions.end())
 			{
-				for (auto act : config.push_actions[button.config_name.c_str()])
+				for (auto act : config.push_actions[button.config_name])
 				{
 					Logger(TLogLevel::logTRACE) << "Device " << button.config_name << " button push action called" << std::endl;
 					ActionQueue::get_instance()->push(act);
@@ -234,12 +239,64 @@ void Device::process_and_store_button_states()
 			}
 			else if (!get_bit_value(read_buffer, button.bit) && config.release_actions.find(button.config_name.c_str()) != config.release_actions.end())
 			{
-				for (auto act : config.release_actions[button.config_name.c_str()])
+				for (auto act : config.release_actions[button.config_name])
 				{
 					Logger(TLogLevel::logTRACE) << "Device " << button.config_name << " button release action called" << std::endl;
 					ActionQueue::get_instance()->push(act);
 				}
 			}
 		}
+	}
+}
+
+int Device::compute_rotation_delta_with_overflow(unsigned char rot, unsigned char rot_old)
+{
+	int rot_diff = rot - rot_old;
+	if (rot_diff >= 128)
+	{
+		rot_diff = rot_diff - 255 -1;
+	}
+	else if (rot_diff <= -128)
+	{
+		rot_diff = rot_diff + 255 + 1;
+	}
+	return rot_diff;
+}
+
+void Device::process_and_store_encoder_rotations()
+{
+	for (auto &encoder : encoders)
+	{
+		int encoder_delta = compute_rotation_delta_with_overflow(read_buffer[encoder.reg_index], read_buffer_old[encoder.reg_index]);		
+
+		if (encoder_delta == 0)
+			continue;
+
+		encoder_delta += encoder.accumulated_change;
+
+		if (encoder_delta > 0 && config.encoder_inc_actions.find(encoder.config_name) != config.encoder_inc_actions.end())
+		{
+			Logger(TLogLevel::logTRACE) << "encoder " << encoder.config_name << " incremented (" << (int)read_buffer_old[encoder.reg_index] << "->" << (int)read_buffer[encoder.reg_index] << ") d = " << encoder_delta << std::endl;
+			while (encoder_delta >= encoder.pulse_per_click) {
+				for (auto act : config.encoder_inc_actions[encoder.config_name]) 
+				{
+					ActionQueue::get_instance()->push(act);
+				}
+				encoder_delta -= encoder.pulse_per_click;
+			}			
+		}
+		else if (encoder_delta < 0 && config.encoder_dec_actions.find(encoder.config_name) != config.encoder_dec_actions.end())
+		{
+			Logger(TLogLevel::logTRACE) << "encoder " << encoder.config_name << " decremented (" << (int)read_buffer_old[encoder.reg_index] << "->" << (int)read_buffer[encoder.reg_index] << ") d = " << encoder_delta << std::endl;
+			while (abs(encoder_delta) >= encoder.pulse_per_click) {
+				for (auto act : config.encoder_dec_actions[encoder.config_name])
+				{
+					ActionQueue::get_instance()->push(act);
+				}
+				encoder_delta += encoder.pulse_per_click;
+			}
+		}
+		encoder.accumulated_change = encoder_delta;
+		Logger(TLogLevel::logTRACE) << "encoder " << encoder.config_name << " accumulated change = " << encoder.accumulated_change << std::endl;
 	}
 }

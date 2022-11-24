@@ -53,15 +53,43 @@ struct PanelDisplay
 	std::string config_name;
 };
 
+struct PanelRotaryEncoder
+{
+	PanelRotaryEncoder(int _reg_index, int _width, std::string _config_name)
+	{
+		reg_index = _reg_index;
+		width = _width;
+		config_name = _config_name;
+		accumulated_change = 0;
+		pulse_per_click = 2;
+	}
+
+	PanelRotaryEncoder(int _reg_index, std::string _config_name)
+	{
+		reg_index = _reg_index;
+		width = 1;
+		config_name = _config_name;
+		accumulated_change = 0;
+		pulse_per_click = 2;
+	}
+
+	int reg_index;
+	int width;
+	int accumulated_change;
+	int pulse_per_click;
+	std::string config_name;
+};
+
 class Device
 {
 private:
-	
+	int compute_rotation_delta_with_overflow(unsigned char rot, unsigned char rot_old);
 protected:
 	DeviceConfiguration config;
 	std::vector<PanelButton> selectors;
 	std::vector<PanelButton> buttons;
 	std::vector<PanelDisplay> panel_displays;
+	std::vector< PanelRotaryEncoder> encoders;
 	std::map<std::string, int> stored_button_states;
 	std::map<std::string, TriggerType> stored_light_states;
 	std::vector<PanelLight> lights;
@@ -74,6 +102,7 @@ protected:
 	virtual void register_buttons(std::vector<PanelButton>& _buttons);
 	virtual void register_selectors(std::vector<PanelButton>& _selectors);
 	virtual void register_lights(std::vector<PanelLight>& _lights);
+	virtual void register_rotary_encoders(std::vector<PanelRotaryEncoder>& _encoders);
 public:
 	std::thread* thread_handle = NULL;
 	Device(DeviceConfiguration &_config, int _read_buffer_size, int _write_buffer_size);
@@ -83,6 +112,7 @@ public:
 	bool updateLightStates();
 	void process_and_store_button_states();
 	void process_selector_switch();
+	void process_and_store_encoder_rotations();
 	virtual void stop(int time_out)=0;
 	virtual void thread_func(void)=0;
 	virtual int connect() = 0;
