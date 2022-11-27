@@ -258,7 +258,7 @@ line="dataref:sim/test/altimeter"
 ```
 
 ## Flight Istrument Panel (FIP) devices
-The configuration options for the FIP graphical devices can be found [here](doc/fip-screen.md)
+The configuration options for the FIP graphical devices can be found [here](fip-screen.md)
 
 ## Example configuration file
 ```ini
