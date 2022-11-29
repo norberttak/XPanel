@@ -76,6 +76,9 @@ int SaitekMultiPanel::connect()
 		return EXIT_FAILURE;
 	}
 
+	read_device(read_buffer, read_buffer_size);
+	memcpy(read_buffer_old, read_buffer, read_buffer_size);
+
 	memset(buff, 0, sizeof(buff)); // clear all button lights
 	if (send_feature_report(buff, sizeof(buff)) != EXIT_SUCCESS)
 	{

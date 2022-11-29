@@ -70,6 +70,9 @@ int SaitekRadioPanel::connect()
 		return EXIT_FAILURE;
 	}
 
+	read_device(read_buffer, read_buffer_size);
+	memcpy(read_buffer_old, read_buffer, read_buffer_size);
+
 	unsigned char buff[WRITE_BUFFER_SIZE];
 	memset(buff, 0xff, sizeof(buff)); // clear all displays
 	if (send_feature_report(buff, sizeof(buff)) != EXIT_SUCCESS)
