@@ -182,6 +182,7 @@
     <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\SaitekMultiPanel.cpp" />
     <ClCompile Include="src\MessageWindow.cpp" />
+    <ClCompile Include="src\TRC1000.cpp" />
     <ClCompile Include="src\XPanel.cpp" />
     <ClCompile Include="src\UsbHidDevice.cpp" />
     <ClCompile Include="src\Trigger.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="src\UsbHidDevice.h" />
     <ClInclude Include="src\Trigger.h" />
     <ClInclude Include="src\TRC1000PFD.h" />
+    <ClInclude Include="src\TRC1000.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

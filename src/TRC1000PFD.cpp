@@ -6,13 +6,13 @@
 #include <cstring>
 #include <cstdlib>
 #include <string>
+#include "TRC1000.h"
 #include "TRC1000PFD.h"
 #include "UsbHidDevice.h"
 #include "Logger.h"
 
 #define WRITE_BUFFER_SIZE (8+1) // +1 for the hid report id at position 0
 #define READ_BUFFER_SIZE 23
-#define HID_REPORT_ID	1
 
 #define CMD_REQUEST_BUTTON_SATE 0x41
 #define CMD_REQUEST_ENCODER_0	0x42
@@ -26,7 +26,7 @@
 #define ENCODER_0_BUFFER_OFFSET	7
 #define ENCODER_1_BUFFER_OFFSET	15
 
-TRC1000PFD::TRC1000PFD(DeviceConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
+TRC1000PFD::TRC1000PFD(DeviceConfiguration& config) :TRC1000(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {
 	// cmd response oxc1				0
 	trc1000pfd_buttons.push_back(PanelButton(1 * 8 + 0, "IAS"));
@@ -62,17 +62,17 @@ TRC1000PFD::TRC1000PFD(DeviceConfiguration& config) :UsbHidDevice(config, READ_B
 	trc1000pfd_buttons.push_back(PanelButton(4 * 8 + 3, "DIRECT"));
 	trc1000pfd_buttons.push_back(PanelButton(4 * 8 + 4, "PROC"));
 	trc1000pfd_buttons.push_back(PanelButton(4 * 8 + 5, "FPL"));
-	trc1000pfd_buttons.push_back(PanelButton(4 * 8 + 6, "CLR"));
-	trc1000pfd_buttons.push_back(PanelButton(4 * 8 + 7, "ENT"));
+	trc1000pfd_buttons.push_back(PanelButton(4 * 8 + 6, "ENT"));
+	trc1000pfd_buttons.push_back(PanelButton(4 * 8 + 7, "CLR"));
 
 	trc1000pfd_buttons.push_back(PanelButton(5 * 8 + 0, "SWITCH_NAV_12"));
 	trc1000pfd_buttons.push_back(PanelButton(5 * 8 + 1, "PRESS_ALT"));
 	trc1000pfd_buttons.push_back(PanelButton(5 * 8 + 2, "SWITCH_COM_12"));
 	trc1000pfd_buttons.push_back(PanelButton(5 * 8 + 3, "SEL_CRS"));
 	trc1000pfd_buttons.push_back(PanelButton(5 * 8 + 4, "CURSOR"));
-	trc1000pfd_buttons.push_back(PanelButton(5 * 8 + 5, "SQ"));
+	trc1000pfd_buttons.push_back(PanelButton(5 * 8 + 5, "ID"));
 	trc1000pfd_buttons.push_back(PanelButton(5 * 8 + 6, "SYNC_HDG"));
-	trc1000pfd_buttons.push_back(PanelButton(5 * 8 + 7, "ID"));
+	trc1000pfd_buttons.push_back(PanelButton(5 * 8 + 7, "SQ"));
 
 	trc1000pfd_buttons.push_back(PanelButton(6 * 8 + 0, "PAN_PUSH"));
 	trc1000pfd_buttons.push_back(PanelButton(6 * 8 + 1, "PAN_UP"));
@@ -95,8 +95,8 @@ TRC1000PFD::TRC1000PFD(DeviceConfiguration& config) :UsbHidDevice(config, READ_B
 	trc1000pfd_encoders.push_back(PanelRotaryEncoder(ENCODER_1_BUFFER_OFFSET + 1, "BARO"));
 	trc1000pfd_encoders.push_back(PanelRotaryEncoder(ENCODER_1_BUFFER_OFFSET + 2, "FMS_INNER"));
 	trc1000pfd_encoders.push_back(PanelRotaryEncoder(ENCODER_1_BUFFER_OFFSET + 3, "FMS_OUTER"));
-	trc1000pfd_encoders.push_back(PanelRotaryEncoder(ENCODER_1_BUFFER_OFFSET + 4, "HDG"));
-	trc1000pfd_encoders.push_back(PanelRotaryEncoder(ENCODER_1_BUFFER_OFFSET + 5, "NAV_VOL"));
+	trc1000pfd_encoders.push_back(PanelRotaryEncoder(ENCODER_1_BUFFER_OFFSET + 4, "NAV_VOL"));
+	trc1000pfd_encoders.push_back(PanelRotaryEncoder(ENCODER_1_BUFFER_OFFSET + 5, "HDG"));
 	trc1000pfd_encoders.push_back(PanelRotaryEncoder(ENCODER_1_BUFFER_OFFSET + 6, "COM_VOL"));
 	trc1000pfd_encoders.push_back(PanelRotaryEncoder(ENCODER_1_BUFFER_OFFSET + 7, "RANGE"));
 	register_rotary_encoders(trc1000pfd_encoders);
@@ -109,6 +109,7 @@ TRC1000PFD::TRC1000PFD(DeviceConfiguration& config) :UsbHidDevice(config, READ_B
 TRC1000PFD::~TRC1000PFD()
 {
 	//
+<<<<<<< HEAD
 }
 
 int TRC1000PFD::send_command(unsigned char cmd)
@@ -238,3 +239,6 @@ void TRC1000PFD::stop(int timeout)
 	Logger(TLogLevel::logDEBUG) << "TRC1000PFD::stop called" << std::endl;
 	UsbHidDevice::stop(timeout);
 }
+=======
+}
+>>>>>>> 1e72956 (Create common base class for PFD devices)

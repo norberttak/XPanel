@@ -20,6 +20,7 @@ add_library(xpanel SHARED
     FIPScreen.cpp
     GenericScreen.cpp
     RawBMP.cpp
+    TRC1000.cpp
     TRC1000PFD.cpp
 )
 

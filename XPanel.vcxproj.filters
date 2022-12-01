@@ -89,6 +89,9 @@
     <ClCompile Include="src\TRC1000PFD.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\TRC1000.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ConfigParser.h">
@@ -152,6 +155,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\TRC1000PFD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TRC1000.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
