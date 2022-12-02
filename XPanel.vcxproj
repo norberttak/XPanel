@@ -187,6 +187,7 @@
     <ClCompile Include="src\UsbHidDevice.cpp" />
     <ClCompile Include="src\Trigger.cpp" />
     <ClCompile Include="src\TRC1000PFD.cpp" />
+    <ClCompile Include="src\TRC1000Audio.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config\device-generic.ini">
@@ -216,6 +217,7 @@
     <ClInclude Include="src\Trigger.h" />
     <ClInclude Include="src\TRC1000PFD.h" />
     <ClInclude Include="src\TRC1000.h" />
+    <ClInclude Include="src\TRC1000Audio.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

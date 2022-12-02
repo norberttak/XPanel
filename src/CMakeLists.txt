@@ -22,6 +22,7 @@ add_library(xpanel SHARED
     RawBMP.cpp
     TRC1000.cpp
     TRC1000PFD.cpp
+    TRC1000Audio.cpp
 )
 
 target_link_libraries(xpanel PRIVATE xpsdk::xpsdk hidapi::hidapi Lua::Lua FIPSDK::FIPSDK)
