@@ -219,6 +219,7 @@ xcopy /y /d /S /I "$(SolutionDir)test\fip-images\*" "$(OutDir)\fip-images"
     <ClCompile Include="test_lua.cpp" />
     <ClCompile Include="test_multi_panel.cpp" />
     <ClCompile Include="test_radio_panel.cpp" />
+    <ClCompile Include="test_trc1000_audio.cpp" />
     <ClCompile Include="test_trc1000_pfd.cpp" />
     <ClCompile Include="test_xpanel_plugin.cpp" />
   </ItemGroup>
