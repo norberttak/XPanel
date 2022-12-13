@@ -128,6 +128,9 @@
     </ClCompile>
     <ClCompile Include="test_trc1000_audio.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>    
+    <ClCompile Include="..\src\SaitekSwitchPanel.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

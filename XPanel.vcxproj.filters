@@ -94,6 +94,8 @@
     </ClCompile>
     <ClCompile Include="src\TRC1000Audio.cpp">
       <Filter>Source Files</Filter>
+    <ClCompile Include="src\SaitekSwitchPanel.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -164,6 +166,8 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\TRC1000Audio.h">
+      <Filter>Header Files</Filter>
+    <ClInclude Include="src\SaitekSwitchPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
