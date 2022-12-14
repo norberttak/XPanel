@@ -29,21 +29,21 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Download built plugin
+      - name: Download built plugin (Windows)
         uses: actions/download-artifact@v3
         with:
-          name: built-plugin
-          path: built-plugin/plugins/XPanel/64/
+          name: built-plugin-windows
+          path: built-plugin-windows/plugins/XPanel/64/
 
-      - name: Copy 3rd party dlls
+      - name: Copy 3rd party dlls (Windows)
         run: |
-          cp LUA/lua54.dll built-plugin/plugins/XPanel/64/
-          cp hidapi/lib/hidapi.dll built-plugin/plugins/XPanel/64/
-          cp FIP-SDK/lib/DirectOutput.dll built-plugin/plugins/XPanel/64/
+          cp LUA/lua54.dll built-plugin-windows/plugins/XPanel/64/
+          cp hidapi/lib/hidapi.dll built-plugin-windows/plugins/XPanel/64/
+          cp FIP-SDK/lib/DirectOutput.dll built-plugin-windows/plugins/XPanel/64/
 
-      - name: Create release plugin zip
+      - name: Create release plugin zip (Windows)
         run: |
-          cd built-plugin
+          cd built-plugin-windows
           zip -r ../${RELEASE_PLUGIN_ZIP} .
 
       - name: Create sample configs zip

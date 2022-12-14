@@ -37,7 +37,7 @@ jobs:
       - name: Upload built plugin
         uses: actions/upload-artifact@v3
         with:
-          name: built-plugin
+          name: built-plugin-windows
           path: Release/plugins/XPanel/64/*
 
       - name: Upload test logs
