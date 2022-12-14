@@ -7,6 +7,8 @@
 #include "TRC1000.h"
 #include "Logger.h"
 
+#define TRC1000_READ_TIMEOUT_MILLISEC 50
+
 TRC1000::TRC1000(DeviceConfiguration& config, int _read_buffer_size, int _write_buffer_size) :UsbHidDevice(config, _read_buffer_size, _write_buffer_size)
 {
 	read_buffer_size = _read_buffer_size;
@@ -28,15 +30,19 @@ int TRC1000::send_command(unsigned char cmd)
 		Logger(TLogLevel::logERROR) << "TRC1000 send_command: error writing HID device. vid=" << vid << " pid=" << pid << std::endl;
 		return EXIT_FAILURE;
 	}
+	return EXIT_SUCCESS;
 }
 
-void TRC1000::decode_read_response(unsigned char* tmp_read_buffer)
+int TRC1000::decode_read_response(unsigned char* tmp_read_buffer)
 {
 	for (auto command : trc1000_commands)
 	{
-		if (command.response_code == tmp_read_buffer[0])
-			memcpy((void*)&read_buffer[command.buffer_offset], tmp_read_buffer, 8);
+		if (command.response_code == tmp_read_buffer[0]) {
+			memcpy((void*)&read_buffer[command.buffer_offset], tmp_read_buffer, command.byte_count);
+			return EXIT_SUCCESS;
+		}
 	}
+	return EXIT_FAILURE;
 }
 
 int TRC1000::read_all_device_registers()
@@ -45,13 +51,23 @@ int TRC1000::read_all_device_registers()
 
 	for (auto command : trc1000_commands)
 	{
-		send_command(command.command_code);
-		if (read_device(&tmp_read_buffer[0], 8) == EXIT_FAILURE)
+		if (send_command(command.command_code) != EXIT_SUCCESS)
 		{
-			Logger(TLogLevel::logERROR) << "TRC1000: error reading HID device. vid=" << vid << " pid=" << pid << std::endl;
+			Logger(TLogLevel::logERROR) << "TRC1000 read_all_reg: error writing HID device. vid=" << vid << " pid=" << pid << std::endl;
 			return EXIT_FAILURE;
 		}
-		decode_read_response(&tmp_read_buffer[0]);
+		
+		if (read_device_timeout(&tmp_read_buffer[0], 8, TRC1000_READ_TIMEOUT_MILLISEC) != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "TRC1000 read_all_reg: error reading HID device. vid=" << vid << " pid=" << pid << std::endl;
+			return EXIT_FAILURE;
+		}
+
+		if (decode_read_response(&tmp_read_buffer[0]) != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "TRC1000 read_all_reg: unknown response code "<< tmp_read_buffer[0] <<" for command " << command.command_code << " device vid=" << vid << " pid=" << pid << std::endl;
+			return EXIT_FAILURE;
+		}
 	}
 
 	return EXIT_SUCCESS;
@@ -60,8 +76,6 @@ int TRC1000::read_all_device_registers()
 void TRC1000::thread_func()
 {
 	Logger(TLogLevel::logTRACE) << "TRC1000::thread_func: started for vid=" << vid << " pid=" << pid << std::endl;
-	memset(write_buffer, 0, write_buffer_size);
-	bool write_buffer_changed = false;
 
 	_thread_finish.store(false);
 
@@ -69,9 +83,11 @@ void TRC1000::thread_func()
 	read_all_device_registers();
 	memcpy(read_buffer_old, read_buffer, read_buffer_size);
 
-	memset(write_buffer, 0, write_buffer_size);
+	// initialize write buffer:
+	memset(write_buffer, 0, write_buffer_size);	
 	write_buffer[0] = HID_REPORT_ID;
 	write_buffer[1] = 0x01; //set LED command
+	bool write_buffer_changed = false;
 
 	while (_thread_run.load() == true)
 	{
@@ -82,9 +98,9 @@ void TRC1000::thread_func()
 		write_buffer_changed |= updateLightStates();
 		if (write_buffer_changed)
 		{
-			if (write_device(write_buffer, write_buffer_size) == EXIT_FAILURE)
+			if (write_device(write_buffer, write_buffer_size) != EXIT_SUCCESS)
 			{
-				Logger(TLogLevel::logERROR) << "TRC1000 thread_func: error writing HID device. vid=" << vid << " pid=" << pid << std::endl;
+				Logger(TLogLevel::logERROR) << "TRC1000 thread_func: error writing HID device. terminating thread. vid=" << vid << " pid=" << pid << std::endl;
 				break;
 			}
 		}
@@ -92,7 +108,7 @@ void TRC1000::thread_func()
 		// Read button & encoder states
 		if (read_all_device_registers() != EXIT_SUCCESS)
 		{
-			Logger(TLogLevel::logERROR) << "TRC1000: terminating thread due to USB communication error. vid=" << vid << " pid=" << pid << std::endl;
+			Logger(TLogLevel::logERROR) << "TRC1000: USB communication error. terminating thread. vid=" << vid << " pid=" << pid << std::endl;
 			break;
 		}
 

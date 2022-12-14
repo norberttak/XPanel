@@ -6,15 +6,17 @@
 
 struct TRC1000Command
 {
-	TRC1000Command(unsigned char _command_code, unsigned char _response_code, int _buffer_offset)
+	TRC1000Command(unsigned char _command_code, unsigned char _response_code, int _buffer_offset, int _byte_count)
 	{
 		command_code = _command_code;
 		response_code = _response_code;
 		buffer_offset = _buffer_offset;
+		byte_count = _byte_count;
 	}
 	unsigned char command_code;
 	unsigned char response_code;
 	int buffer_offset;
+	int byte_count;
 };
 
 class TRC1000 : public UsbHidDevice
@@ -24,7 +26,7 @@ private:
 protected:
 	std::vector<TRC1000Command> trc1000_commands;
 	int send_command(unsigned char cmd);
-	void decode_read_response(unsigned char* tmp_read_buffer);
+	int decode_read_response(unsigned char* tmp_read_buffer);
 	int read_all_device_registers();
 	int read_buffer_size;
 	int write_buffer_size;
