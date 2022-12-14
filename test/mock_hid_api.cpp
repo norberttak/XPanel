@@ -62,6 +62,12 @@ extern int HID_API_EXPORT HID_API_CALL hid_read(hid_device* device, unsigned cha
 	return length;
 }
 
+extern int hid_read_timeout(hid_device* dev, unsigned char* data, size_t length, int milliseconds)
+{
+	(void)milliseconds;
+	return hid_read(dev, data, length);
+}
+
 extern int HID_API_EXPORT HID_API_CALL hid_set_nonblocking(hid_device* device, int nonblock)
 {
 	return hid_device_open?0:-1;

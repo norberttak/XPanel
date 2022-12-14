@@ -47,6 +47,29 @@ int UsbHidDevice::read_device(unsigned char* buf, int buf_size)
 	return EXIT_SUCCESS;
 }
 
+int UsbHidDevice::read_device_timeout(unsigned char* buf, int buf_size, int milliseconds)
+{
+	if (device_handle == NULL)
+	{
+		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::read_device_timeout. device handle is null" << std::endl;
+		return EXIT_FAILURE;
+	}
+	
+	int bytes_read = hid_read_timeout(device_handle, buf, buf_size, milliseconds);
+	if (bytes_read == -1)
+	{
+		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::hid_read_timeout" << " reason=" << hidapi_error(device_handle) << std::endl;
+		return EXIT_FAILURE;
+	}
+	else if (bytes_read != buf_size) {
+		// timeout on device read
+		Logger(TLogLevel::logDEBUG) << "error in UsbHidDevice::hid_read_timeout" << " bytes read = " << bytes_read << " expected " << buf_size << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
+}
+
 int UsbHidDevice::send_feature_report(unsigned char* buf, int length)
 {
 	if (device_handle == NULL)
