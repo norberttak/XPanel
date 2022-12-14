@@ -48,6 +48,10 @@ jobs:
           cp hidapi/lib/hidapi.dll built-plugin-windows/plugins/XPanel/64/
           cp FIP-SDK/lib/DirectOutput.dll built-plugin-windows/plugins/XPanel/64/
 
+      - name: Copy board-config.ini (Windows)
+        run: |
+          cp config/board-config.ini built-plugin-windows/plugins/XPanel/64/
+
       - name: Create release plugin zip (Windows)
         run: |
           cd built-plugin-windows
