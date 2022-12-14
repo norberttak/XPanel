@@ -23,28 +23,40 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       TAG: v${{ inputs.release-version }}
-      RELEASE_PLUGIN_ZIP: xpanel_v${{ inputs.release-version }}.zip
+      WINDOWS_RELEASE_PLUGIN_ZIP: xpanel_windows_v${{ inputs.release-version }}.zip
+      LINUX_RELEASE_PLUGIN_ZIP: xpanel_linux_v${{ inputs.release-version }}.zip
       SAMPLE_CONFIG_ZIP: sample_configs_v${{ inputs.release-version }}.zip
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Download built plugin
+      - name: Download built plugin (Windows)
         uses: actions/download-artifact@v3
         with:
-          name: built-plugin
-          path: built-plugin/plugins/XPanel/64/
+          name: built-plugin-windows
+          path: built-plugin-windows/plugins/XPanel/64/
 
-      - name: Copy 3rd party dlls
-        run: |
-          cp LUA/lua54.dll built-plugin/plugins/XPanel/64/
-          cp hidapi/lib/hidapi.dll built-plugin/plugins/XPanel/64/
-          cp FIP-SDK/lib/DirectOutput.dll built-plugin/plugins/XPanel/64/
+      - name: Download built plugin (Linux)
+        uses: actions/download-artifact@v3
+        with:
+          name: built-plugin-linux
+          path: built-plugin-linux/plugins/XPanel/64/
 
-      - name: Create release plugin zip
+      - name: Copy 3rd party dlls (Windows)
         run: |
-          cd built-plugin
-          zip -r ../${RELEASE_PLUGIN_ZIP} .
+          cp LUA/lua54.dll built-plugin-windows/plugins/XPanel/64/
+          cp hidapi/lib/hidapi.dll built-plugin-windows/plugins/XPanel/64/
+          cp FIP-SDK/lib/DirectOutput.dll built-plugin-windows/plugins/XPanel/64/
+
+      - name: Create release plugin zip (Windows)
+        run: |
+          cd built-plugin-windows
+          zip -r ../${WINDOWS_RELEASE_PLUGIN_ZIP} .
+
+      - name: Create release plugin zip (Linux)
+        run: |
+          cd built-plugin-linux
+          zip -r ../${LINUX_RELEASE_PLUGIN_ZIP} .
 
       - name: Create sample configs zip
         run: |
@@ -58,5 +70,6 @@ jobs:
             --title "v${{ inputs.release-version }} release" \
             --generate-notes \
             ${TAG} \
-            ${RELEASE_PLUGIN_ZIP} \
+            ${WINDOWS_RELEASE_PLUGIN_ZIP} \
+            ${LINUX_RELEASE_PLUGIN_ZIP} \
             ${SAMPLE_CONFIG_ZIP}

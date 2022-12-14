@@ -37,7 +37,7 @@ jobs:
       - name: Upload built plugin
         uses: actions/upload-artifact@v3
         with:
-          name: built-plugin
+          name: built-plugin-windows
           path: Release/plugins/XPanel/64/*
 
       - name: Upload test logs
@@ -72,3 +72,10 @@ jobs:
 
       - name: Install
         run: cmake --build build --target install
+
+      - name: Upload built plugin (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-plugin-linux
+          path: ${{ github.workspace }}/install/XPanel/64/*
