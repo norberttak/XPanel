@@ -36,4 +36,12 @@ endif()
 
 set_target_properties(xpanel PROPERTIES PREFIX "" OUTPUT_NAME ${XPANEL_PLUGIN_FILENAME} SUFFIX ".xpl")
 
-install(TARGETS xpanel DESTINATION ${PLUGIN_INSTALL_DIR})
+if (INSTALL_DEPS)
+    set_target_properties(xpanel PROPERTIES INSTALL_RPATH "\$ORIGIN")
+    install(TARGETS xpanel
+        RUNTIME_DEPENDENCIES POST_EXCLUDE_REGEXES "lib(c|gcc_s|m|stdc|stdc\\+\\+|atomic|rt|dl|pthread)\\." "ld-linux"
+        DESTINATION ${PLUGIN_INSTALL_DIR}
+    )
+else()
+    install(TARGETS xpanel DESTINATION ${PLUGIN_INSTALL_DIR})
+endif()
