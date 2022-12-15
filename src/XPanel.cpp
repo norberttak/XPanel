@@ -21,6 +21,7 @@
 #include "UsbHidDevice.h"
 #include "SaitekMultiPanel.h"
 #include "SaitekRadioPanel.h"
+#include "SaitekSwitchPanel.h"
 #include "ArduinoHomeCockpit.h"
 #include "Configuration.h"
 #include "ConfigParser.h"
@@ -304,6 +305,20 @@ int init_and_start_xpanel_plugin(void)
 			device->connect();
 			device->start();
 			device->thread_handle = new std::thread(&SaitekRadioPanel::thread_func, (SaitekRadioPanel*)device);
+			LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
+			break;
+		case DeviceType::SAITEK_SWITCH:
+			// set default vid & pid if it's not set in config file
+			if (it.vid == 0)
+				it.vid = 0x06a3;
+			if (it.pid == 0)
+				it.pid = 0x0d67;
+			Logger(TLogLevel::logDEBUG) << "add new saitek switch panel device" << std::endl;
+			device = new SaitekSwitchPanel(it);
+			devices.push_back(device);
+			device->connect();
+			device->start();
+			device->thread_handle = new std::thread(&SaitekSwitchPanel::thread_func, (SaitekSwitchPanel*)device);
 			LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
 			break;
 		case DeviceType::LOGITECH_FIP:
