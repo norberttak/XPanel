@@ -34,8 +34,6 @@ elseif (UNIX)
     set(XPANEL_PLUGIN_FILENAME "lin")
 endif()
 
-set_target_properties(xpanel PROPERTIES PREFIX "")
-set_target_properties(xpanel PROPERTIES OUTPUT_NAME ${XPANEL_PLUGIN_FILENAME})
-set_target_properties(xpanel PROPERTIES SUFFIX ".xpl")
+set_target_properties(xpanel PROPERTIES PREFIX "" OUTPUT_NAME ${XPANEL_PLUGIN_FILENAME} SUFFIX ".xpl")
 
 install(TARGETS xpanel DESTINATION ${PLUGIN_INSTALL_DIR})
