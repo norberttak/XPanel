@@ -7,6 +7,8 @@ set(PLUGIN_INSTALL_DIR ${PROJECT_NAME}/64)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/.cmake)
 
+option(INSTALL_DEPS "Install dependencies into the plugin's directory" OFF)
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CXX_STANDARD 20 CACHE STRING "C++ standard")
 set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "C++ standard is a requirement")

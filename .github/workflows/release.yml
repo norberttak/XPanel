@@ -24,7 +24,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       TAG: v${{ inputs.release-version }}
       WINDOWS_RELEASE_PLUGIN_ZIP: xpanel_windows_v${{ inputs.release-version }}.zip
-      LINUX_RELEASE_PLUGIN_ZIP: xpanel_linux_v${{ inputs.release-version }}.zip
+      LINUX_RELEASE_PLUGIN_ZIP: xpanel_linux_v${{ inputs.release-version }}_glibc2.31.zip
       SAMPLE_CONFIG_ZIP: sample_configs_v${{ inputs.release-version }}.zip
 
     steps:
