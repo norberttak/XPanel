@@ -11,6 +11,7 @@ add_library(xpanel SHARED
     MultiPurposeDisplay.cpp
     SaitekMultiPanel.cpp
     SaitekRadioPanel.cpp
+    SaitekSwitchPanel.cpp
     Trigger.cpp
     UsbHidDevice.cpp
     XPanel.cpp
