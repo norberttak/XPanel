@@ -35,14 +35,17 @@ script_file="TU154-arduino-home-cockpit.lua"
 ```
 The details of the LUA script files are in the [lua config description](lua.md) document.
 ## Devices
-Devices can be defined by a new section in the configuration file. Currently, it supports only two types of devices: XSaintek's Multi Panel and a homemade Arduino-based IO board.
+Devices can be defined by a new section in the configuration file. Currently, it supports these types of devices: XSaintek's Multi Panel and a homemade Arduino-based IO board.
 ```ini
 [device:id="saitek_multi"]
+[device:id="saitek_radio"]
+[device:id="trc1000_pfd"]
+[device:id="trc1000_audio"]
 [device:id="aurduino_homecockpit"]
 ```
 The devices have a few config options which can be set by the configuration file.
-* USB VID (Vendor ID),
-* USB PID (Product ID),
+* USB VID (Vendor ID) in hexadecimal format,
+* USB PID (Product ID) in hexadecimal format,
 * the aircraft .acf file (this is the main file of an X-Plane aircraft. This uniquely identifies the loaded aircraft)
 * LUA script file which will be loaded in parallel to the initialization of the plugin.
 
@@ -113,6 +116,128 @@ Every button shall be defined as a new section and need to have a pre-defined id
 |RADIO_DISPLAY_STBY_DOWN | Down Standby Display (7 segments, 5 digits)
 |RADIO_DISPLAY_ACTIVE_DOWN | Down Active Display (7 segments, 5 digits)
 
+### TRC-1000 PFD/MFD device's button/encoder ids:
+| Button ID | Recommended Function  |
+|---|---|
+|IAS|Autopilot IAS hold mode
+|YD|Yaw dumper
+|AP|Autopilot enable
+|HDG|Autopilot Heading mode
+|FD|Flight director
+|APR|Autopilot approach mode
+|NAV|Autopilot Nav mode
+|VNV|Autopilot VNV mode
+|ALT|Autopilot altitude hold mode
+|UP|Autopilot VS up
+|DN|Autopilot VS down
+|VS|Autopilot VS mode select
+|FLIP_NAV|Flip active and standby NAV frequencies
+|FLIP_COM|Flip active and standby COM frequencies
+|SOFT_KEY_1|Multipurpose button on the bottom edge of display
+|SOFT_KEY_2|Multipurpose button on the bottom edge of display
+|SOFT_KEY_3|Multipurpose button on the bottom edge of display
+|SOFT_KEY_4|Multipurpose button on the bottom edge of display
+|SOFT_KEY_5|Multipurpose button on the bottom edge of display
+|SOFT_KEY_6|Multipurpose button on the bottom edge of display
+|SOFT_KEY_7|Multipurpose button on the bottom edge of display
+|SOFT_KEY_8|Multipurpose button on the bottom edge of display
+|SOFT_KEY_9|Multipurpose button on the bottom edge of display
+|SOFT_KEY_10|Multipurpose button on the bottom edge of display
+|SOFT_KEY_11|Multipurpose button on the bottom edge of display
+|SOFT_KEY_12|Multipurpose button on the bottom edge of display
+|MENU|Menu
+|DIRECT|Direct to a way pooint button
+|PROC|Procedures button
+|FPL|Flight plane button
+|ENT|Enter button
+|CLR|Clear button
+|SWITCH_NAV_12|Switch between NAV 1/2 frequencies 
+|SWITCH_COM_12|Switch between NAV 1/2 frequencies
+|PRESS_ALT|Press on ALT knob
+|SEL_CRS|Push on CRS knob. Sync CRS
+|CURSOR|
+|ID|
+|SYNC_HDG|Push on HDG knob. Sync HDG
+|SQ|
+|PAN_PUSH|Push on PAN stick
+|PAN_UP|PAN stick up
+|PAN_UP_LEFT|PAN stick up-left
+|PAN_RIGHT|PAN stick right
+|PAN_DOWN|PAN stick down
+|PAN_DOWN_LEFT|PAN stick left
+
+| Encoder ID | Recommended Function  |
+|---|---|
+|NAV_INNER|Nav encoder inner
+|NAV_OUTER|Nav encoder outer
+|ALT_INNER|Alt encoder inner
+|ALT_OUTER|Alt encoder outer
+|COM_INNER|Com encoder inner
+|COM_OUTER|Com encoder outer
+|CRS|Corse encoder
+|BARO|Baro encoder
+|FMS_INNER|FMS encoder
+|FMS_OUTER|FMS encoder
+|NAV_VOL|NAV Vol encoder
+|HDG|Heading encoder
+|COM_VOL|COM Vol encoder
+|RANGE|Range encoder
+
+### TRC-1000 Audio device's button/encoder/LED ids:
+| Button ID | Recommended Function  |
+|---|---|
+|COM1MIC|Com1 mic select
+|COM2MIC|Com2 mic select
+|COM3MIC|Com3 mic select
+|COM1/2|Com1/2 switch
+|PA|
+|MKRMUTE|Mute mic
+|DME|Sound source DME
+|ADF|Sound source ADF
+|AUX|Sound source AUX
+|MANSQ|
+|PILOT|
+|COM1|Sound source COM1
+|COM2|Sound source COM2
+|COM3|Sound source COM3
+|TEL|Sound source TEL
+|SPKR|
+|HISENSE|
+|NAV1|Sound source NAV1
+|NAV2|Sound source NAV2
+|PLAY|
+|COPLT|
+|DISPBACKUP|
+|VOLSQ|
+
+| Encoder ID | Recommended Function  |
+|---|---|
+VOLCOPLT|Volume CoPilot
+VOLPILOT|Volume Pilot 
+
+| LED ID | Recommended Function  |
+|---|---|
+|COM1/2|Com1/2 selected
+|COM1MIC|Com1 mic selected
+|COM2MIC|Com2 mic selected
+|COM3MIC|Com3 mic selected
+|MKRMUTE|Mic muted
+|COPLT|
+|MANSQ|
+|PILOT|
+|COM1|Com1 audio selected
+|COM2|Com2 audio selected
+|COM3|Com3 audio selected
+|DME|DME audio selected
+|ADF|ADF audio selected
+|NAV1|Nav1 audio selected
+|NAV2|Nav2 audio selected
+|TEL|Tel audio selected
+|AUX|Aux audio selected
+|HISENSE|High sensitivity
+|SPKR|
+|PLAY|
+|PA|
 
 ### Arduino based IO board
 If you have a USB HID capable IO board (like I have an Arduino Lenoardo) you
