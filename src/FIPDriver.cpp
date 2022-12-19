@@ -276,7 +276,7 @@ uint16_t fip_get_button_states(FIP_device_handle* device)
 	}
 	guard.unlock();
 
-	Logger(logTRACE) << "FIP driver: fip_get_button_state serial=" << device->serial_number << " state:" << states << std::endl;
+	//Logger(logTRACE) << "FIP driver: fip_get_button_state serial=" << device->serial_number << " state:" << states << std::endl;
 	return states;
 }
 
