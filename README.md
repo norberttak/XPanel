@@ -1,4 +1,11 @@
-# XPanel
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/norberttak/XPanel/raw/master/doc/xpanel.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/norberttak/XPanel/raw/master/doc/xpanel-dark.svg">
+    <img alt="XPanel" src="https://github.com/norberttak/XPanel/raw/master/doc/xpanel.svg" width="450">
+  </picture>
+</p>
+
 ## What is this?
 This is a plugin for [X-Plane](https://www.x-plane.com/) >=11 flight simulator. If you have or plan to build a home cockpit then it is good to check this. It can connect your USB HID hardware devices to the X-Plane system.
 
