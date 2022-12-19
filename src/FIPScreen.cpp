@@ -52,7 +52,7 @@ void FIPScreen::evaluate_and_store_screen_action()
 
 		action->value_old = action_value;
 
-		Logger(logTRACE) << "FIP screen: value changed (page " << action->page_index << " layer " << action->layer_index << "): " << action_value << std::endl;
+		//Logger(logTRACE) << "FIP screen: value changed (page " << action->page_index << " layer " << action->layer_index << "): " << action_value << std::endl;
 
 		guard.lock();
 		switch (action->type) {
