@@ -14,7 +14,7 @@ class Configparser
 private:
 	const std::string RE_FLOAT = "([+-]*[0-9\\.]+)";
 	const std::string RE_INT = "([+-]*[0-9]+)";
-	const std::string RE_REF = "([a-zA-Z0-9\\/\\[\\]_-]+)";
+	const std::string RE_REF = "([a-zA-Z0-9\\/_-]+)";
 	const std::string RE_LUA = "(.+)";
 
 	const std::string DEVICE_TYPE_SAITEK_MULTI = "saitek_multi";
