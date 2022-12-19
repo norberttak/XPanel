@@ -48,6 +48,8 @@ DeviceConfiguration& DeviceConfiguration::operator=(const DeviceConfiguration& o
 	serial_number = other.serial_number;
 	push_actions = other.push_actions;
 	release_actions = other.release_actions;
+	encoder_inc_actions = other.encoder_inc_actions;
+	encoder_dec_actions = other.encoder_dec_actions;
 	light_triggers = other.light_triggers;
 	multi_displays = other.multi_displays;
 	generic_displays = other.generic_displays;
@@ -65,4 +67,12 @@ DeviceConfiguration::~DeviceConfiguration()
 	for (auto act : release_actions)
 		act.second.clear();
 	release_actions.clear();
+
+	for (auto act : encoder_inc_actions)
+		act.second.clear();
+	encoder_inc_actions.clear();
+
+	for (auto act : encoder_dec_actions)
+		act.second.clear();
+	encoder_dec_actions.clear();
 }

@@ -40,7 +40,9 @@ typedef enum {
 	SAITEK_RADIO,
 	SAITEK_SWITCH,
 	HOME_COCKPIT,
-	LOGITECH_FIP
+	LOGITECH_FIP,
+	TRC1000_PFD,
+	TRC1000_AUDIO
 } DeviceType;
 
 class DeviceConfiguration
@@ -54,6 +56,8 @@ public:
 	std::string serial_number = "";
 	std::map<std::string, std::list<Action*>> push_actions;
 	std::map<std::string, std::list<Action*>> release_actions;
+	std::map<std::string, std::list<Action*>> encoder_inc_actions;
+	std::map<std::string, std::list<Action*>> encoder_dec_actions;
 	std::map<std::string, std::list<Trigger*>> light_triggers;
 	std::map<std::string, MultiPurposeDisplay*> multi_displays;
 	std::map<std::string, GenericDisplay*> generic_displays;

@@ -44,12 +44,12 @@ int Configparser::parse_file(std::string file_name, Configuration& config)
 
 int Configparser::parse_line(std::string line, Configuration& config)
 {
-	// comments are marked by semicolumn (;)
+	// comments are marked by semicolon (;)
 	size_t pos = line.find(';', 0);
 	if (pos != std::string::npos)
 		line.erase(line.find(';', 0), line.length() - pos);
 
-	// remove the leading and trailing whitespaces
+	// remove the leading and trailing whitespace
 	std::regex r("^\\s+");
 	line = std::regex_replace(line, r, "");
 	r = "\\s+$";
@@ -76,12 +76,16 @@ int Configparser::parse_line(std::string line, Configuration& config)
 			config.device_configs.back().device_type = HOME_COCKPIT;
 		else if (section_id == DEVICE_TYPE_SAITEK_FIP_SCREEN)
 			config.device_configs.back().device_type = LOGITECH_FIP;
+		else if (section_id == DEVICE_TYPE_TRC1000PFD)
+			config.device_configs.back().device_type = TRC1000_PFD;
+		else if (section_id == DEVICE_TYPE_TRC1000AUDIO)
+			config.device_configs.back().device_type = TRC1000_AUDIO;
 		else
 		{
 			Logger(TLogLevel::logERROR) << "parser: unknown device type (at line " << current_line_nr << "): " << line << std::endl;
 			return EXIT_FAILURE;
 		}
-		Logger(TLogLevel::logDEBUG) << "parser: new device detected " << std::endl;
+		Logger(TLogLevel::logDEBUG) << "parser: new device detected: "<< section_id << std::endl;
 		return EXIT_SUCCESS;
 	}
 
@@ -435,6 +439,81 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		release_action->add_condition(m[1]);
 		Logger(TLogLevel::logDEBUG) << "parser: button conditional (" << m[1] << ") push release " << m[2].str() << std::endl;
 		config.device_configs.back().release_actions[section_id].push_back(release_action);
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ROT_ENCODER)))
+	{
+		section_id = m[1];
+		Logger(TLogLevel::logDEBUG) << "parser: rotation encoder detected " << section_id << std::endl;
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ROT_ENCODER_ON_INC_COMMANDREF)))
+	{
+		XPLMCommandRef commandRef = XPLMFindCommand(m[1].str().c_str());
+		if (commandRef == NULL)
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid command ref (at line: " << current_line_nr << "): " << line << std::endl;
+			return EXIT_FAILURE;
+		}
+		CommandType command_type = CommandType::NONE;
+
+		if (m.size() >= 3)
+		{
+			if (m[2] == "begin")
+				command_type = CommandType::BEGIN;
+			else if (m[2] == "end")
+				command_type = CommandType::END;
+			else
+				command_type = CommandType::ONCE;
+		}
+
+		Action* inc_action = new Action(commandRef, command_type);
+		Logger(TLogLevel::logDEBUG) << "parser: rot encoder inc command " << m[1].str() << std::endl;
+		config.device_configs.back().encoder_inc_actions[section_id].push_back(inc_action);
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ROT_ENCODER_ON_DEC_COMMANDREF)))
+	{
+		XPLMCommandRef commandRef = XPLMFindCommand(m[1].str().c_str());
+		if (commandRef == NULL)
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid command ref (at line: " << current_line_nr << "): " << line << std::endl;
+			return EXIT_FAILURE;
+		}
+		CommandType command_type = CommandType::NONE;
+
+		if (m.size() >= 3)
+		{
+			if (m[2] == "begin")
+				command_type = CommandType::BEGIN;
+			else if (m[2] == "end")
+				command_type = CommandType::END;
+			else
+				command_type = CommandType::ONCE;
+		}
+
+		Action* dec_action = new Action(commandRef, command_type);
+		Logger(TLogLevel::logDEBUG) << "parser: rot encoder dec command " << m[1].str() << std::endl;
+		config.device_configs.back().encoder_dec_actions[section_id].push_back(dec_action);
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ROT_ENCODER_ON_INC_LUA)))
+	{
+		Action* inc_action = new Action(m[1]);
+		Logger(TLogLevel::logDEBUG) << "parser: rot encoder inc lua string " << m[1].str() << std::endl;
+		config.device_configs.back().encoder_inc_actions[section_id].push_back(inc_action);
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ROT_ENCODER_ON_DEC_LUA)))
+	{
+		Action* dec_action = new Action(m[1]);
+		Logger(TLogLevel::logDEBUG) << "parser: rot encoder dec lua string " << m[1].str() << std::endl;
+		config.device_configs.back().encoder_inc_actions[section_id].push_back(dec_action);
 		return EXIT_SUCCESS;
 	}
 

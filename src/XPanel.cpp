@@ -26,6 +26,8 @@
 #include "ConfigParser.h"
 #include "Action.h"
 #include "FIPDevice.h"
+#include "TRC1000PFD.h"
+#include "TRC1000Audio.h"
 #include "LuaHelper.h"
 #include "MessageWindow.h"
 #include "Logger.h"
@@ -311,6 +313,24 @@ int init_and_start_xpanel_plugin(void)
 			device->connect();
 			device->start();
 			device->thread_handle = new std::thread(&FIPDevice::thread_func, (FIPDevice*)device);
+			break;
+		case DeviceType::TRC1000_PFD:
+			Logger(TLogLevel::logDEBUG) << "add new TRC1000 PFD device" << std::endl;
+			device = new TRC1000PFD(it);
+			devices.push_back(device);
+			device->connect();
+			device->start();
+			device->thread_handle = new std::thread(&TRC1000PFD::thread_func, (TRC1000PFD*)device);
+			LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
+			break;
+		case DeviceType::TRC1000_AUDIO:
+			Logger(TLogLevel::logDEBUG) << "add new TRC1000 Audio device" << std::endl;
+			device = new TRC1000Audio(it);
+			devices.push_back(device);
+			device->connect();
+			device->start();
+			device->thread_handle = new std::thread(&TRC1000Audio::thread_func, (TRC1000Audio*)device);
+			LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
 			break;
 		default:
 			Logger(TLogLevel::logERROR) << "unknown device type" << std::endl;

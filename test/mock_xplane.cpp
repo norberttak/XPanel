@@ -17,6 +17,7 @@
 #include <fstream>
 #include <map>
 #include <queue>
+#include <list>
 #include "Configuration.h"
 #include "FIPScreen.h"
 #include "Logger.h"
@@ -207,7 +208,12 @@ extern XPLMCommandRef XPLMFindCommand(const char* commandref)
 	return (XPLMCommandRef)&internal_command_ref[commandref];
 }
 
-std::queue<std::string> command_queue;
+std::list<std::string> command_queue;
+
+void test_clear_command_queue()
+{
+	command_queue.clear();
+}
 
 std::string test_get_last_command()
 {
@@ -215,8 +221,22 @@ std::string test_get_last_command()
 		return "EMPTY";
 
 	std::string cmd_str = command_queue.front();
-	command_queue.pop();
+	command_queue.pop_front();
 	return cmd_str;
+}
+
+bool test_is_command_in_queue(std::string cmd_str)
+{
+	bool cmd_found = false;
+	
+	while (!command_queue.empty() && !cmd_found)
+	{
+		if (command_queue.front() == cmd_str)
+			cmd_found = true;
+
+		command_queue.pop_front();
+	}
+	return cmd_found;
 }
 
 int test_get_command_queue_size()
@@ -230,7 +250,7 @@ extern void XPLMCommandBegin(XPLMCommandRef command_ref)
 	{
 		if (&it->second == (int*)command_ref)
 		{
-			command_queue.push(it->first + "_BEGIN");
+			command_queue.push_back(it->first + "_BEGIN");
 			break;
 		}
 	}
@@ -242,7 +262,7 @@ extern void XPLMCommandEnd(XPLMCommandRef command_ref)
 	{
 		if (&it->second == (int*)command_ref)
 		{
-			command_queue.push(it->first + "_END");
+			command_queue.push_back(it->first + "_END");
 			break;
 		}
 	}
@@ -254,7 +274,7 @@ extern void XPLMCommandOnce(XPLMCommandRef command_ref)
 	{
 		if (&it->second == (int*)command_ref)
 		{
-			command_queue.push(it->first + "_ONCE");
+			command_queue.push_back(it->first + "_ONCE");
 			break;
 		}
 	}

@@ -76,8 +76,11 @@ int SaitekMultiPanel::connect()
 		return EXIT_FAILURE;
 	}
 
+	read_device(read_buffer, read_buffer_size);
+	memcpy(read_buffer_old, read_buffer, read_buffer_size);
+
 	memset(buff, 0, sizeof(buff)); // clear all button lights
-	if (write_device(buff, sizeof(buff)) != EXIT_SUCCESS)
+	if (send_feature_report(buff, sizeof(buff)) != EXIT_SUCCESS)
 	{
 		Logger(TLogLevel::logERROR) << "SaitekMultiPanel connect. error in write_device" << std::endl;
 		return EXIT_FAILURE;
@@ -99,7 +102,7 @@ void SaitekMultiPanel::stop(int timeout)
 
 	// Blank the display before exit
 	unsigned char buff[WRITE_BUFFER_SIZE] = {0,15,15,15,15,15,15,15,15,15,15,0,0};
-	if (write_device(buff, sizeof(buff)) != EXIT_SUCCESS)
+	if (send_feature_report(buff, sizeof(buff)) != EXIT_SUCCESS)
 	{
 		Logger(TLogLevel::logERROR) << "SaitekMultiPanel stop. error in write_device" << std::endl;
 		return;
