@@ -63,7 +63,7 @@ int SaitekSwitchPanel::connect()
 	}
 
 	memset(buff, 0, sizeof(buff)); // clear all LED lights
-	if (write_device(buff, sizeof(buff)) != EXIT_SUCCESS)
+	if (send_feature_report(buff, sizeof(buff)) != EXIT_SUCCESS)
 	{
 		Logger(TLogLevel::logERROR) << "SaitekSwitchPanel connect. error in write_device" << std::endl;
 		return EXIT_FAILURE;
@@ -86,7 +86,7 @@ void SaitekSwitchPanel::stop(int timeout)
 	// Blank LED lights before exit
 	unsigned char buff[WRITE_BUFFER_SIZE];
 	memset(buff, 0, sizeof(buff)); // clear all LED lights
-	if (write_device(buff, sizeof(buff)) != EXIT_SUCCESS)
+	if (send_feature_report(buff, sizeof(buff)) != EXIT_SUCCESS)
 	{
 		Logger(TLogLevel::logERROR) << "SaitekSwitchPanel stop. error in write_device" << std::endl;
 		return;
