@@ -116,6 +116,41 @@ Every button shall be defined as a new section and need to have a pre-defined id
 |RADIO_DISPLAY_STBY_DOWN | Down Standby Display (7 segments, 5 digits)
 |RADIO_DISPLAY_ACTIVE_DOWN | Down Active Display (7 segments, 5 digits)
 
+### Saitek Switch Panel's ids:
+| ID | Recommended Function  |
+|---|---|
+|BATTERY| Battery on/off
+|ALTERNATOR| Alternator on/off
+|AVIONICS| Avionics power switch
+|FUEL_PUMP| Fuel pump
+|DE_ICE| De-ice (wing, engine, etc...)
+|PITOT_HEAT| Pitot heat
+|COWL_FLAPS| Cowl flaps open/close
+|PANEL_LIGHTS| Panel lights
+|BEACON| beacon light
+|NAV| nav light
+|STROBE| Strobe light
+|TAXI| taxi light
+|LANDING| Landing light
+|MAG_OFF| Magneto (ignition) off
+|MAG_RIGHT| Magneto (ignition) right side
+|MAG_LEFT| Magneto (ignition) left side
+|MAG_BOTH| Magneto (ignition) both side
+|ENG_START| Engine starter
+|GEAR_UP| Landing gear up
+|GEAR_DOWN| Landing gear down
+
+| LED ID | Recommended Function  |
+|---|---|
+|GEAR_NOSE_GREEN| Landing gear nose, green light
+|GEAR_LEFT_GREEN| Landing gear left, green light
+|GEAR_RIGHT_GREEN| Landing gear right, green light
+|GEAR_NOSE_RED| Landing gear nose, red light
+|GEAR_LEFT_RED| Landing gear left, red light
+|GEAR_RIGHT_RED| Landing gear right, red light
+
+Please note the device has only 3 LEDs. They are multi-color devices. Can lit in green/red/yellow colors as well.
+If you want to lit in yellow, please turn on both green and red colors.
 ### TRC-1000 PFD/MFD device's button/encoder ids:
 | Button ID | Recommended Function  |
 |---|---|

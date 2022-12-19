@@ -4,13 +4,14 @@ This is a plugin for [X-Plane](https://www.x-plane.com/) >=11 flight simulator. 
 
 It has a configuration file where you can define the logical connections between hardware elements (buttons, switches, displays, etc) and the internal [dataref](https://developer.x-plane.com/sdk/) of X-Plane.
 
-Currently, it supports four types of USB devices:
+Currently, it supports the bellow types of USB-HID devices:
 
 1. [Saitek Multi Panel](https://www.saitek.com/uk/prod-bak/multi.html) This is a device that mainly contains the buttons associated with the autopilot functions
 2. [Saitek Radio Panel](https://www.saitek.com/uk/prod-bak/radio.html) Device to conrol radio functions of your airplane
-3. [Logitech/Saitek Flight Instrument Panel](https://www.saitek.com/uk/prod-bak/fip.html) Device with a graphical screen to display aircraft instruments (supported only on Windows)
-4. Arduino based USB HID device which can simulate switches and displays customized on your own.
-5. [TRC-1000 PFD/MFD & Audio Panel](https://www.simkits.com/product/trc1000-complete-glass-cockpit/) These devices is a replica of Garmin G1000 cockpit panels
+3. [Saitek Switch Panel](https://www.saitek.com/uk/prod-bak/switch.html) Device with switches
+4. [Logitech/Saitek Flight Instrument Panel](https://www.saitek.com/uk/prod-bak/fip.html) Device with a graphical screen to display aircraft instruments (supported only on Windows)
+5. Arduino based USB HID device which can simulate switches and displays customized on your own.
+6. [TRC-1000 PFD/MFD & Audio Panel](https://www.simkits.com/product/trc1000-complete-glass-cockpit/) These devices are replica of Garmin G1000 cockpit panels
 
 ## Configuration syntax
 For configuration file syntax please see the document [here](doc/configuration.md)
