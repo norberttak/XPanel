@@ -32,8 +32,6 @@ namespace test
 	void rotate_knob_plus(int rot_nr, std::chrono::milliseconds delay_ms)
 	{
 		unsigned char buffer[4] = { 0x08,0,0,0 };
-		test_hid_set_read_data(buffer, sizeof(buffer));
-		std::this_thread::sleep_for(150ms);
 
 		for (int i = 0; i < rot_nr; i++)
 		{
@@ -81,32 +79,32 @@ namespace test
 
 		TEST_METHOD(TestRotationKnobHigh)
 		{
-			rotate_knob_plus(2, 40ms); // two rotations on the knob with high speed
+			rotate_knob_plus(6, 50ms);
 
 			test_flight_loop(config.device_configs);
 
-			// the second action shall run at x4 delta
-			Assert::AreEqual(4 + 4, test_get_dataref_value(dataref_str.c_str()));
+			// it shall run on x4 speed
+			Assert::AreEqual(6 * 4, test_get_dataref_value(dataref_str.c_str()));
 		}
 
-		TEST_METHOD(TestRotationKnobLow)
+		TEST_METHOD(TestRotationKnobMid)
 		{
-			rotate_knob_plus(2, 200ms); // two rotations on the knob with low speed
+			rotate_knob_plus(2, 200ms);
 
 			test_flight_loop(config.device_configs);
 
-			// the second action shall run at x2 delta
-			Assert::AreEqual(2 + 2, test_get_dataref_value(dataref_str.c_str()));
+			// it shall run on x2 speed
+			Assert::AreEqual(2*2, test_get_dataref_value(dataref_str.c_str()));
 		}
 
 		TEST_METHOD(TestRotationKnobNormal)
 		{
-			rotate_knob_plus(2, 300ms); // two rotations on the knob with normal speed
+			rotate_knob_plus(2, 500ms); // two rotations on the knob with normal speed
 
 			test_flight_loop(config.device_configs);
 
-			// the second action shall run at x1 delta
-			Assert::AreEqual(1 + 1, test_get_dataref_value(dataref_str.c_str()));
+			// // it shall run on x1 speed
+			Assert::AreEqual(2, test_get_dataref_value(dataref_str.c_str()));
 		}
 
 		TEST_METHOD_CLEANUP(TestDynamicSpeedCleanup)
