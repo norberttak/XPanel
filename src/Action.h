@@ -40,6 +40,7 @@ public:
 	void set_dynamic_speed_params(float _time_low, int _multi_low, float _time_high, int _multi_high);
 	void get_dynamic_speed_params(float* _time_low, int* _multi_low, float* _time_high, int* _multi_high);
 	void speed_up(int multi);
+	int get_speed_multi();
 	int get_hash();
 	void activate();
 private:

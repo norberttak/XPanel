@@ -86,6 +86,11 @@ void Action::speed_up(int _multi)
 	multi = _multi;
 }
 
+int Action::get_speed_multi()
+{
+	return multi;
+}
+
 void Action::add_condition(std::string _condition)
 {
 	condition = _condition;
@@ -170,7 +175,7 @@ void Action::activate()
 
 			Logger(TLogLevel::logTRACE) << "action: change float value " << val << " by " << delta * multi << std::endl;
 
-			val += delta * multi;			
+			val += delta;			
 			// when reach the max or min we need to wrap from the other side:
 			if (val > max) val = min;
 			if (val < min) val = max;
@@ -287,7 +292,11 @@ void ActionQueue::activate_actions_in_queue()
 
 	while (!action_queue.empty())
 	{
-		action_queue.front()->activate();
+		int speed_multi = action_queue.front()->get_speed_multi();
+
+		for (int i = 0; i < speed_multi; i++)
+			action_queue.front()->activate();
+
 		action_queue.pop_front();
 	}
 
