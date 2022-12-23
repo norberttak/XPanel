@@ -170,9 +170,11 @@ void Action::activate()
 
 			Logger(TLogLevel::logTRACE) << "action: change float value " << val << " by " << delta * multi << std::endl;
 
-			val += delta * multi;
-			if (val > max) val = max;
-			if (val < min) val = min;
+			val += delta * multi;			
+			// when reach the max or min we need to wrap from the other side:
+			if (val > max) val = min;
+			if (val < min) val = max;
+
 
 			switch (dataref_type) {
 			case xplmType_Int:
