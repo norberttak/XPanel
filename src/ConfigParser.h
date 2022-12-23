@@ -34,7 +34,7 @@ private:
 
 	// Button
 	const std::string TOKEN_BUTTON = "\\[button:id=\"([a-zA-Z0-9_-]+)\"\\]";
-	const std::string TOKEN_DYN_SPEED = "dynamic_speed=\"t_low="+RE_FLOAT+"x"+RE_INT+",t_high="+RE_FLOAT+"x"+RE_INT+"\"";
+	const std::string TOKEN_DYN_SPEED = "dynamic_speed_([mid|high]+)=\"" + RE_FLOAT+ "tick\\/sec:"+ RE_INT + "x\"";
 
 	const std::string TOKEN_LOG_LEVEL = "log_level=\"(.+)\"";
 	const std::string TOKEN_BUTTON_PUSH_DATAREF = "on_push=\"dataref:"+RE_REF+":"+RE_INT+"\"";
@@ -69,6 +69,8 @@ private:
 	const std::string TOKEN_ROT_ENCODER = "\\[encoder:id=\"([a-zA-Z0-9_-]+)\"\\]";
 	const std::string TOKEN_ROT_ENCODER_ON_INC_COMMANDREF = "on_increment=\"commandref:" + RE_REF + ":([begin|end|once]*)\"";
 	const std::string TOKEN_ROT_ENCODER_ON_DEC_COMMANDREF = "on_decrement=\"commandref:" + RE_REF + ":([begin|end|once]*)\"";
+	const std::string TOKEN_ROT_ENCODER_ON_INC_DATAREF_CHANGE = "on_increment=\"dataref:" + RE_REF + ":" + RE_FLOAT + ":" + RE_FLOAT + ":" + RE_FLOAT + "\"";
+	const std::string TOKEN_ROT_ENCODER_ON_DEC_DATAREF_CHANGE = "on_decrement=\"dataref:" + RE_REF + ":" + RE_FLOAT + ":" + RE_FLOAT + ":" + RE_FLOAT + "\"";
 	const std::string TOKEN_ROT_ENCODER_ON_INC_LUA = "on_increment=\"lua:" + RE_LUA + "\"";
 	const std::string TOKEN_ROT_ENCODER_ON_DEC_LUA = "on_decrement=\"lua:" + RE_LUA + "\"";
 
@@ -98,9 +100,9 @@ private:
 
 	std::string section_id = "";
 	std::string last_error_message = "";
-	float time_low=0;
-	int multi_low=1;
-	float time_high=0;
+	float speed_mid=0;
+	int multi_mid=1;
+	float speed_high=0;
 	int multi_high=1;
 	int current_line_nr=0;
 	int parse_line(std::string line, Configuration& config);

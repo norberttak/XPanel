@@ -167,20 +167,24 @@ int Configparser::parse_line(std::string line, Configuration& config)
 	{
 		section_id = m[1];
 		Logger(TLogLevel::logDEBUG) << "parser: button detected " << section_id << std::endl;
-		multi_low = 1; multi_high = 1;
-		time_low = 0; time_high = 0;
+		multi_mid = 1; multi_high = 1;
+		speed_mid = 0; speed_high = 0;
 		return EXIT_SUCCESS;
 	}
 
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_DYN_SPEED)))
 	{
-		time_low = stof(m[1]);
-		multi_low = stoi(m[2]);
+		if (m[1] == "mid") {
+			speed_mid = stof(m[2]);
+			multi_mid = stoi(m[3]);
+		}
+		else 
+		{
+			speed_high = stof(m[2]);
+			multi_high = stoi(m[3]);
+		}		
 
-		time_high = stof(m[3]);
-		multi_high = stoi(m[4]);
-
-		Logger(TLogLevel::logDEBUG) << "parser: dynamic speed config: " << m[1] << "x" << m[2] << ", " << m[3] << "x" << m[4] << std::endl;
+		Logger(TLogLevel::logDEBUG) << "parser: dynamic speed config: " << m[1] << ":" << m[2] <<"x"<< m[3] << std::endl;
 		return EXIT_SUCCESS;
 	}
 
@@ -266,7 +270,7 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		}
 		Action* push_action = new Action(dataRef, stof(m[2]), stof(m[3]), stof(m[4]));
 		Logger(TLogLevel::logDEBUG) << "parser: button push dataref " << m[1].str() << std::endl;
-		push_action->set_dynamic_speed_params(time_low, multi_low, time_high, multi_high);
+		push_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
 		config.device_configs.back().push_actions[section_id].push_back(push_action);
 		return EXIT_SUCCESS;
 	}
@@ -281,7 +285,7 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		}
 		Action* release_action = new Action(dataRef, stof(m[2]), stof(m[3]), stof(m[4]));
 		Logger(TLogLevel::logDEBUG) << "parser: button release dataref " << m[1].str() << std::endl;
-		release_action->set_dynamic_speed_params(time_low, multi_low, time_high, multi_high);
+		release_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
 		config.device_configs.back().release_actions[section_id].push_back(release_action);
 		return EXIT_SUCCESS;
 	}
@@ -295,7 +299,7 @@ int Configparser::parse_line(std::string line, Configuration& config)
 			return EXIT_FAILURE;
 		}
 		Action* push_action = new Action(dataRef, stof(m[3]), stof(m[5]), stof(m[4]));
-		push_action->set_dynamic_speed_params(time_low, multi_low, time_high, multi_high);
+		push_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
 		push_action->add_condition(m[1]);
 		config.device_configs.back().push_actions[section_id].push_back(push_action);
 		Logger(TLogLevel::logDEBUG) << "parser: button conditional push dataref. on:" << m[1].str() << " dataref:" << m[2].str() << std::endl;
@@ -311,7 +315,7 @@ int Configparser::parse_line(std::string line, Configuration& config)
 			return EXIT_FAILURE;
 		}
 		Action* release_action = new Action(dataRef, stof(m[3]), stof(m[5]), stof(m[4]));
-		release_action->set_dynamic_speed_params(time_low, multi_low, time_high, multi_high);
+		release_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
 		release_action->add_condition(m[1]);
 		config.device_configs.back().release_actions[section_id].push_back(release_action);
 		Logger(TLogLevel::logDEBUG) << "parser: button conditional release dataref. on:" << m[1].str() << " dataref:" << m[2].str() << std::endl;
@@ -339,6 +343,7 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		}
 
 		Action* push_action = new Action(commandRef, command_type);
+		push_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
 		Logger(TLogLevel::logDEBUG) << "parser: button push command " << m[1].str() << std::endl;
 		config.device_configs.back().push_actions[section_id].push_back(push_action);
 		return EXIT_SUCCESS;
@@ -365,6 +370,7 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		}
 
 		Action* release_action = new Action(commandRef, command_type);
+		release_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
 		Logger(TLogLevel::logDEBUG) << "parser: button release command " << m[1].str() << std::endl;
 		config.device_configs.back().release_actions[section_id].push_back(release_action);
 		return EXIT_SUCCESS;
@@ -392,6 +398,7 @@ int Configparser::parse_line(std::string line, Configuration& config)
 
 		Action* push_action = new Action(commandRef, command_type);
 		push_action->add_condition(m[1]);
+		push_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
 		Logger(TLogLevel::logDEBUG) << "parser: button conditional (" << m[1] << ") push command " << m[2].str() << std::endl;
 		config.device_configs.back().push_actions[section_id].push_back(push_action);
 		return EXIT_SUCCESS;
@@ -428,6 +435,7 @@ int Configparser::parse_line(std::string line, Configuration& config)
 
 		Action* release_action = new Action(commandRef, command_type);
 		release_action->add_condition(m[1]);
+		release_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
 		Logger(TLogLevel::logDEBUG) << "parser: button conditional (" << m[1] << ") release command " << m[2].str() << std::endl;
 		config.device_configs.back().release_actions[section_id].push_back(release_action);
 		return EXIT_SUCCESS;
@@ -436,7 +444,7 @@ int Configparser::parse_line(std::string line, Configuration& config)
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_CONDITIONAL_RELEASE_LUA)))
 	{
 		Action* release_action = new Action(m[2]);
-		release_action->add_condition(m[1]);
+		release_action->add_condition(m[1]);		
 		Logger(TLogLevel::logDEBUG) << "parser: button conditional (" << m[1] << ") push release " << m[2].str() << std::endl;
 		config.device_configs.back().release_actions[section_id].push_back(release_action);
 		return EXIT_SUCCESS;
@@ -471,6 +479,7 @@ int Configparser::parse_line(std::string line, Configuration& config)
 
 		Action* inc_action = new Action(commandRef, command_type);
 		Logger(TLogLevel::logDEBUG) << "parser: rot encoder inc command " << m[1].str() << std::endl;
+		inc_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
 		config.device_configs.back().encoder_inc_actions[section_id].push_back(inc_action);
 		return EXIT_SUCCESS;
 	}
@@ -496,7 +505,38 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		}
 
 		Action* dec_action = new Action(commandRef, command_type);
+		dec_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
 		Logger(TLogLevel::logDEBUG) << "parser: rot encoder dec command " << m[1].str() << std::endl;
+		config.device_configs.back().encoder_dec_actions[section_id].push_back(dec_action);
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ROT_ENCODER_ON_INC_DATAREF_CHANGE)))
+	{
+		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+		if (dataRef == NULL)
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+			return EXIT_FAILURE;
+		}
+		Action* inc_action = new Action(dataRef, stof(m[2]), stof(m[4]), stof(m[3]));
+		Logger(TLogLevel::logDEBUG) << "parser: encoder inc dataref " << m[1].str() << std::endl;
+		inc_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
+		config.device_configs.back().encoder_inc_actions[section_id].push_back(inc_action);
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ROT_ENCODER_ON_DEC_DATAREF_CHANGE)))
+	{
+		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+		if (dataRef == NULL)
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+			return EXIT_FAILURE;
+		}
+		Action* dec_action = new Action(dataRef, stof(m[2]), stof(m[4]), stof(m[3]));
+		Logger(TLogLevel::logDEBUG) << "parser: encoder dec dataref " << m[1].str() << std::endl;
+		dec_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
 		config.device_configs.back().encoder_dec_actions[section_id].push_back(dec_action);
 		return EXIT_SUCCESS;
 	}
