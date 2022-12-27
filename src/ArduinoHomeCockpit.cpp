@@ -15,7 +15,7 @@
 #include "UsbHidDevice.h"
 #include "Logger.h"
 
-#define WRITE_BUFFER_SIZE 9
+#define WRITE_BUFFER_SIZE 64
 #define READ_BUFFER_SIZE 9
 
 std::filesystem::path get_plugin_path();
