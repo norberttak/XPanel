@@ -75,6 +75,7 @@ private:
 	// Generic display
 	const std::string TOKEN_DISPLAY = "\\[display:id=\"([a-zA-Z0-9_-]+)\",bcd=\"(yes|no)\"\\]";
 	const std::string TOKEN_DISPLAY_LINE = "line=\"dataref:" + RE_REF + "\"";
+	const std::string TOKEN_DISPLAY_LINE_ARRAY = "line=\"dataref:" + RE_REF + "\\[" + RE_INT + "\\]\"";
 	const std::string TOKEN_DISPLAY_LINE_CONST = "line=\"const:" + RE_FLOAT + "\"";
 	const std::string TOKEN_DISPLAY_LINE_LUA = "line=\"lua:" + RE_LUA + "\"";
 

@@ -28,6 +28,7 @@ public:
 	// called from XPLane flight loop
 	virtual void evaluate_and_store_dataref_value();
 	void add_dataref(XPLMDataRef _data_ref);
+	void add_dataref(XPLMDataRef _data_ref, int _dataref_index);
 	void add_const(double _const_value);
 	void add_lua(std::string _lua_function);
 
@@ -43,6 +44,7 @@ protected:
 	double	const_value;
 	int nr_of_bytes;
 private:
+	int dataref_index;
 	bool get_decimal_components(int number, unsigned char* buffer);
 	bool get_binary_components(int number, unsigned char* buffer);
 };
