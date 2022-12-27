@@ -33,6 +33,14 @@ void GenericDisplay::set_nr_bytes(int _nr_of_bytes)
 
 void GenericDisplay::add_dataref(XPLMDataRef _data_ref)
 {
+	dataref_index = -1;
+	condition = _data_ref;
+	data_ref_type = XPLMGetDataRefTypes(_data_ref);
+}
+
+void GenericDisplay::add_dataref(XPLMDataRef _data_ref, int _dataref_index)
+{
+	dataref_index = _dataref_index;
 	condition = _data_ref;
 	data_ref_type = XPLMGetDataRefTypes(_data_ref);
 }
@@ -62,6 +70,16 @@ void GenericDisplay::evaluate_and_store_dataref_value()
 		break;
 	case xplmType_Double:
 		display_value = XPLMGetDatad(condition);
+		break;
+	case xplmType_IntArray:
+		int outValuei;
+		XPLMGetDatavi(condition, &outValuei, dataref_index, 1);
+		display_value = (double)outValuei;
+		break;
+	case xplmType_FloatArray:
+		float outValuef;
+		XPLMGetDatavf(condition, &outValuef, dataref_index, 1);
+		display_value = (double)outValuef;
 		break;
 	default:
 		if (const_value > DBL_MIN)
@@ -138,6 +156,5 @@ bool GenericDisplay::get_display_value(unsigned char* buffer)
 	display_value_changed = false;
 	guard.unlock();
 
-	Logger(TLogLevel::logTRACE) << "GenericDisplay: get_display_value: " << _val << std::endl;
 	return use_bcd ? get_decimal_components((int)_val, buffer) : get_binary_components(int(_val), buffer);
 }

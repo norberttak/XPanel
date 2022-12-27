@@ -602,6 +602,20 @@ int Configparser::parse_line(std::string line, Configuration& config)
 			return EXIT_FAILURE;
 		}
 		config.device_configs.back().generic_displays[section_id]->add_dataref(dataRef);
+		Logger(TLogLevel::logDEBUG) << "parser: generic display add line " << section_id << " " << m[1] << std::endl;
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_DISPLAY_LINE_ARRAY)))
+	{
+		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+		if (dataRef == NULL)
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+			return EXIT_FAILURE;
+		}
+		config.device_configs.back().generic_displays[section_id]->add_dataref(dataRef, stoi(m[2]));
+		Logger(TLogLevel::logDEBUG) << "parser: generic display add line " << section_id << " " << m[1] << "[" << m[2] << "]" << std::endl;
 		return EXIT_SUCCESS;
 	}
 
@@ -609,12 +623,14 @@ int Configparser::parse_line(std::string line, Configuration& config)
 	{
 		double const_value = std::stod(m[1].str().c_str());
 		config.device_configs.back().generic_displays[section_id]->add_const(const_value);
+		Logger(TLogLevel::logDEBUG) << "parser: generic display add line " << section_id << " " << m[1] << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_DISPLAY_LINE_LUA)))
 	{
 		config.device_configs.back().generic_displays[section_id]->add_lua(m[1]);
+		Logger(TLogLevel::logDEBUG) << "parser: generic display add line " << section_id << " " << m[1] << std::endl;
 		return EXIT_SUCCESS;
 	}
 
