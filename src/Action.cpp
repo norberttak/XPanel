@@ -66,6 +66,9 @@ Action::Action(XPLMDataRef dat, float _delta, float _max, float _min)
 	delta = _delta;
 	max = _max;
 	min = _min;
+	if (min > max)
+		Logger(TLogLevel::logWARNING) << "Action: defined min limit is greater than max " << _min << " > " << _max << std::endl;
+
 	dataref_type = XPLMGetDataRefTypes(dataref);
 }
 
@@ -147,18 +150,10 @@ void Action::activate()
 
 	if (dataref != NULL)
 	{
-		// set array type dataref
-		if (index != -1)
+		if (abs(delta) > 0.0001)
 		{
-			if (dataref_type == xplmType_IntArray)
-				XPLMSetDatavi(dataref, &data, index, 1);
-			else if (dataref_type == xplmType_FloatArray)
-				XPLMSetDatavf(dataref, &data_f, index, 1);
-		}
-		// inc/dec dataref value
-		else if (abs(delta) > 0.0001)
-		{
-			double val = XPLMGetDataf(dataref);
+			double val;
+
 			switch (dataref_type) {
 			case xplmType_Int:
 				val = (double)XPLMGetDatai(dataref);
@@ -169,7 +164,16 @@ void Action::activate()
 			case xplmType_Float:
 				val = (double)XPLMGetDataf(dataref);
 				break;
+			case xplmType_IntArray:
+				XPLMGetDatavi(dataref, &data, index, 1);
+				val = (double)data;
+				break;
+			case xplmType_FloatArray:
+				XPLMGetDatavf(dataref, &data_f, index, 1);
+				val = (double)data_f;
+				break;
 			default:
+				Logger(TLogLevel::logWARNING) << "action: unknown dataref type. set value = 0" << std::endl;
 				break;
 			}
 
@@ -179,6 +183,8 @@ void Action::activate()
 			// when reach the max or min we need to wrap from the other side:
 			if (val > max) val = min;
 			if (val < min) val = max;
+
+			Logger(TLogLevel::logTRACE) << "action: new value:" << val << " max:" << max << " min:" << min << std::endl;
 
 			switch (dataref_type) {
 			case xplmType_Int:
@@ -190,8 +196,16 @@ void Action::activate()
 			case xplmType_Float:
 				XPLMSetDataf(dataref, (float)val);
 				break;
+			case xplmType_IntArray:
+				data = (int)val;
+				XPLMSetDatavi(dataref, &data, index, 1);
+				break;
+			case xplmType_FloatArray:
+				data_f = (float)val;
+				XPLMSetDatavf(dataref, &data_f, index, 1);
+				break;
 			default:
-				Logger(TLogLevel::logWARNING) << "Dataref change. Invalid dataref type" << std::endl;
+				Logger(TLogLevel::logWARNING) << "Dataref change set. Invalid dataref type" << std::endl;
 			}
 		}
 		// set dataref to a value
@@ -206,6 +220,12 @@ void Action::activate()
 				break;
 			case xplmType_Float:
 				XPLMSetDataf(dataref, data_f);
+				break;
+			case xplmType_IntArray:
+				XPLMSetDatavi(dataref, &data, index, 1);
+				break;
+			case xplmType_FloatArray:
+				XPLMSetDatavf(dataref, &data_f, index, 1);
 				break;
 			default:
 				Logger(TLogLevel::logWARNING) << "Dataref set. Invalid dataref type" << std::endl;
