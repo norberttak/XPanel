@@ -185,6 +185,7 @@ xcopy /y /d /S /I "$(SolutionDir)test\fip-images\*" "$(OutDir)\fip-images"
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Action.cpp" />
+    <ClCompile Include="..\src\AgeingCounter.cpp" />
     <ClCompile Include="..\src\ArduinoHomeCockpit.cpp" />
     <ClCompile Include="..\src\ConfigParser.cpp" />
     <ClCompile Include="..\src\Configuration.cpp" />
@@ -212,6 +213,7 @@ xcopy /y /d /S /I "$(SolutionDir)test\fip-images\*" "$(OutDir)\fip-images"
     <ClCompile Include="mock_hid_api.cpp" />
     <ClCompile Include="mock_xplane.cpp" />
     <ClCompile Include="mock_xplane_display.cpp" />
+    <ClCompile Include="test_ageing_counter.cpp" />
     <ClCompile Include="test_arduino_home.cpp" />
     <ClCompile Include="test_config_parser.cpp" />
     <ClCompile Include="test_dynamic_speed.cpp" />

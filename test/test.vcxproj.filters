@@ -128,8 +128,14 @@
     </ClCompile>
     <ClCompile Include="test_trc1000_audio.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>    
+    </ClCompile>
     <ClCompile Include="..\src\SaitekSwitchPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AgeingCounter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test_ageing_counter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

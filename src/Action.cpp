@@ -66,6 +66,9 @@ Action::Action(XPLMDataRef dat, float _delta, float _max, float _min)
 	delta = _delta;
 	max = _max;
 	min = _min;
+	if (min > max)
+		Logger(TLogLevel::logWARNING) << "Action: defined min limit is greater than max " << _min << " > " << _max << std::endl;
+
 	dataref_type = XPLMGetDataRefTypes(dataref);
 }
 
@@ -84,6 +87,11 @@ Action::~Action()
 void Action::speed_up(int _multi)
 {
 	multi = _multi;
+}
+
+int Action::get_speed_multi()
+{
+	return multi;
 }
 
 void Action::add_condition(std::string _condition)
@@ -116,18 +124,18 @@ int Action::get_hash()
 	return h0 ^ (h1 << 1) ^ (h2 << 2) ^ (h3 << 3) ^ (h4 << 4) ^ (h5 << 5);
 }
 
-void Action::set_dynamic_speed_params(float _time_low, int _multi_low, float _time_high, int _multi_high)
+void Action::set_dynamic_speed_params(float _tick_per_sec_mid, int _multi_low, float _tick_per_sec_high, int _multi_high)
 {
-	time_low = _time_low;
-	time_high = _time_high;
+	tick_per_sec_mid = _tick_per_sec_mid;
+	tick_per_sec_high = _tick_per_sec_high;
 	multi_low = _multi_low;
 	multi_high = _multi_high;
 }
 
-void Action::get_dynamic_speed_params(float* _time_low, int* _multi_low, float* _time_high, int* _multi_high)
+void Action::get_dynamic_speed_params(float* _tick_per_sec_mid, int* _multi_low, float* _tick_per_sec_high, int* _multi_high)
 {
-	*_time_low = time_low;
-	*_time_high = time_high;
+	*_tick_per_sec_mid = tick_per_sec_mid;
+	*_tick_per_sec_high = tick_per_sec_high;
 	*_multi_low = multi_low;
 	*_multi_high = multi_high;
 }
@@ -142,18 +150,10 @@ void Action::activate()
 
 	if (dataref != NULL)
 	{
-		// set array type dataref
-		if (index != -1)
+		if (abs(delta) > 0.0001)
 		{
-			if (dataref_type == xplmType_IntArray)
-				XPLMSetDatavi(dataref, &data, index, 1);
-			else if (dataref_type == xplmType_FloatArray)
-				XPLMSetDatavf(dataref, &data_f, index, 1);
-		}
-		// inc/dec dataref value
-		else if (abs(delta) > 0.0001)
-		{
-			double val = XPLMGetDataf(dataref);
+			double val;
+
 			switch (dataref_type) {
 			case xplmType_Int:
 				val = (double)XPLMGetDatai(dataref);
@@ -164,15 +164,27 @@ void Action::activate()
 			case xplmType_Float:
 				val = (double)XPLMGetDataf(dataref);
 				break;
+			case xplmType_IntArray:
+				XPLMGetDatavi(dataref, &data, index, 1);
+				val = (double)data;
+				break;
+			case xplmType_FloatArray:
+				XPLMGetDatavf(dataref, &data_f, index, 1);
+				val = (double)data_f;
+				break;
 			default:
+				Logger(TLogLevel::logWARNING) << "action: unknown dataref type. set value = 0" << std::endl;
 				break;
 			}
 
-			Logger(TLogLevel::logTRACE) << "action: change float value " << val << " by " << delta * multi << std::endl;
+			Logger(TLogLevel::logTRACE) << "action: change float value " << val << " by " << delta << std::endl;
 
-			val += delta * multi;
-			if (val > max) val = max;
-			if (val < min) val = min;
+			val += delta;
+			// when reach the max or min we need to wrap from the other side:
+			if (val > max) val = min;
+			if (val < min) val = max;
+
+			Logger(TLogLevel::logTRACE) << "action: new value:" << val << " max:" << max << " min:" << min << std::endl;
 
 			switch (dataref_type) {
 			case xplmType_Int:
@@ -184,8 +196,16 @@ void Action::activate()
 			case xplmType_Float:
 				XPLMSetDataf(dataref, (float)val);
 				break;
+			case xplmType_IntArray:
+				data = (int)val;
+				XPLMSetDatavi(dataref, &data, index, 1);
+				break;
+			case xplmType_FloatArray:
+				data_f = (float)val;
+				XPLMSetDatavf(dataref, &data_f, index, 1);
+				break;
 			default:
-				Logger(TLogLevel::logWARNING) << "Dataref change. Invalid dataref type" << std::endl;
+				Logger(TLogLevel::logWARNING) << "Dataref change set. Invalid dataref type" << std::endl;
 			}
 		}
 		// set dataref to a value
@@ -200,6 +220,12 @@ void Action::activate()
 				break;
 			case xplmType_Float:
 				XPLMSetDataf(dataref, data_f);
+				break;
+			case xplmType_IntArray:
+				XPLMSetDatavi(dataref, &data, index, 1);
+				break;
+			case xplmType_FloatArray:
+				XPLMSetDatavf(dataref, &data_f, index, 1);
 				break;
 			default:
 				Logger(TLogLevel::logWARNING) << "Dataref set. Invalid dataref type" << std::endl;
@@ -254,25 +280,31 @@ ActionQueue* ActionQueue::get_instance()
 
 void ActionQueue::push(Action* action)
 {
-	uint64_t current_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	float tick_per_sec_mid, tick_per_sec_high;
+	int multi_mid, multi_high;
+	action->get_dynamic_speed_params(&tick_per_sec_mid, &multi_mid, &tick_per_sec_high, &multi_high);
+	
+	if (tick_per_sec_mid != 0 || tick_per_sec_high != 0)
+	{
+		if (action_ageing_counters.count(action->get_hash()) == 0) {
+			action_ageing_counters[action->get_hash()] = new AgeingCounter();
+		}
+		AgeingCounter* counter = action_ageing_counters[action->get_hash()];
+		counter->event_happend(1);
 
-	uint64_t time_diff = current_time_ms - action_happend_last_time[action->get_hash()];
+		const uint64_t time_base_in_ms = 500;
 
-	float time_low, time_high;
-	int multi_low, multi_high;
-	action->get_dynamic_speed_params(&time_low, &multi_low, &time_high, &multi_high);
+		int count = counter->get_nr_of_events_not_older_than(time_base_in_ms);
 
-	uint64_t time_low_64 = (uint64_t)(time_low * 1000);
-	uint64_t time_high_64 = (uint64_t)(time_high * 1000);
+		if (count > tick_per_sec_high / 2)
+			action->speed_up(multi_high);
+		else if (count > tick_per_sec_mid / 2)
+			action->speed_up(multi_mid);
+		else
+			action->speed_up(1);
 
-	if (time_diff < time_high_64)
-		action->speed_up(multi_high);
-	else if (time_diff < time_low_64 && time_diff >= time_high_64)
-		action->speed_up(multi_low);
-	else
-		action->speed_up(1);
-
-	action_happend_last_time[action->get_hash()] = current_time_ms;
+		counter->clear_old_events(2 * time_base_in_ms);
+	}
 
 	guard.lock();
 	action_queue.push_back(action);
@@ -285,7 +317,11 @@ void ActionQueue::activate_actions_in_queue()
 
 	while (!action_queue.empty())
 	{
-		action_queue.front()->activate();
+		int speed_multi = action_queue.front()->get_speed_multi();
+
+		for (int i = 0; i < speed_multi; i++) 
+			action_queue.front()->activate();
+
 		action_queue.pop_front();
 	}
 

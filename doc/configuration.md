@@ -1,4 +1,4 @@
-# XPanel v1.2 Configiration file format
+# XPanel v1.5 Configiration file format
 ## General description
 The configuration file format is _similar_ to the ini file format. It is divided into sections. A section can have properties. A section is marked by square brackets ([ ]). Every section shall have a unique id.
 ```ini
@@ -39,6 +39,8 @@ Devices can be defined by a new section in the configuration file. Currently, it
 ```ini
 [device:id="saitek_multi"]
 [device:id="saitek_radio"]
+[device:id="saitek_switch"]
+[device:id="saitek_fip_screen"]
 [device:id="trc1000_pfd"]
 [device:id="trc1000_audio"]
 [device:id="aurduino_homecockpit"]
@@ -338,16 +340,6 @@ on_push="on_select:SW_HDG,dataref:test/dynamic_speed_test:-1:0:359"
 ```
 The above example will change the dataref value if the selector switch is at SW_HDG position. The minimum is 0 and the maximum is 359.
 
-#### Dynamic speed feature for the dataref change actions
-It is very boring to rotate the knobs for a long time when you need to change the values on a wide range. To help this you can define speed factors for the action. It measures the time elapsed between the same actions (rotation in + direction for example) and based on the time interval it will apply a multiplier for the dataref change delta.
-You can define two times intervals: t_low and t_high. These are for pretty fast :-) and very fast rotation speeds respectively. You can define such behavior for every button with this syntax:
-```ini
-[button:id="KNOB_PLUS"]
-dynamic_speed="t_low=0.5x2,t_high=0.25x4"
-on_push="on_select:SW_HDG,dataref:test/dynamic_speed_test:1:0:359"
-```
-This will apply a x4 speed factor if the time elapsed between the two actions is less than 0.25 sec and will apply a x2 factor if the elapsed time is between 0.25..0.5 sec. If the time is over 0.5 sec the dynamic speed is disabled and a multiplier x1 will be applied.
-
 The following is show how to use X-Plane commands. When you push the button, it issues a command begin to X-Plane with the given command ref. When you release the button, we issue a command end to X-Plane.
 If you don't care about the length of a button press then you can use the commands with `:once` modifier. This will issue a single command to X-Plane which contains a push and a release event as well.
 ```ini
@@ -355,6 +347,21 @@ If you don't care about the length of a button press then you can use the comman
 on_push="commandref:/sim/cmd/HDG:begin"
 on_push="commandref:/sim/cmd/HDG:end"
 ```
+
+#### Dynamic speed feature for the dataref change actions
+It is very boring to rotate the knobs for a long time when you need to change the values on a wide range. To help this you can define speed factors for the action. 
+It measures the average speed of rotation and based on the that it will apply a multiplier for the dataref/commandref change.
+You can define two speed values: mid and high.You can define such behavior for every button/rotation encoder with this syntax:
+
+```ini
+[encoder:id="HDG"]
+dynamic_speed_mid="2tick/sec:2x"
+dynamic_speed_high="4tick/sec:4x"
+on_increment="dataref:sim/cockpit/autopilot/heading_mag:1:0:360"
+on_decrement="dataref:sim/cockpit/autopilot/heading_mag:-1:0:360"
+```
+
+This will apply a x2 or x4 speed factor if rotation speed exceeds the 2 tick/sec or 4 tick/sec respectively.
 
 ## Lights
 
