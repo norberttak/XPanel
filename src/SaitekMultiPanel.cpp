@@ -61,7 +61,7 @@ SaitekMultiPanel::SaitekMultiPanel(DeviceConfiguration& config) :UsbHidDevice(co
 
 	register_displays(multi_displays);
 
-	for (auto config_display : config.multi_displays)
+	for (auto &config_display : config.multi_displays)
 	{
 		config_display.second->set_nr_bytes(display_width);
 	}

@@ -115,26 +115,26 @@ void FIPDevice::process_page_conditions(FIPScreen* screen)
 
 	if (!page_condition_name_old.empty())
 	{
-		for (auto button : buttons)
+		for (auto &button : buttons)
 		{
-			for (auto act : config.push_actions[button.config_name.c_str()])
+			for (auto &act : config.push_actions[button.config_name.c_str()])
 			{
 				act->set_condition_inactive(page_condition_name_old);
 			}
-			for (auto act : config.release_actions[button.config_name.c_str()])
+			for (auto &act : config.release_actions[button.config_name.c_str()])
 			{
 				act->set_condition_inactive(page_condition_name_old);
 			}
 		}
 	}
 
-	for (auto button : buttons)
+	for (auto &button : buttons)
 	{
-		for (auto act : config.push_actions[button.config_name.c_str()])
+		for (auto &act : config.push_actions[button.config_name.c_str()])
 		{
 			act->set_condition_active(page_condition_name);
 		}
-		for (auto act : config.release_actions[button.config_name.c_str()])
+		for (auto &act : config.release_actions[button.config_name.c_str()])
 		{
 			act->set_condition_active(page_condition_name);
 		}
@@ -149,7 +149,7 @@ void FIPDevice::thread_func()
 	_thread_finish.store(false);
 
 	// create page registers in physical device
-	for (const auto& it_screen : config.fip_screens)
+	for (const auto &it_screen : config.fip_screens)
 	{
 		for (int page_index = 0; page_index <= it_screen.second->get_last_page_index(); page_index++)
 		{
@@ -162,7 +162,7 @@ void FIPDevice::thread_func()
 	while (_thread_run.load() == true)
 	{
 		std::this_thread::sleep_for(20ms);
-		for (auto screen : config.fip_screens)
+		for (auto &screen : config.fip_screens)
 		{
 			render_screen(screen.second);
 			process_page_conditions(screen.second);

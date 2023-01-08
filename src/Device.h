@@ -85,11 +85,11 @@ class Device
 private:
 	int compute_rotation_delta_with_overflow(unsigned char rot, unsigned char rot_old);
 protected:
-	DeviceConfiguration config;
+	DeviceConfiguration &config;
 	std::vector<PanelButton> selectors;
 	std::vector<PanelButton> buttons;
 	std::vector<PanelDisplay> panel_displays;
-	std::vector< PanelRotaryEncoder> encoders;
+	std::vector<PanelRotaryEncoder> encoders;
 	std::map<std::string, int> stored_button_states;
 	std::map<std::string, TriggerType> stored_light_states;
 	std::vector<PanelLight> lights;
