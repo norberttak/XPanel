@@ -49,7 +49,10 @@ class DeviceConfiguration
 {
 public:
 	~DeviceConfiguration();
+	DeviceConfiguration();
 	DeviceConfiguration& operator=(const DeviceConfiguration& other);
+	void clear();
+
 	DeviceType device_type = UNKNOWN_DEVICE_TYPE;
 	unsigned int vid = 0;
 	unsigned int pid = 0;

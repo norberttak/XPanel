@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include "Logger.h"
 #include "Configuration.h"
 
 /*------ Plugin level configuration options ------------*/
@@ -33,12 +34,20 @@ void Configuration::clear()
 
 Configuration::~Configuration()
 {
-	device_configs.clear();
+	Logger(TLogLevel::logTRACE) << "Configuration destructor called" << std::endl;
+	clear();
 }
 
 /* ----------- Device specific configuration options ------------------*/
+DeviceConfiguration::DeviceConfiguration()
+{
+	Logger(TLogLevel::logTRACE) << "DeviceConfiguration constructor called" << std::endl;
+}
+
 DeviceConfiguration& DeviceConfiguration::operator=(const DeviceConfiguration& other)
 {
+	Logger(TLogLevel::logTRACE) << "DeviceConfiguration = operator called" << std::endl;
+
 	if (this == &other)
 		return *this;
 
@@ -58,21 +67,31 @@ DeviceConfiguration& DeviceConfiguration::operator=(const DeviceConfiguration& o
 	return *this;
 }
 
-DeviceConfiguration::~DeviceConfiguration()
+void DeviceConfiguration::clear()
 {
-	for (auto act : push_actions)
+	for (auto &act : push_actions)
 		act.second.clear();
 	push_actions.clear();
 
-	for (auto act : release_actions)
+	for (auto &act : release_actions)
 		act.second.clear();
 	release_actions.clear();
 
-	for (auto act : encoder_inc_actions)
+	for (auto &act : encoder_inc_actions)
 		act.second.clear();
 	encoder_inc_actions.clear();
 
-	for (auto act : encoder_dec_actions)
+	for (auto &act : encoder_dec_actions)
 		act.second.clear();
 	encoder_dec_actions.clear();
+
+	for (auto &act : light_triggers)
+		act.second.clear();
+	light_triggers.clear();
+}
+
+DeviceConfiguration::~DeviceConfiguration()
+{
+	Logger(TLogLevel::logTRACE) << "DeviceConfiguration destructor called" << std::endl;
+	clear();
 }
