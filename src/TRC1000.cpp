@@ -35,7 +35,7 @@ int TRC1000::send_command(unsigned char cmd)
 
 int TRC1000::decode_read_response(unsigned char* tmp_read_buffer)
 {
-	for (auto command : trc1000_commands)
+	for (auto &command : trc1000_commands)
 	{
 		if (command.response_code == tmp_read_buffer[0]) {
 			memcpy((void*)&read_buffer[command.buffer_offset], tmp_read_buffer, command.byte_count);
@@ -49,7 +49,7 @@ int TRC1000::read_all_device_registers()
 {
 	unsigned char tmp_read_buffer[8];
 
-	for (auto command : trc1000_commands)
+	for (auto &command : trc1000_commands)
 	{
 		if (send_command(command.command_code) != EXIT_SUCCESS)
 		{

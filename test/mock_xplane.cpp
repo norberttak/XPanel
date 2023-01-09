@@ -296,30 +296,30 @@ void test_call_registered_flight_loop()
 		(*registered_flight_loop)(1, 1, 1, NULL);
 }
 
-void test_flight_loop(std::vector<DeviceConfiguration> config)
+void test_flight_loop(std::vector<DeviceConfiguration> &config)
 {
 	// process button light changes
-	for (auto it : config)
+	for (auto& it : config)
 	{
-		for (auto triggers : it.light_triggers)
+		for (auto& triggers : it.light_triggers)
 		{
-			for (auto trigger : triggers.second)
+			for (auto& trigger : triggers.second)
 			{
 				trigger->evaluate_and_store_action();
 			}
 		}
 
-		for (auto display : it.multi_displays)
+		for (auto& display : it.multi_displays)
 		{
 			display.second->evaluate_and_store_dataref_value();
 		}
 
-		for (auto display : it.generic_displays)
+		for (auto& display : it.generic_displays)
 		{
 			display.second->evaluate_and_store_dataref_value();
 		}
 
-		for (auto fip_screen : it.fip_screens)
+		for (auto& fip_screen : it.fip_screens)
 		{
 			fip_screen.second->evaluate_and_store_screen_action();
 		}

@@ -146,7 +146,7 @@ bool UsbHidDevice::updateOneDisplay(std::pair<std::string, GenericDisplay*> conf
 	bool write_buffer_changed = false;
 
 	int reg_index = -1;
-	for (auto display : panel_displays)
+	for (auto &display : panel_displays)
 	{
 		if (display.config_name == config_display.first)
 		{
@@ -165,12 +165,12 @@ bool UsbHidDevice::updateOneDisplay(std::pair<std::string, GenericDisplay*> conf
 bool UsbHidDevice::updateDisplays()
 {
 	bool write_buffer_changed = false;
-	for (auto config_display : config.multi_displays)
+	for (auto &config_display : config.multi_displays)
 	{
 		write_buffer_changed |= updateOneDisplay(config_display);
 	}
 
-	for (auto config_display : config.generic_displays)
+	for (auto &config_display : config.generic_displays)
 	{
 		write_buffer_changed |= updateOneDisplay(config_display);
 	}

@@ -34,10 +34,10 @@ ArduinoHomeCockpit::ArduinoHomeCockpit(DeviceConfiguration& config) :UsbHidDevic
 	register_buttons(arduino_buttons);
 	register_displays(arduino_displays);
 
-	for (auto config_display : config.generic_displays)
+	for (auto &config_display : config.generic_displays)
 	{
 		int nr_of_bytes = 0;
-		for (auto panel_display : arduino_displays)
+		for (auto &panel_display : arduino_displays)
 		{
 			if (panel_display.config_name == config_display.first)
 				nr_of_bytes = panel_display.width;

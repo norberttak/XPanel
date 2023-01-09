@@ -64,6 +64,7 @@ int init_and_start_xpanel_plugin();
 
 Configuration config;
 std::vector<Device*> devices;
+bool plugin_already_initialized = false;
 const float FLIGHT_LOOP_TIME_PERIOD = 0.2f;
 const float ERROR_DISPLAY_TIME_PERIOD = 2.0f;
 
@@ -122,29 +123,29 @@ PLUGIN_API int  XPluginEnable(void)
 
 float flight_loop_callback(float, float, int, void*)
 {
-	for (const auto& it : config.device_configs)
+	for (const auto &it : config.device_configs)
 	{
 		// check and set LED states
-		for (const auto& triggers : it.light_triggers)
+		for (const auto &triggers : it.light_triggers)
 		{
-			for (auto trigger : triggers.second)
+			for (auto &trigger : triggers.second)
 			{
 				trigger->evaluate_and_store_action();
 			}
 		}
 		// check and set 7 segment display states
-		for (const auto& display : it.multi_displays)
+		for (const auto &display : it.multi_displays)
 		{
 			display.second->evaluate_and_store_dataref_value();
 		}
 
-		for (const auto& display : it.generic_displays)
+		for (const auto &display : it.generic_displays)
 		{
 			display.second->evaluate_and_store_dataref_value();
 		}
 
 		// update the FIP devices
-		for (auto screen : it.fip_screens)
+		for (auto &screen : it.fip_screens)
 		{
 			screen.second->evaluate_and_store_screen_action();
 		}
@@ -175,7 +176,7 @@ void stop_and_clear_xpanel_plugin()
 	XPLMUnregisterFlightLoopCallback(flight_loop_callback, NULL);
 	LuaHelper::get_instace()->close();
 
-	for (auto dev : devices)
+	for (auto &dev : devices)
 	{
 		if (dev != NULL)
 		{
@@ -186,6 +187,7 @@ void stop_and_clear_xpanel_plugin()
 	devices.clear();
 	config.clear();
 	ActionQueue::get_instance()->clear_all_actions();
+	plugin_already_initialized = false;
 }
 
 std::filesystem::path absolute_path(std::string aircraft_path, std::string file_name)
@@ -262,7 +264,7 @@ int init_and_start_xpanel_plugin(void)
 
 	Device* device;
 
-	for (auto& it : config.device_configs)
+	for (auto &it : config.device_configs)
 	{
 		switch (it.device_type) {
 		case DeviceType::SAITEK_MULTI:
@@ -355,6 +357,7 @@ int init_and_start_xpanel_plugin(void)
 	}
 
 	XPLMRegisterFlightLoopCallback(flight_loop_callback, FLIGHT_LOOP_TIME_PERIOD, NULL);
+	plugin_already_initialized = true;
 	Logger(TLogLevel::logINFO) << "successful init and start plugin" << std::endl;
 	return EXIT_SUCCESS;
 }
@@ -365,14 +368,18 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void*)
 	{
 		switch (inMsg) {
 		case XPLM_MSG_AIRPORT_LOADED:
+			Logger(TLogLevel::logTRACE) << "XPLM_MSG_AIRPORT_LOADED message received" << std::endl;
+			
+			if (plugin_already_initialized)
+				stop_and_clear_xpanel_plugin();
+
 			if (init_and_start_xpanel_plugin() != EXIT_SUCCESS)
-			{
 				Logger(TLogLevel::logERROR) << "error during plugin init and start" << std::endl;
-			}
+
 			break;
 		case XPLM_MSG_PLANE_CRASHED:
 		case XPLM_MSG_PLANE_UNLOADED:
-			Logger(TLogLevel::logDEBUG) << "XPLM_MSG_PLANE_CRASHED or XPLM_MSG_PLANE_UNLOADED message recived" << std::endl;
+			Logger(TLogLevel::logINFO) << "XPLM_MSG_PLANE_CRASHED or XPLM_MSG_PLANE_UNLOADED message received" << std::endl;
 			break;
 		default:
 			break;
@@ -391,6 +398,7 @@ void menu_handler(void*, void* in_item_ref)
 		stop_and_clear_xpanel_plugin();
 		if (init_and_start_xpanel_plugin() != EXIT_SUCCESS)
 			Logger(TLogLevel::logERROR) << "Plugin reload error" << std::endl;
+		Logger(TLogLevel::logTRACE) << "Reload plugin done" << std::endl;
 		break;
 	default:
 		//

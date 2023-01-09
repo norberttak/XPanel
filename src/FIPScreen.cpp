@@ -18,7 +18,7 @@ FIPScreen::FIPScreen() :GenericScreen()
 
 FIPScreen::~FIPScreen()
 {
-	for (const auto& it_page : pages)
+	for (const auto &it_page : pages)
 		delete it_page.second;
 
 	pages.clear();
@@ -26,7 +26,7 @@ FIPScreen::~FIPScreen()
 
 void FIPScreen::evaluate_and_store_screen_action()
 {
-	for (auto action : screen_action_queue)
+	for (auto &action : screen_action_queue)
 	{
 		int action_value = 0;
 		if (action->data_ref != NULL)

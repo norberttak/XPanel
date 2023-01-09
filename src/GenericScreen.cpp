@@ -15,7 +15,7 @@ GenericScreen::GenericScreen()
 
 GenericScreen::~GenericScreen()
 {
-	for (auto action : screen_action_queue)
+	for (auto &action : screen_action_queue)
 	{
 		delete action;
 	}

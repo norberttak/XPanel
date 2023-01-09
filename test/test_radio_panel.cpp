@@ -23,7 +23,7 @@ int test_hid_get_vid();
 int test_hid_get_pid();
 std::string test_get_last_command();
 void test_hid_get_write_data(unsigned char* data, size_t length);
-void test_flight_loop(std::vector<DeviceConfiguration> config);
+void test_flight_loop(std::vector<DeviceConfiguration> &config);
 void test_hid_mock_init();
 
 namespace test

@@ -7,16 +7,12 @@
 #include "Device.h"
 #include "Logger.h"
 
-Device::Device(DeviceConfiguration& _config, int _read_buffer_size, int _write_buffer_size)
+Device::Device(DeviceConfiguration& _config, int _read_buffer_size, int _write_buffer_size):
+	config(_config), read_buffer_size(_read_buffer_size), write_buffer_size(_write_buffer_size)
 {
 	read_buffer = (unsigned char*)calloc(_read_buffer_size, sizeof(unsigned char));
 	read_buffer_old = (unsigned char*)calloc(_read_buffer_size, sizeof(unsigned char));
 	write_buffer = (unsigned char*)calloc(_write_buffer_size, sizeof(unsigned char));
-
-	read_buffer_size = _read_buffer_size;
-	write_buffer_size = _write_buffer_size;
-
-	config = _config;
 }
 
 Device::~Device()
@@ -114,7 +110,7 @@ bool Device::updateLightStates()
 	else
 		update_cycle++;
 
-	for (auto it : config.light_triggers)
+	for (auto &it : config.light_triggers)
 	{
 		std::vector<PanelLight>::iterator panel_light_it;
 
@@ -128,7 +124,7 @@ bool Device::updateLightStates()
 		if (panel_light_it == lights.end())
 			continue;
 
-		for (auto trigger : it.second)
+		for (auto &trigger : it.second)
 		{
 			TriggerType light_change = trigger->get_and_clear_stored_action();
 			switch (light_change) {
@@ -170,7 +166,7 @@ bool Device::updateLightStates()
 
 void Device::process_selector_switch()
 {
-	for (auto sel : selectors)
+	for (auto &sel : selectors)
 	{
 		if (!is_bit_changed(read_buffer, read_buffer_old, sel.bit))
 			continue;
@@ -179,20 +175,20 @@ void Device::process_selector_switch()
 		{
 			stored_button_states[sel.config_name] = 1;
 
-			for (auto button : buttons)
+			for (auto &button : buttons)
 			{
-				for (auto act : config.push_actions[button.config_name.c_str()])
+				for (auto &act : config.push_actions[button.config_name.c_str()])
 				{
 					act->set_condition_active(sel.config_name);
 				}
-				for (auto act : config.release_actions[button.config_name.c_str()])
+				for (auto &act : config.release_actions[button.config_name.c_str()])
 				{
 					act->set_condition_active(sel.config_name);
 				}
 			}
 
 			/* update condition for displays */
-			for (auto display : panel_displays)
+			for (auto &display : panel_displays)
 			{
 				if (config.multi_displays.count(display.config_name) > 0 && config.multi_displays[display.config_name] != NULL && config.multi_displays[display.config_name]->is_registered_selector(sel.config_name))
 				{
@@ -205,13 +201,13 @@ void Device::process_selector_switch()
 		{
 			stored_button_states[sel.config_name] = 0;
 
-			for (auto button : buttons)
+			for (auto &button : buttons)
 			{
-				for (auto act : config.push_actions[button.config_name.c_str()])
+				for (auto &act : config.push_actions[button.config_name.c_str()])
 				{
 					act->set_condition_inactive(sel.config_name);
 				}
-				for (auto act : config.release_actions[button.config_name.c_str()])
+				for (auto &act : config.release_actions[button.config_name.c_str()])
 				{
 					act->set_condition_inactive(sel.config_name);
 				}
@@ -231,7 +227,7 @@ void Device::process_and_store_button_states()
 			Logger(TLogLevel::logTRACE) << "Device " << button.config_name << " button bit changed " << std::endl;
 			if (get_bit_value(read_buffer, button.bit) && config.push_actions.find(button.config_name.c_str()) != config.push_actions.end())
 			{
-				for (auto act : config.push_actions[button.config_name])
+				for (auto &act : config.push_actions[button.config_name])
 				{
 					Logger(TLogLevel::logTRACE) << "Device " << button.config_name << " button push action called" << std::endl;
 					ActionQueue::get_instance()->push(act);
@@ -239,7 +235,7 @@ void Device::process_and_store_button_states()
 			}
 			else if (!get_bit_value(read_buffer, button.bit) && config.release_actions.find(button.config_name.c_str()) != config.release_actions.end())
 			{
-				for (auto act : config.release_actions[button.config_name])
+				for (auto &act : config.release_actions[button.config_name])
 				{
 					Logger(TLogLevel::logTRACE) << "Device " << button.config_name << " button release action called" << std::endl;
 					ActionQueue::get_instance()->push(act);
@@ -278,7 +274,7 @@ void Device::process_and_store_encoder_rotations()
 		{
 			Logger(TLogLevel::logTRACE) << "encoder " << encoder.config_name << " incremented (" << (int)read_buffer_old[encoder.reg_index] << "->" << (int)read_buffer[encoder.reg_index] << ") d = " << encoder_delta << std::endl;
 			while (encoder_delta >= encoder.pulse_per_click) {
-				for (auto act : config.encoder_inc_actions[encoder.config_name]) 
+				for (auto &act : config.encoder_inc_actions[encoder.config_name]) 
 				{
 					ActionQueue::get_instance()->push(act);
 				}
@@ -289,7 +285,7 @@ void Device::process_and_store_encoder_rotations()
 		{
 			Logger(TLogLevel::logTRACE) << "encoder " << encoder.config_name << " decremented (" << (int)read_buffer_old[encoder.reg_index] << "->" << (int)read_buffer[encoder.reg_index] << ") d = " << encoder_delta << std::endl;
 			while (abs(encoder_delta) >= encoder.pulse_per_click) {
-				for (auto act : config.encoder_dec_actions[encoder.config_name])
+				for (auto &act : config.encoder_dec_actions[encoder.config_name])
 				{
 					ActionQueue::get_instance()->push(act);
 				}

@@ -284,8 +284,9 @@ void ActionQueue::push(Action* action)
 	int multi_mid, multi_high;
 	action->get_dynamic_speed_params(&tick_per_sec_mid, &multi_mid, &tick_per_sec_high, &multi_high);
 	
+	guard.lock();
 	if (tick_per_sec_mid != 0 || tick_per_sec_high != 0)
-	{
+	{		
 		if (action_ageing_counters.count(action->get_hash()) == 0) {
 			action_ageing_counters[action->get_hash()] = new AgeingCounter();
 		}
@@ -306,7 +307,6 @@ void ActionQueue::push(Action* action)
 		counter->clear_old_events(2 * time_base_in_ms);
 	}
 
-	guard.lock();
 	action_queue.push_back(action);
 	guard.unlock();
 }
@@ -332,5 +332,10 @@ void ActionQueue::clear_all_actions()
 {
 	guard.lock();
 	action_queue.clear();
+	for (auto it = action_ageing_counters.begin(); it != action_ageing_counters.end(); ++it)
+	{
+		delete(it->second);
+	}
+	action_ageing_counters.clear();
 	guard.unlock();
 }

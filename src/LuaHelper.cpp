@@ -300,7 +300,7 @@ void LuaHelper::register_hid_device(UsbHidDevice* _device)
 
 int LuaHelper::get_button_state(int vid, int pid, std::string button_name)
 {
-	for (auto dev : hid_devices)
+	for (auto &dev : hid_devices)
 	{
 		if (dev->get_vid() == vid && dev->get_pid() == pid)
 		{
@@ -315,7 +315,7 @@ int LuaHelper::get_button_state(int vid, int pid, std::string button_name)
 
 TriggerType LuaHelper::get_light_state(int vid, int pid, std::string light_name)
 {
-	for (auto dev : hid_devices)
+	for (auto &dev : hid_devices)
 	{
 		if (dev->get_vid() == vid && dev->get_pid() == pid)
 		{

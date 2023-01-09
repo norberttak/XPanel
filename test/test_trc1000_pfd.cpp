@@ -27,7 +27,7 @@ bool test_is_command_in_queue(std::string cmd_str);
 int test_get_command_queue_size();
 void test_clear_command_queue();
 void test_hid_get_write_data(unsigned char* data, size_t length);
-void test_flight_loop(std::vector<DeviceConfiguration> config);
+void test_flight_loop(std::vector<DeviceConfiguration> &config);
 
 
 namespace test

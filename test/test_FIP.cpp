@@ -18,7 +18,7 @@ void test_set_aircraft_path_and_filename(char* file_name, char* path);
 int test_fip_get_led_state(int led_index);
 void test_fip_set_button_states(uint16_t _button_states);
 void test_fip_set_current_page(int page);
-void test_flight_loop(std::vector<DeviceConfiguration> config);
+void test_flight_loop(std::vector<DeviceConfiguration> &config);
 void test_fip_get_image(unsigned char* buffer, size_t buffer_size);
 
 namespace test
