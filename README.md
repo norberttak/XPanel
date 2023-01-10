@@ -21,7 +21,7 @@ Currently, it supports the bellow types of USB-HID devices:
 6. [TRC-1000 PFD/MFD & Audio Panel](https://www.simkits.com/product/trc1000-complete-glass-cockpit/) These devices are replica of Garmin G1000 cockpit panels
 
 ## Configuration syntax
-For configuration file syntax please see the document [here](doc/configuration.md)
+For configuration file syntax please see the document [here](doc/configuration.md). It contains detailed description of different config options.
 
 ## Install
 Get the latest release from [github](https://github.com/norberttak/XPanel/releases)
@@ -29,6 +29,8 @@ Get the latest release from [github](https://github.com/norberttak/XPanel/releas
 Copy the xpanel folder into your X-Plane plugin directory (in my case it is c:\XPlane11\resources\plugins).
 
 Please don't forget to remove any other plugins that want to connect to your USB Hid devices in the home cockpit.
+
+The aircraft specific configuration file (xpanel.ini) shal be put into the aircraft folder. You can see some here [example config files](https://github.com/norberttak/XPanel/tree/master/config)
 
 If you have any errors during the plugin load or run please check the main X-Plane log file. If you want more detailed logs from the plugin, please set the log level to DEBUG or even TRACE. See the details at [config syntax](doc/configuration.md)
 
