@@ -1,4 +1,4 @@
-# XPanel v1.5 Configiration file format
+# XPanel v1.6 Configiration file format
 ## General description
 The configuration file format is _similar_ to the ini file format. It is divided into sections. A section can have properties. A section is marked by square brackets ([ ]). Every section shall have a unique id.
 ```ini
