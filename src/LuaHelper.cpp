@@ -284,6 +284,7 @@ extern "C" {
 LuaHelper::LuaHelper()
 {
 	flight_loop_defined = false;
+	lua_enabled = false;
 }
 
 LuaHelper* LuaHelper::get_instace()
@@ -330,10 +331,11 @@ TriggerType LuaHelper::get_light_state(int vid, int pid, std::string light_name)
 
 int LuaHelper::load_script_file(std::string file_name)
 {
-	if (luaL_dofile(lua, file_name.c_str()))
+	if (luaL_dofile(lua, file_name.c_str()) != LUA_OK)
 	{
 		Logger(TLogLevel::logERROR) << "Lua: Error during load script " << file_name << " " << lua_tostring(lua, lua_gettop(lua)) << std::endl;
-		lua_pop(lua, 1);
+		Logger(TLogLevel::logERROR) << "Disable LUA module. fix error in lua script and reload the plugin" << std::endl;
+		lua_enabled = false;
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
@@ -347,7 +349,7 @@ int LuaHelper::init()
 	lua = luaL_newstate();
 	if (!lua)
 		return EXIT_FAILURE;
-
+	
 	luaL_openlibs(lua);
 	lua_register(lua, LUA_FUNC_NAME_COMMAND_ONCE, LuaCommandOnce);
 	lua_register(lua, LUA_FUNC_NAME_COMMAND_BEGIN, LuaCommandBegin);
@@ -359,6 +361,8 @@ int LuaHelper::init()
 	lua_register(lua, LUA_FUNC_NAME_GET_LIGHT_STATE, LuaGetLightState);
 
 	last_flight_loop_call = std::chrono::system_clock::now();
+
+	lua_enabled = true;
 	return EXIT_SUCCESS;
 }
 
@@ -372,6 +376,7 @@ void LuaHelper::close()
 	if (lua)
 		lua_close(lua);
 	lua = NULL;
+	lua_enabled = false;
 }
 
 void LuaHelper::push_global_string(std::string name, std::string value)
@@ -416,7 +421,7 @@ XPLMDataTypeID LuaHelper::get_dataref_type(XPLMDataRef dataref)
 
 int LuaHelper::do_flight_loop()
 {
-	if (!flight_loop_defined)
+	if (!flight_loop_defined || !lua_enabled)
 		return EXIT_FAILURE;
 
 	if (!lua_getglobal(lua, "flight_loop"))
@@ -427,23 +432,39 @@ int LuaHelper::do_flight_loop()
 	}
 	std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - last_flight_loop_call;
 	lua_pushnumber(lua, elapsed_seconds.count());
-	lua_pcall(lua, 1, 0, 0);
+
+	if (lua_pcall(lua, 1, 0, 0) != LUA_OK)
+	{
+		lua_enabled = false;
+		Logger(TLogLevel::logERROR) << "Lua error in: flight_loop" << std::endl;
+		Logger(TLogLevel::logERROR) << "Disable LUA module. fix error in lua script and reload the plugin" << std::endl;
+		return EXIT_FAILURE;
+	}
 	lua_pop(lua, 1);
 
 	return EXIT_SUCCESS;
 }
 
-double LuaHelper::do_string(std::string lua_str)
+int LuaHelper::do_string(std::string lua_str)
 {
-	//Logger(TLogLevel::logTRACE) << "LuaHelper do_string: " << lua_str << std::endl;
+	double ret_value = 0;
+	return do_string(lua_str, ret_value);
+}
 
-	if (luaL_dostring(lua, lua_str.c_str()) != 0)
+int LuaHelper::do_string(std::string lua_str, double& ret_value)
+{
+	if (!lua_enabled)
+		return EXIT_FAILURE;
+
+	if (luaL_dostring(lua, lua_str.c_str()) != LUA_OK)
 	{
 		Logger(TLogLevel::logERROR) << "Lua error in: " << lua_str << std::endl;
-		return 0;
+		Logger(TLogLevel::logERROR) << "Disable LUA module. fix error in lua script and reload the plugin"<< std::endl;
+		lua_enabled = false;
+		return EXIT_FAILURE;
 	}
 
-	double return_value = lua_tonumber(lua, -1);
-	//Logger(TLogLevel::logTRACE) << "LuaHelper do_string return value: " << return_value << std::endl;
-	return return_value;
+	ret_value = lua_tonumber(lua, -1);
+
+	return EXIT_SUCCESS;
 }
