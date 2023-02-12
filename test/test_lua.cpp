@@ -34,7 +34,7 @@ namespace test
 
 		TEST_METHOD(TestLuaDoString)
 		{
-			LuaHelper::get_instace()->do_string("command_once(\"/sim/test\")");			
+			LuaHelper::get_instace()->do_string("command_once(\"/sim/test\")");
 			Assert::AreEqual("/sim/test_ONCE", test_get_last_command().c_str());
 
 			LuaHelper::get_instace()->do_string("command_begin(\"/sim/test\")");
