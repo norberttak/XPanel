@@ -53,7 +53,7 @@ void Trigger::evaluate_and_store_action()
 	}
 	else
 	{
-		act_value = LuaHelper::get_instace()->do_string("return " + lua_str);
+		LuaHelper::get_instace()->do_string("return " + lua_str,act_value);
 	}
 
 	guard.lock();

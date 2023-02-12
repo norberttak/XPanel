@@ -85,7 +85,7 @@ void GenericDisplay::evaluate_and_store_dataref_value()
 		if (const_value > DBL_MIN)
 			display_value = const_value;
 		else if (!lua_function.empty())
-			display_value = LuaHelper::get_instace()->do_string("return " + lua_function);
+			LuaHelper::get_instace()->do_string("return " + lua_function, display_value);
 		break;
 	}
 	guard.unlock();
