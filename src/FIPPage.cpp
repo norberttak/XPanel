@@ -16,7 +16,11 @@ FIPPage::FIPPage(int _screen_width, int _screen_height, int _bit_per_pixel, std:
 	page_name = _page_name;
 	raw_buffer_size = screen_height * screen_width * (bit_per_pixel / 8);
 
-	page_raw_buffer = (unsigned char*)calloc(raw_buffer_size, sizeof(unsigned char));
+	page_raw_buffer_1 = (unsigned char*)calloc(raw_buffer_size, sizeof(unsigned char));
+	page_raw_buffer_2 = (unsigned char*)calloc(raw_buffer_size, sizeof(unsigned char));
+
+	page_raw_buffer_ptr_act = page_raw_buffer_1;
+	page_raw_buffer_ptr_int = page_raw_buffer_2;
 }
 
 FIPPage::~FIPPage()
@@ -25,7 +29,8 @@ FIPPage::~FIPPage()
 		delete(layers[i]);
 
 	layers.clear();
-	free(page_raw_buffer);
+	free(page_raw_buffer_1);
+	free(page_raw_buffer_2);
 }
 
 std::string FIPPage::get_name()
@@ -63,7 +68,7 @@ void FIPPage::translate_layer_y(int layer_index, int offset_y)
 
 unsigned char* FIPPage::get_raw_buffer()
 {
-	return page_raw_buffer;
+	return page_raw_buffer_ptr_act;
 }
 
 void FIPPage::render_layer(int layer_index)
@@ -100,9 +105,9 @@ void FIPPage::render_layer(int layer_index)
 			if (buffer_linear_index + 2 >= raw_buffer_size)
 				continue;
 
-			page_raw_buffer[buffer_linear_index + 0] = pixel.r;
-			page_raw_buffer[buffer_linear_index + 1] = pixel.g;
-			page_raw_buffer[buffer_linear_index + 2] = pixel.b;
+			page_raw_buffer_ptr_act[buffer_linear_index + 0] = pixel.r;
+			page_raw_buffer_ptr_act[buffer_linear_index + 1] = pixel.g;
+			page_raw_buffer_ptr_act[buffer_linear_index + 2] = pixel.b;
 		}
 	}
 }
@@ -112,10 +117,94 @@ int FIPPage::get_last_layer_index()
 	return (int)layers.size() - 1;
 }
 
+void FIPPage::get_pixel_act_buffer(Pixel& px, int row, int col)
+{
+	int buffer_linear_index = 3 * (row * screen_width + col);
+
+	px.r = page_raw_buffer_ptr_act[buffer_linear_index + 0];
+	px.g = page_raw_buffer_ptr_act[buffer_linear_index + 1];
+	px.b = page_raw_buffer_ptr_act[buffer_linear_index + 2];
+}
+
+void FIPPage::set_pixel_int_buffer(Pixel px, int row, int col)
+{
+	int buffer_linear_index = 3 * (row * screen_width + col);
+
+	page_raw_buffer_ptr_int[buffer_linear_index + 0] = px.r;
+	page_raw_buffer_ptr_int[buffer_linear_index + 1] = px.g;
+	page_raw_buffer_ptr_int[buffer_linear_index + 2] = px.b;
+}
+
+/* Calculate the four neighbour (top,bottom,left,right) pixel's color average */
+bool FIPPage::neighbour_average_act_buffer(Pixel& px, int row, int col)
+{
+	if (row<1 || col<1 || row>screen_height - 1 || col>screen_width - 1)
+		return false;
+
+	int index_top    = 3 * ((row+1) * screen_width + col);
+	int index_bottom = 3 * ((row - 1) * screen_width + col);
+	int index_left   = 3 * (row * screen_width + col - 1);
+	int index_right  = 3 * (row * screen_width + col + 1);
+
+	int red = (int)(page_raw_buffer_ptr_act[index_top + 0] +
+		page_raw_buffer_ptr_act[index_bottom + 0] +
+		page_raw_buffer_ptr_act[index_left + 0] +
+		page_raw_buffer_ptr_act[index_right + 0]) / 4;
+
+	int green = (int)(page_raw_buffer_ptr_act[index_top + 1] +
+		page_raw_buffer_ptr_act[index_bottom + 1] +
+		page_raw_buffer_ptr_act[index_left + 1] +
+		page_raw_buffer_ptr_act[index_right + 1]) / 4;
+
+	int blue = (int)(page_raw_buffer_ptr_act[index_top + 2] +
+		page_raw_buffer_ptr_act[index_bottom + 2] +
+		page_raw_buffer_ptr_act[index_left + 2] +
+		page_raw_buffer_ptr_act[index_right + 2]) / 4;
+
+	px.r = (uint8_t)red;
+	px.g = (uint8_t)green;
+	px.b = (uint8_t)blue;
+
+	return true;
+}
+
+void FIPPage::interpolate()
+{
+	Pixel pixel;
+
+	for (int row = 1; row < screen_height-1; row++)
+	{
+		for (int col = 1; col < screen_width-1; col++)
+		{
+			get_pixel_act_buffer(pixel, row, col);
+
+			//calculate neighbour's average color in case of a black pixels
+			if (pixel.r == 0 && pixel.g == 0 && pixel.b == 0)
+				neighbour_average_act_buffer(pixel, row, col);
+			
+			set_pixel_int_buffer(pixel, row, col);
+		}
+	}
+
+	//swap the two buffer pointers
+	if (page_raw_buffer_ptr_act == page_raw_buffer_1)
+	{
+		page_raw_buffer_ptr_act = page_raw_buffer_2;
+		page_raw_buffer_ptr_int = page_raw_buffer_1;
+	}
+	else
+	{
+		page_raw_buffer_ptr_act = page_raw_buffer_1;
+		page_raw_buffer_ptr_int = page_raw_buffer_2;
+	}
+}
+
 void FIPPage::render_page()
 {
-	memset(page_raw_buffer, 0, raw_buffer_size);
+	memset(page_raw_buffer_ptr_act, 0, raw_buffer_size);
 
 	for (int i = 0; i < layers.size(); i++)
 		render_layer(i);
+
+	interpolate();
 }

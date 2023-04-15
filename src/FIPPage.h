@@ -13,12 +13,23 @@ class FIPPage
 {
 private:
     std::vector<RawBMP*> layers;
-    unsigned char* page_raw_buffer;
+    /* we use two page buffers. one for hold the rendered page and one as a
+       temporary buffer used during the interpolation. After successful
+       interpolation we swap the two buffer's pointer */
+    unsigned char* page_raw_buffer_1;
+    unsigned char* page_raw_buffer_2;
+    unsigned char* page_raw_buffer_ptr_act; //pointer for actual buffer
+    unsigned char* page_raw_buffer_ptr_int; //pointer for interpolating buffer
+    
     int raw_buffer_size;
     int screen_width;
     int screen_height;
     int bit_per_pixel;
     std::string page_name;
+    void get_pixel_act_buffer(Pixel& px, int row, int col);
+    void set_pixel_int_buffer(Pixel px, int row, int col);
+    bool neighbour_average_act_buffer(Pixel& px, int row, int col);
+    void interpolate();
     void render_layer(int layer_index);
 public:
     FIPPage(int _screen_width, int _screen_height, int _bit_per_pixel, std::string _page_name);
