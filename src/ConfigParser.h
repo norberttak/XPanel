@@ -91,6 +91,7 @@ private:
 	const std::string TOKEN_FIP_SCREEN = "\\[screen:id=\"([a-zA-Z0-9_-]+)\"\\]";
 	const std::string TOKEN_FIP_PAGE  = "\\[page:id=\"([a-zA-Z0-9_-]+)\"\\]";	
 	const std::string TOKEN_FIP_LAYER = "\\[layer:image=\"([a-zA-Z0-9_\\-/\\.]+),ref_x:" + RE_INT + ",ref_y:" + RE_INT + ",base_rot=" + RE_INT + "\"\\]";
+	const std::string TOKEN_FIP_LAYER_MASK = "mask=\"screen_x:" + RE_INT + ",screen_y:" + RE_INT + ",height:" + RE_INT + ",width:" + RE_INT + "\"";
 	const std::string TOKEN_FIP_OFFSET_CONST = "offset_([xy]+)=\"const:" + RE_INT + "\"";
 	const std::string TOKEN_FIP_OFFSET_DATAREF = "offset_([xy]+)=\"dataref:" + RE_REF + ",scale:" + RE_FLOAT + "\"";
 	const std::string TOKEN_FIP_OFFSET_LUA = "offset_([xy]+)=\"lua:" + RE_LUA + "\"";

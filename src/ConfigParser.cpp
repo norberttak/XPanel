@@ -741,6 +741,25 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		}
 	}
 	
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_LAYER_MASK)))
+	{
+		int page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
+		int layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(page_index);
+
+		if (page_index >= 0 && layer_index >= 0)
+		{
+			MaskWindow mask(stoi(m[1]), stoi(m[2]), stoi(m[4]), stoi(m[3]));
+			config.device_configs.back().fip_screens[section_id]->set_mask(page_index, layer_index, mask);
+			Logger(logTRACE) << "Parser: set mask for page " << page_index << " / layer " << layer_index << std::endl;
+			return EXIT_SUCCESS;
+		}
+		else
+		{
+			Logger(logERROR) << "Parser: invalid FIP page or layer index" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_OFFSET_CONST)))
 	{
 		ScreenAction *action =new ScreenAction();
