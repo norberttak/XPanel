@@ -35,6 +35,7 @@ public:
     FIPPage(int _screen_width, int _screen_height, int _bit_per_pixel, std::string _page_name);
     ~FIPPage();
     int add_layer_from_bmp_file(std::string filename, int ref_x, int ref_y, int base_rot);
+    void set_mask(int layer_index, MaskWindow& mask);
     void rotate_layer(int layer_index, int angle);
     void translate_layer_x(int layer_index, int offset_x);
     void translate_layer_y(int layer_index, int offset_y);

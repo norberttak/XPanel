@@ -38,6 +38,11 @@ std::string FIPPage::get_name()
 	return page_name;
 }
 
+void FIPPage::set_mask(int layer_index, MaskWindow& mask)
+{
+	layers[layer_index]->set_mask(mask);
+}
+
 int FIPPage::add_layer_from_bmp_file(std::string filename, int ref_x, int ref_y, int base_rot)
 {
 	RawBMP* new_layer = new RawBMP();
@@ -82,12 +87,12 @@ void FIPPage::render_layer(int layer_index)
 	int ref_y = layers[layer_index]->get_ref_y();
 	long double deg = -1 * (layers[layer_index]->get_angle() * 3.14) / 180;
 
-	for (int row = 0; row < screen_height && row < layer_height; row++)
+	for (int row = 0; row < layer_height; row++)
 	{
-		for (int col = 0; col < screen_width && col < layer_width; col++)
+		for (int col = 0; col < layer_width; col++)
 		{
 			layers[layer_index]->get_pixel_at_pos(&pixel, row, col);
-
+			
 			// skip background color pixels
 			if (pixel.r == 0 && pixel.g == 0 && pixel.b == 0)
 				continue;
@@ -95,6 +100,10 @@ void FIPPage::render_layer(int layer_index)
 			//calculate rotation + translation
 			int row_rot = (int)round(sin(deg) * (col - ref_x) + cos(deg) * (row - ref_y)) + pos_y;
 			int col_rot = (int)round(cos(deg) * (col - ref_x) - sin(deg) * (row - ref_y)) + pos_x;
+
+			MaskWindow mask = layers[layer_index]->get_mask();
+			if (mask.enabled && (row_rot > mask.pos_y + mask.height || row_rot<mask.pos_y || col_rot>mask.pos_x + mask.width || col_rot < mask.pos_x))
+				continue;
 
 			//skip points that are outside of screen area
 			if (row_rot < 0 || row_rot >= screen_height || col_rot < 0 || col_rot >= screen_width)
