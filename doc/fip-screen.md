@@ -99,6 +99,16 @@ Similar to translations you can use three different sources for the rotation ang
 * dataref value
 * return value of a lua function
 
+### Mask a layer
+You can define mask for a layer. This means that only a part of the layer image will be drawn. It is usefull to draw a sliding scale (like a linear altimeter scale on a PFD). The mask is positioned to the screen coordinates
+so in the configuration file you should define this:
+```ini
+        [page:id="TEST_MASK"]
+            [layer:image="fip-images/bmp_test_big_image.bmp,ref_x:0,ref_y:157,base_rot=0"]
+            mask="screen_x:0,screen_y:120,height:100,width:60"
+```
+With the above config only those parts of the layer image will be displayed that are inside the defined mask window.
+
 ## Create your own custom instrument displays
 In this example, we create a virtual ADF display. The ADF has a needle pointer and
 a background scale which can be rotated by the OBS knob. You can see this kind of instrument on many GA aircraft like C172-SP.
