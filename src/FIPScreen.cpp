@@ -123,6 +123,11 @@ int FIPScreen::add_layer_to_page(int page_index, std::string bmp_file_name, int 
 	return layer_index;
 }
 
+void FIPScreen::set_mask(int page_index, int layer_index, MaskWindow& mask)
+{
+	pages[page_index]->set_mask(layer_index, mask);
+}
+
 void FIPScreen::rotate_layer(int page_index, int layer_index, int angle)
 {
 	pages[page_index]->rotate_layer(layer_index, angle);
