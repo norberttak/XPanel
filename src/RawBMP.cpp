@@ -19,6 +19,7 @@ RawBMP::RawBMP()
 	angle = 0;
 	base_rot = 0;
 	raw_buffer = NULL;
+	mask.enabled = false;
 }
 
 RawBMP::~RawBMP()
@@ -78,6 +79,16 @@ bool RawBMP::load_file(std::string file_name, int _ref_x, int _ref_y)
 
 	Logger(logTRACE) << file_name << " load BMP done. height=" << height << " width=" << width << std::endl;
 	return true;
+}
+
+void RawBMP::set_mask(MaskWindow& _mask)
+{
+	mask = _mask;
+}
+
+MaskWindow& RawBMP::get_mask()
+{
+	return mask;
 }
 
 int RawBMP::get_width()
