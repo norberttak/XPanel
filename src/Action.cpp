@@ -255,9 +255,8 @@ void Action::activate()
 	//do a lua script
 	if (!lua_str.empty())
 	{
-		Logger(TLogLevel::logTRACE) << "activate lua action: " << lua_str << std::endl;
-		if (LuaHelper::get_instace()->do_string(lua_str) == EXIT_FAILURE)
-			Logger(TLogLevel::logERROR) << "Error while execute lua string: " << lua_str << std::endl;
+		Logger(TLogLevel::logTRACE) << "activate lua action: " << lua_str << std::endl;;
+		LuaHelper::get_instace()->do_string(lua_str);
 	}
 }
 

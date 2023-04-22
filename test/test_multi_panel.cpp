@@ -255,14 +255,17 @@ namespace test
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 			test_flight_loop(config.device_configs);
-			Assert::AreEqual(1, (int)LuaHelper::get_instace()->do_string("return get_hid_input_status('REV')"));
+			double ret_value=0;
+			LuaHelper::get_instace()->do_string("return get_hid_input_status('REV')", ret_value);
+			Assert::AreEqual(1, (int)ret_value);
 			
 			// Release REV button
 			buffer[1] = 0;
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 			test_flight_loop(config.device_configs);
-			Assert::AreEqual(0, (int)LuaHelper::get_instace()->do_string("return get_hid_input_status('REV')"));
+			LuaHelper::get_instace()->do_string("return get_hid_input_status('REV')", ret_value);
+			Assert::AreEqual(0, (int)ret_value);
 		}
 
 		TEST_METHOD_CLEANUP(TestMultiPanelCleanup)
