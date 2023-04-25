@@ -190,6 +190,7 @@ xcopy /y /d /S /I "$(SolutionDir)test\fip-images\*" "$(OutDir)\fip-images"
     <ClCompile Include="..\src\ConfigParser.cpp" />
     <ClCompile Include="..\src\Configuration.cpp" />
     <ClCompile Include="..\src\Device.cpp" />
+    <ClCompile Include="..\src\FIPLayer.cpp" />
     <ClCompile Include="..\src\GenericDisplay.cpp" />
     <ClCompile Include="..\src\Logger.cpp" />
     <ClCompile Include="..\src\LuaHelper.cpp" />

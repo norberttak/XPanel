@@ -27,6 +27,7 @@
     <ClCompile Include="src\TRC1000PFD.cpp" />
     <ClCompile Include="src\TRC1000Audio.cpp" />
     <ClCompile Include="src\AgeingCounter.cpp" />
+    <ClCompile Include="src\FIPLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GenericDisplay.h" />
@@ -54,6 +55,7 @@
     <ClInclude Include="src\TRC1000.h" />
     <ClInclude Include="src\TRC1000Audio.h" />
     <ClInclude Include="src\AgeingCounter.h" />
+    <ClInclude Include="src\FIPLayer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config\device-generic.ini" />

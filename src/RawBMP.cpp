@@ -9,25 +9,14 @@
 #include "RawBMP.h"
 
 RawBMP::RawBMP()
+	:FIPLayer()
 {
-	width = 0;
-	height = 0;
-	ref_x = 0;
-	ref_y = 0;
-	pos_x = 0;
-	pos_y = 0;
-	angle = 0;
-	base_rot = 0;
-	raw_buffer = NULL;
-	mask.enabled = false;
+	
 }
 
 RawBMP::~RawBMP()
 {
-	if (raw_buffer)
-		free(raw_buffer);
-
-	raw_buffer = NULL;
+	
 }
 
 bool RawBMP::load_file(std::string file_name, int _ref_x, int _ref_y)
@@ -79,81 +68,4 @@ bool RawBMP::load_file(std::string file_name, int _ref_x, int _ref_y)
 
 	Logger(logTRACE) << file_name << " load BMP done. height=" << height << " width=" << width << std::endl;
 	return true;
-}
-
-void RawBMP::set_mask(MaskWindow& _mask)
-{
-	mask = _mask;
-}
-
-MaskWindow& RawBMP::get_mask()
-{
-	return mask;
-}
-
-int RawBMP::get_width()
-{
-	return width;
-}
-
-int RawBMP::get_height()
-{
-	return height;
-}
-
-int RawBMP::get_pos_x()
-{
-	return pos_x;
-}
-
-int RawBMP::get_pos_y()
-{
-	return pos_y;
-}
-
-int RawBMP::get_angle()
-{
-	return angle;
-}
-
-void RawBMP::set_angle(int _angle)
-{
-	angle = _angle + base_rot;
-}
-
-void RawBMP::set_pos_x(int _pos_x)
-{
-	pos_x = _pos_x;
-}
-
-void RawBMP::set_pos_y(int _pos_y)
-{
-	pos_y = _pos_y;
-}
-
-void RawBMP::set_base_rot(int _base_rot)
-{
-	base_rot = _base_rot;
-}
-
-int RawBMP::get_ref_x()
-{
-	return ref_x;
-}
-
-int RawBMP::get_ref_y()
-{
-	return ref_y;
-}
-
-void RawBMP::get_pixel_at_pos(Pixel* pixel, int row, int col)
-{
-	pixel->r = raw_buffer[3 * (row * width + col)];
-	pixel->g = raw_buffer[3 * (row * width + col) + 1];
-	pixel->b = raw_buffer[3 * (row * width + col) + 2];
-}
-
-unsigned char* RawBMP::get_raw_buffer()
-{
-	return raw_buffer;
 }

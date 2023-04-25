@@ -7,12 +7,13 @@
 #include <string>
 #include <vector>
 
+#include "FIPLayer.h"
 #include "RawBMP.h"
 
 class FIPPage
 {
 private:
-    std::vector<RawBMP*> layers;
+    std::vector<FIPLayer*> layers;
     /* we use two page buffers. one for hold the rendered page and one as a
        temporary buffer used during the interpolation. After successful
        interpolation we swap the two buffer's pointer */

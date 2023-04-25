@@ -20,6 +20,7 @@ add_library(xpanel SHARED
     FIPDevice.cpp
     FIPPage.cpp
     FIPScreen.cpp
+    FIPLayer.cpp
     GenericScreen.cpp
     RawBMP.cpp
     TRC1000.cpp

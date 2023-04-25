@@ -165,6 +165,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\AgeingCounter.cpp" />
+    <ClCompile Include="src\FIPLayer.cpp" />
     <ClCompile Include="src\GenericDisplay.cpp" />
     <ClCompile Include="src\FIPDevice.cpp" />
     <ClCompile Include="src\GenericScreen.cpp" />
@@ -198,6 +199,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AgeingCounter.h" />
+    <ClInclude Include="src\FIPLayer.h" />
     <ClInclude Include="src\GenericDisplay.h" />
     <ClInclude Include="src\FIPDevice.h" />
     <ClInclude Include="src\GenericScreen.h" />
