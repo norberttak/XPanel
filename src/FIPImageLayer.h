@@ -31,12 +31,12 @@ typedef struct {
 } BMPHeader;
 #pragma pack(pop)
 
-class RawBMP: public FIPLayer
+class FIPImageLayer: public FIPLayer
 {
 private:
 	BMPHeader bmp_header;
 public:
-	RawBMP();
-	~RawBMP();
+	FIPImageLayer();
+	~FIPImageLayer();
 	bool load_file(std::string file_name, int ref_x, int ref_y);
 };

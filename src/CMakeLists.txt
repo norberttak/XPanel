@@ -22,7 +22,7 @@ add_library(xpanel SHARED
     FIPScreen.cpp
     FIPLayer.cpp
     GenericScreen.cpp
-    RawBMP.cpp
+    FIPImageLayer.cpp
     TRC1000.cpp
     TRC1000PFD.cpp
     TRC1000Audio.cpp

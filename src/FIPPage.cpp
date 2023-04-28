@@ -45,7 +45,7 @@ void FIPPage::set_mask(int layer_index, MaskWindow& mask)
 
 int FIPPage::add_layer_from_bmp_file(std::string filename, int ref_x, int ref_y, int base_rot)
 {
-	RawBMP* new_layer = new RawBMP();
+	FIPImageLayer* new_layer = new FIPImageLayer();
 	new_layer->load_file(filename, ref_x, ref_y);
 	new_layer->set_pos_x(0);
 	new_layer->set_pos_y(0);

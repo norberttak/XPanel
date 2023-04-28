@@ -6,20 +6,20 @@
 #include <stdlib.h>
 #include <iostream>
 #include "Logger.h"
-#include "RawBMP.h"
+#include "FIPImageLayer.h"
 
-RawBMP::RawBMP()
+FIPImageLayer::FIPImageLayer()
 	:FIPLayer()
 {
 	
 }
 
-RawBMP::~RawBMP()
+FIPImageLayer::~FIPImageLayer()
 {
 	
 }
 
-bool RawBMP::load_file(std::string file_name, int _ref_x, int _ref_y)
+bool FIPImageLayer::load_file(std::string file_name, int _ref_x, int _ref_y)
 {
 	std::ifstream file(file_name, std::ios::binary);
 	file.seekg(0, std::ios::beg);

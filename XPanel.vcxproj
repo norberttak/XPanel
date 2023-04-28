@@ -165,6 +165,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\AgeingCounter.cpp" />
+    <ClCompile Include="src\FIPImageLayer.cpp" />
     <ClCompile Include="src\FIPLayer.cpp" />
     <ClCompile Include="src\GenericDisplay.cpp" />
     <ClCompile Include="src\FIPDevice.cpp" />
@@ -172,7 +173,6 @@
     <ClCompile Include="src\FIPDriver.cpp" />
     <ClCompile Include="src\FIPPage.cpp" />
     <ClCompile Include="src\FIPScreen.cpp" />
-    <ClCompile Include="src\RawBMP.cpp" />
     <ClCompile Include="src\SaitekRadioPanel.cpp" />
     <ClCompile Include="src\LuaHelper.cpp" />
     <ClCompile Include="src\MultiPurposeDisplay.cpp" />
@@ -199,6 +199,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AgeingCounter.h" />
+    <ClInclude Include="src\FIPImageLayer.h" />
     <ClInclude Include="src\FIPLayer.h" />
     <ClInclude Include="src\GenericDisplay.h" />
     <ClInclude Include="src\FIPDevice.h" />
@@ -206,7 +207,6 @@
     <ClInclude Include="src\FIPDriver.h" />
     <ClInclude Include="src\FIPPage.h" />
     <ClInclude Include="src\FIPScreen.h" />
-    <ClInclude Include="src\RawBMP.h" />
     <ClInclude Include="src\SaitekRadioPanel.h" />
     <ClInclude Include="src\LuaHelper.h" />
     <ClInclude Include="src\MessageWindow.h" />

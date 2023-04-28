@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "FIPLayer.h"
-#include "RawBMP.h"
+#include "FIPImageLayer.h"
 
 class FIPPage
 {
