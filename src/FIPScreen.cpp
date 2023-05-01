@@ -123,6 +123,25 @@ int FIPScreen::add_layer_to_page(int page_index, std::string bmp_file_name, int 
 	return layer_index;
 }
 
+int FIPScreen::add_text_layer_to_page(int page_index, std::string font_file_name, int base_rot)
+{
+	Logger(logTRACE) << "FIP screen: add text layer to page " << page_index << "font file name:" << font_file_name <<  std::endl;
+
+	if (!std::filesystem::exists(font_file_name))
+	{
+		Logger(logERROR) << "FIP Screen: font bmp file doesn't exist: " << font_file_name << std::endl;
+		return -1;
+	}
+	int layer_index = pages[page_index]->add_text_layer(font_file_name, base_rot);
+	Logger(logTRACE) << "FIP screen: new text layer index=" << layer_index << std::endl;
+	return layer_index;
+}
+
+void FIPScreen::set_text(int page_index, int layer_index, std::string text)
+{
+	pages[page_index]->set_text(layer_index, text);
+}
+
 void FIPScreen::set_mask(int page_index, int layer_index, MaskWindow& mask)
 {
 	pages[page_index]->set_mask(layer_index, mask);

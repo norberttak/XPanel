@@ -56,6 +56,25 @@ int FIPPage::add_layer_from_bmp_file(std::string filename, int ref_x, int ref_y,
 	return (int)layers.size() - 1;
 }
 
+int FIPPage::add_text_layer(std::string font_filename, int base_rot)
+{
+	FIPTextLayer* new_layer = new FIPTextLayer();
+	new_layer->load_bmp_font_file(font_filename);
+	new_layer->set_pos_x(0);
+	new_layer->set_pos_y(0);
+	new_layer->set_angle(0);
+	new_layer->set_base_rot(base_rot);
+
+	layers.push_back(new_layer);
+	return (int)layers.size() - 1;
+}
+
+void FIPPage::set_text(int layer_index, std::string text)
+{
+	FIPTextLayer* layer = (FIPTextLayer*)layers[layer_index];
+	layer->set_text(text);
+}
+
 void FIPPage::rotate_layer(int layer_index, int angle)
 {
 	layers[layer_index]->set_angle(angle);

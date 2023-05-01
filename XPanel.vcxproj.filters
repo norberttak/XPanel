@@ -28,6 +28,7 @@
     <ClCompile Include="src\AgeingCounter.cpp" />
     <ClCompile Include="src\FIPLayer.cpp" />
     <ClCompile Include="src\FIPImageLayer.cpp" />
+    <ClCompile Include="src\FIPTextLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GenericDisplay.h" />
@@ -56,6 +57,8 @@
     <ClInclude Include="src\AgeingCounter.h" />
     <ClInclude Include="src\FIPLayer.h" />
     <ClInclude Include="src\FIPImageLayer.h" />
+    <ClInclude Include="src\FIPTextLayer.h" />
+    <ClInclude Include="src\FIPFonts.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config\device-generic.ini" />

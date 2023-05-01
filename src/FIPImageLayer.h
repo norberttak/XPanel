@@ -31,12 +31,32 @@ typedef struct {
 } BMPHeader;
 #pragma pack(pop)
 
-class FIPImageLayer: public FIPLayer
-{
+class ImageBuffer {
 private:
 	BMPHeader bmp_header;
+	unsigned char* raw_buffer;
+public:
+	ImageBuffer();
+	void set_and_allocate_buffer(int _width, int _height);
+	virtual ~ImageBuffer();
+	int width;
+	int height;
+	bool load_from_bmp_file(std::string file_name);
+	//bool load_from_png_file(std::string file_name);
+	void set_pixel_at_pos(Pixel pixel, int row, int col);
+	void get_pixel_at_pos(Pixel* pixel, int row, int col);
+	unsigned char* get_raw_buffer();
+	void clear_raw_buffer();
+};
+
+class FIPImageLayer: public FIPLayer
+{
+protected:
+	ImageBuffer image_buffer;
 public:
 	FIPImageLayer();
-	~FIPImageLayer();
+	virtual ~FIPImageLayer();
 	bool load_file(std::string file_name, int ref_x, int ref_y);
+	virtual void get_pixel_at_pos(Pixel* pixel, int row, int col);
+	virtual unsigned char* get_raw_buffer();
 };

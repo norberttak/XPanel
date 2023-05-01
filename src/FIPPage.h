@@ -9,11 +9,12 @@
 
 #include "FIPLayer.h"
 #include "FIPImageLayer.h"
+#include "FIPTextLayer.h"
 
 class FIPPage
 {
 private:
-    std::vector<FIPLayer*> layers;
+    std::vector<FIPImageLayer*> layers;
     /* we use two page buffers. one for hold the rendered page and one as a
        temporary buffer used during the interpolation. After successful
        interpolation we swap the two buffer's pointer */
@@ -36,6 +37,8 @@ public:
     FIPPage(int _screen_width, int _screen_height, int _bit_per_pixel, std::string _page_name);
     ~FIPPage();
     int add_layer_from_bmp_file(std::string filename, int ref_x, int ref_y, int base_rot);
+    int add_text_layer(std::string font_filename, int base_rot);
+    void set_text(int layer_index, std::string text);
     void set_mask(int layer_index, MaskWindow& mask);
     void rotate_layer(int layer_index, int angle);
     void translate_layer_x(int layer_index, int offset_x);

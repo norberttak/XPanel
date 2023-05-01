@@ -21,6 +21,7 @@ add_library(xpanel SHARED
     FIPPage.cpp
     FIPScreen.cpp
     FIPLayer.cpp
+    FIPTextLayer.cpp
     GenericScreen.cpp
     FIPImageLayer.cpp
     TRC1000.cpp

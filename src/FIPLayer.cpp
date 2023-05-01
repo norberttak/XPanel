@@ -15,16 +15,17 @@ FIPLayer::FIPLayer()
 	pos_y = 0;
 	angle = 0;
 	base_rot = 0;
-	raw_buffer = NULL;
+//	raw_buffer = NULL;
 	mask.enabled = false;
 }
 
 FIPLayer::~FIPLayer()
 {
-	if (raw_buffer)
+/*	if (raw_buffer)
 		free(raw_buffer);
 
 	raw_buffer = NULL;
+	*/
 }
 
 void FIPLayer::set_mask(MaskWindow& _mask)
@@ -90,16 +91,4 @@ int FIPLayer::get_ref_x()
 int FIPLayer::get_ref_y()
 {
 	return ref_y;
-}
-
-void FIPLayer::get_pixel_at_pos(Pixel* pixel, int row, int col)
-{
-	pixel->r = raw_buffer[3 * (row * width + col)];
-	pixel->g = raw_buffer[3 * (row * width + col) + 1];
-	pixel->b = raw_buffer[3 * (row * width + col) + 2];
-}
-
-unsigned char* FIPLayer::get_raw_buffer()
-{
-	return raw_buffer;
 }

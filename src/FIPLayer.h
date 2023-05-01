@@ -54,7 +54,7 @@ struct MaskWindow {
 class FIPLayer
 {
 protected:
-	unsigned char* raw_buffer;
+//	unsigned char* raw_buffer;
 	int height;
 	int width;
 	int ref_x;
@@ -67,7 +67,7 @@ protected:
 public:
 	FIPLayer();
 	virtual ~FIPLayer();
-	virtual bool load_file(std::string file_name, int ref_x, int ref_y)=0;
+//	virtual bool load_file(std::string file_name, int ref_x, int ref_y)=0;
 	void set_mask(MaskWindow& mask);
 	MaskWindow& get_mask();
 	int get_width();
@@ -81,6 +81,4 @@ public:
 	void set_pos_x(int _pos_x);
 	void set_pos_y(int _pos_y);
 	void set_base_rot(int _base_rot);
-	void get_pixel_at_pos(Pixel* pixel, int row, int col);
-	unsigned char* get_raw_buffer();
 };
