@@ -48,3 +48,7 @@ function get_variometer()
     log_msg("TRACE","vario = "..tostring(vario))
     return vario
 end
+
+function fip_text_test()
+    return "Hello from Lua script"
+end
