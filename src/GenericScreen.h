@@ -15,6 +15,7 @@ typedef enum {
     SC_ROTATION,
     SC_TRANSLATION_X,
     SC_TRANSLATION_Y,
+    SC_SET_TEXT,
     SC_UNKNOWN
 } ScreenActionType;
 
@@ -27,6 +28,7 @@ public:
         layer_index = 0;
         scale_factor = 1;
         value_old = 0;
+        value_str_old = "";
         data_ref = NULL;
         data_ref_type = xplmType_Unknown;
         lua_str = "";
@@ -39,6 +41,7 @@ public:
         page_index = other.page_index;
         layer_index = other.layer_index;
         value_old = other.value_old;
+        value_str_old = other.value_str_old;
         scale_factor = other.scale_factor;
         data_ref = other.data_ref;
         data_ref_type = other.data_ref_type;
@@ -55,6 +58,7 @@ public:
     int layer_index;
 
     int value_old;
+    std::string value_str_old;
 
     double scale_factor;
 };
@@ -64,6 +68,7 @@ class GenericScreen
 protected:
     std::list<ScreenAction*> screen_action_queue;
     int read_data_ref_int(XPLMDataRef data_ref, XPLMDataTypeID data_ref_type);
+    std::string read_dataref_str(XPLMDataRef data_ref);
 public:
     GenericScreen();
     ~GenericScreen();

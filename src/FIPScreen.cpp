@@ -29,15 +29,31 @@ void FIPScreen::evaluate_and_store_screen_action()
 	for (auto &action : screen_action_queue)
 	{
 		int action_value = 0;
+		std::string action_value_str = "";
+
 		if (action->data_ref != NULL)
 		{
-			action_value = action->scale_factor * read_data_ref_int(action->data_ref, action->data_ref_type);
+			if (action->data_ref_type == xplmType_Data)
+				action_value_str = read_dataref_str(action->data_ref);
+			else 
+			{
+				action_value = action->scale_factor * read_data_ref_int(action->data_ref, action->data_ref_type);
+				if (action->type == SC_SET_TEXT)
+					action_value_str = std::to_string(action_value);
+			}
 		}
 		else if (action->lua_str != "")
 		{
-			double ret_value=0;
-			LuaHelper::get_instace()->do_string("return " + action->lua_str, ret_value);
-			action_value = (int)ret_value;
+			if (action->type == SC_SET_TEXT)
+			{
+				LuaHelper::get_instace()->do_string("return " + action->lua_str, action_value_str);
+			}
+			else
+			{
+				double ret_value = 0;
+				LuaHelper::get_instace()->do_string("return " + action->lua_str, ret_value);
+				action_value = (int)ret_value;
+			}
 		}
 		else if (action->constant_val != 0)
 		{
@@ -49,10 +65,11 @@ void FIPScreen::evaluate_and_store_screen_action()
 			//return;
 		}
 
-		if (action->scale_factor == 0 || abs(action->value_old - action_value) < (1/action->scale_factor))
+		if ((action->scale_factor == 0 || abs(action->value_old - action_value) < (1/action->scale_factor)) && (action->value_str_old == action_value_str))
 			continue;
 
 		action->value_old = action_value;
+		action->value_str_old = action_value_str;
 
 		//Logger(logTRACE) << "FIP screen: value changed (page " << action->page_index << " layer " << action->layer_index << "): " << action_value << std::endl;
 
@@ -66,6 +83,9 @@ void FIPScreen::evaluate_and_store_screen_action()
 			break;
 		case SC_TRANSLATION_Y:
 			translate_layer_y(action->page_index, action->layer_index, action_value);
+			break;
+		case SC_SET_TEXT:
+			set_text(action->page_index, action->layer_index, action_value_str);
 			break;
 		default:
 			Logger(logERROR) << "FIP screen: unknown action type" << std::endl;
