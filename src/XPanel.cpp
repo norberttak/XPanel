@@ -228,6 +228,8 @@ int init_and_start_xpanel_plugin(void)
 	config.aircraft_path = std::filesystem::absolute(init_path).remove_filename().string();
 	Logger(TLogLevel::logINFO) << "aircraft path: " << config.aircraft_path << std::endl;
 
+	std::filesystem::path plugin_path = get_plugin_path();
+	config.plugin_path = plugin_path.string();
 
 	Configparser p;
 	int result = p.parse_file(init_path.string(), config);
