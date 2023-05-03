@@ -447,24 +447,35 @@ int LuaHelper::do_flight_loop()
 
 int LuaHelper::do_string(std::string lua_str)
 {
-	double ret_value = 0;
-	return do_string(lua_str, ret_value);
-}
-
-int LuaHelper::do_string(std::string lua_str, double& ret_value)
-{
 	if (!lua_enabled)
 		return EXIT_FAILURE;
 
 	if (luaL_dostring(lua, lua_str.c_str()) != LUA_OK)
 	{
 		Logger(TLogLevel::logERROR) << "Lua error in: " << lua_str << std::endl;
-		Logger(TLogLevel::logERROR) << "Disable LUA module. fix error in lua script and reload the plugin"<< std::endl;
+		Logger(TLogLevel::logERROR) << "Disable LUA module. fix error in lua script and reload the plugin" << std::endl;
 		lua_enabled = false;
 		return EXIT_FAILURE;
 	}
 
-	ret_value = lua_tonumber(lua, -1);
+	return EXIT_SUCCESS;
+}
 
+int LuaHelper::do_string(std::string lua_str, double& ret_value)
+{
+	if (do_string(lua_str) == EXIT_FAILURE)
+		return EXIT_FAILURE;
+	
+	ret_value = lua_tonumber(lua, -1);
+	return EXIT_SUCCESS;
+}
+
+int LuaHelper::do_string(std::string lua_str, std::string& ret_value)
+{
+	if (do_string(lua_str) == EXIT_FAILURE)
+		return EXIT_FAILURE;
+
+	const char* buffer = lua_tostring(lua, -1);
+	ret_value = buffer;
 	return EXIT_SUCCESS;
 }
