@@ -15,6 +15,7 @@ private:
 	const std::string RE_FLOAT = "([+-]*[0-9\\.]+)";
 	const std::string RE_INT = "([+-]*[0-9]+)";
 	const std::string RE_REF = "([a-zA-Z0-9\\/_-]+)";
+	const std::string RE_TEXT = "(.+)";
 	const std::string RE_LUA = "(.+)";
 
 	const std::string DEVICE_TYPE_SAITEK_MULTI = "saitek_multi";
@@ -91,6 +92,11 @@ private:
 	const std::string TOKEN_FIP_SCREEN = "\\[screen:id=\"([a-zA-Z0-9_-]+)\"\\]";
 	const std::string TOKEN_FIP_PAGE  = "\\[page:id=\"([a-zA-Z0-9_-]+)\"\\]";	
 	const std::string TOKEN_FIP_LAYER = "\\[layer:image=\"([a-zA-Z0-9_\\-/\\.]+),ref_x:" + RE_INT + ",ref_y:" + RE_INT + ",base_rot=" + RE_INT + "\"\\]";
+	const std::string TOKEN_FIP_TEXT_LAYER = "\\[layer:type=\"text\"\\]";
+	const std::string TOKEN_FIP_TEXT_VALUE_CONST = "text=\"const:" + RE_TEXT + "\"";
+	const std::string TOKEN_FIP_TEXT_VALUE_DATAREF = "text=\"dataref:" + RE_REF + "\"";
+	const std::string TOKEN_FIP_TEXT_VALUE_LUA = "text=\"lua:" + RE_LUA + "\"";
+	const std::string TOKEN_FIP_LAYER_MASK = "mask=\"screen_x:" + RE_INT + ",screen_y:" + RE_INT + ",height:" + RE_INT + ",width:" + RE_INT + "\"";
 	const std::string TOKEN_FIP_OFFSET_CONST = "offset_([xy]+)=\"const:" + RE_INT + "\"";
 	const std::string TOKEN_FIP_OFFSET_DATAREF = "offset_([xy]+)=\"dataref:" + RE_REF + ",scale:" + RE_FLOAT + "\"";
 	const std::string TOKEN_FIP_OFFSET_LUA = "offset_([xy]+)=\"lua:" + RE_LUA + "\"";

@@ -7,7 +7,6 @@
     <ClCompile Include="src\FIPDriver.cpp" />
     <ClCompile Include="src\FIPPage.cpp" />
     <ClCompile Include="src\FIPScreen.cpp" />
-    <ClCompile Include="src\RawBMP.cpp" />
     <ClCompile Include="src\SaitekRadioPanel.cpp" />
     <ClCompile Include="src\LuaHelper.cpp" />
     <ClCompile Include="src\MultiPurposeDisplay.cpp" />
@@ -27,6 +26,9 @@
     <ClCompile Include="src\TRC1000PFD.cpp" />
     <ClCompile Include="src\TRC1000Audio.cpp" />
     <ClCompile Include="src\AgeingCounter.cpp" />
+    <ClCompile Include="src\FIPLayer.cpp" />
+    <ClCompile Include="src\FIPImageLayer.cpp" />
+    <ClCompile Include="src\FIPTextLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GenericDisplay.h" />
@@ -35,7 +37,6 @@
     <ClInclude Include="src\FIPDriver.h" />
     <ClInclude Include="src\FIPPage.h" />
     <ClInclude Include="src\FIPScreen.h" />
-    <ClInclude Include="src\RawBMP.h" />
     <ClInclude Include="src\SaitekRadioPanel.h" />
     <ClInclude Include="src\LuaHelper.h" />
     <ClInclude Include="src\MessageWindow.h" />
@@ -54,6 +55,10 @@
     <ClInclude Include="src\TRC1000.h" />
     <ClInclude Include="src\TRC1000Audio.h" />
     <ClInclude Include="src\AgeingCounter.h" />
+    <ClInclude Include="src\FIPLayer.h" />
+    <ClInclude Include="src\FIPImageLayer.h" />
+    <ClInclude Include="src\FIPTextLayer.h" />
+    <ClInclude Include="src\FIPFonts.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config\device-generic.ini" />

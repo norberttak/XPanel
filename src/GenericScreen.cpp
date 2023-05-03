@@ -46,3 +46,14 @@ int GenericScreen::read_data_ref_int(XPLMDataRef data_ref, XPLMDataTypeID data_r
 	}
 	return value_int;
 }
+
+std::string GenericScreen::read_dataref_str(XPLMDataRef data_ref)
+{
+	char str_buffer[32];
+	XPLMGetDatab(data_ref, str_buffer, 0, 32);
+
+	std::string result;
+	result = str_buffer;
+
+	return result;
+}

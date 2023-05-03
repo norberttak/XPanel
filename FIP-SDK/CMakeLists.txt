@@ -7,6 +7,7 @@ if (WIN32)
     )
 
     install(FILES lib/DirectOutput.dll DESTINATION ${PLUGIN_INSTALL_DIR})
+    install(FILES fonts/fip-fonts.bmp DESTINATION ${PLUGIN_INSTALL_DIR})
 else()
     # Linux/Mac versions are not yet avaliable
 endif()

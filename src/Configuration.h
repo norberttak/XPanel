@@ -29,6 +29,7 @@ public:
 	std::string aircraft_acf = "";
 	std::string script_file = "";
 	std::string aircraft_path = "";
+	std::string plugin_path = "";
 
 	std::vector<DeviceConfiguration> device_configs;
 };

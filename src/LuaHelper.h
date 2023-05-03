@@ -26,6 +26,7 @@ public:
 	int load_script_file(std::string file_name);
 	int do_flight_loop();
 	int do_string(std::string lua_str, double& ret_value);
+	int do_string(std::string lua_str, std::string& ret_value);
 	int do_string(std::string lua_str);
 	XPLMCommandRef get_commandref(std::string commandref_str);
 	XPLMDataRef get_dataref(std::string dataref_str);

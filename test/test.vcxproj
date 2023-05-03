@@ -109,7 +109,8 @@
     <PostBuildEvent>
       <Command>xcopy /y /d "$(SolutionDir)LUA\lua54.dll" "$(OutDir)" 
 xcopy /y /d "$(SolutionDir)config\board-config.ini" "$(OutDir)"
-xcopy /y /d /S /I "$(SolutionDir)test\fip-images\*" "$(OutDir)\fip-images" 
+xcopy /y /d /S /I "$(SolutionDir)test\fip-images\*" "$(OutDir)\fip-images"
+xcopy /y /d "$(SolutionDir)FIP-SDK\fonts\fip-fonts.bmp" "$(OutDir)" 
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -177,6 +178,7 @@ xcopy /y /d /S /I "$(SolutionDir)test\fip-images\*" "$(OutDir)\fip-images"
       <Command>xcopy /y /d "$(SolutionDir)LUA\lua54.dll" "$(OutDir)" 
 xcopy /y /d "$(SolutionDir)config\board-config.ini" "$(OutDir)"
 xcopy /y /d /S /I "$(SolutionDir)test\fip-images\*" "$(OutDir)\fip-images" 
+xcopy /y /d "$(SolutionDir)FIP-SDK\fonts\fip-fonts.bmp" "$(OutDir)" 
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -190,6 +192,9 @@ xcopy /y /d /S /I "$(SolutionDir)test\fip-images\*" "$(OutDir)\fip-images"
     <ClCompile Include="..\src\ConfigParser.cpp" />
     <ClCompile Include="..\src\Configuration.cpp" />
     <ClCompile Include="..\src\Device.cpp" />
+    <ClCompile Include="..\src\FIPImageLayer.cpp" />
+    <ClCompile Include="..\src\FIPLayer.cpp" />
+    <ClCompile Include="..\src\FIPTextLayer.cpp" />
     <ClCompile Include="..\src\GenericDisplay.cpp" />
     <ClCompile Include="..\src\Logger.cpp" />
     <ClCompile Include="..\src\LuaHelper.cpp" />
@@ -199,7 +204,6 @@ xcopy /y /d /S /I "$(SolutionDir)test\fip-images\*" "$(OutDir)\fip-images"
     <ClCompile Include="..\src\FIPPage.cpp" />
     <ClCompile Include="..\src\FIPScreen.cpp" />
     <ClCompile Include="..\src\GenericScreen.cpp" />
-    <ClCompile Include="..\src\RawBMP.cpp" />
     <ClCompile Include="..\src\SaitekMultiPanel.cpp" />
     <ClCompile Include="..\src\SaitekRadioPanel.cpp" />
     <ClCompile Include="..\src\TRC1000.cpp" />

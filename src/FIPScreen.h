@@ -28,8 +28,11 @@ public:
 	void add_page(std::string _debug_name, bool set_active);
 	int get_last_page_index();
 	int add_layer_to_page(int page_index, std::string bmp_file_name, int ref_x, int ref_y, int base_rot);
+	int add_text_layer_to_page(int page_index, std::string font_file_name, int base_rot);
 	int get_last_layer_index(int page_index);
 	std::string get_page_name(int page_index);
+	void set_text(int page_index, int layer_index, std::string text);
+    void set_mask(int page_index, int layer_index, MaskWindow& mask);
 	void rotate_layer(int page_index, int layer_index, int angle);
 	void translate_layer_x(int page_index, int layer_index, int offset_x);
 	void translate_layer_y(int page_index, int layer_index, int offset_y);

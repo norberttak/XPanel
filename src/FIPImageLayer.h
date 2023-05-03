@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include "FIPLayer.h"
 
 #pragma pack(push)
 #pragma pack(1)
@@ -30,40 +31,32 @@ typedef struct {
 } BMPHeader;
 #pragma pack(pop)
 
-typedef struct {
-	uint8_t r;
-	uint8_t g;
-	uint8_t b;
-} Pixel;
-
-class RawBMP
-{
+class ImageBuffer {
 private:
-	unsigned char* raw_buffer;
 	BMPHeader bmp_header;
-	int height;
-	int width;
-	int ref_x;
-	int ref_y;
-	int base_rot;
-	int pos_x;
-	int pos_y;
-	int angle;
+	unsigned char* raw_buffer;
 public:
-	RawBMP();
-	~RawBMP();
-	bool load_file(std::string file_name, int ref_x, int ref_y);
-	int get_width();
-	int get_height();
-	int get_pos_x();
-	int get_pos_y();
-	int get_angle();
-	int get_ref_x();
-	int get_ref_y();
-	void set_angle(int _angle);
-	void set_pos_x(int _pos_x);
-	void set_pos_y(int _pos_y);
-	void set_base_rot(int _base_rot);
+	ImageBuffer();
+	void set_and_allocate_buffer(int _width, int _height);
+	virtual ~ImageBuffer();
+	int width;
+	int height;
+	bool load_from_bmp_file(std::string file_name);
+	//bool load_from_png_file(std::string file_name);
+	void set_pixel_at_pos(Pixel pixel, int row, int col);
 	void get_pixel_at_pos(Pixel* pixel, int row, int col);
 	unsigned char* get_raw_buffer();
+	void clear_raw_buffer();
+};
+
+class FIPImageLayer: public FIPLayer
+{
+protected:
+	ImageBuffer image_buffer;
+public:
+	FIPImageLayer();
+	virtual ~FIPImageLayer();
+	bool load_file(std::string file_name, int ref_x, int ref_y);
+	virtual void get_pixel_at_pos(Pixel* pixel, int row, int col);
+	virtual unsigned char* get_raw_buffer();
 };

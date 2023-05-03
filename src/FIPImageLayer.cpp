@@ -5,31 +5,11 @@
  */
 #include <stdlib.h>
 #include <iostream>
+#include <cstring>
 #include "Logger.h"
-#include "RawBMP.h"
+#include "FIPImageLayer.h"
 
-RawBMP::RawBMP()
-{
-	width = 0;
-	height = 0;
-	ref_x = 0;
-	ref_y = 0;
-	pos_x = 0;
-	pos_y = 0;
-	angle = 0;
-	base_rot = 0;
-	raw_buffer = NULL;
-}
-
-RawBMP::~RawBMP()
-{
-	if (raw_buffer)
-		free(raw_buffer);
-
-	raw_buffer = NULL;
-}
-
-bool RawBMP::load_file(std::string file_name, int _ref_x, int _ref_y)
+bool ImageBuffer::load_from_bmp_file(std::string file_name)
 {
 	std::ifstream file(file_name, std::ios::binary);
 	file.seekg(0, std::ios::beg);
@@ -43,8 +23,6 @@ bool RawBMP::load_file(std::string file_name, int _ref_x, int _ref_y)
 	}
 	height = bmp_header.height_px;
 	width = bmp_header.width_px;
-	ref_x = _ref_x;
-	ref_y = _ref_y;
 
 	int bytes_per_pixel = bmp_header.bits_per_pixel / 8;
 	if (bytes_per_pixel != 3)
@@ -77,72 +55,95 @@ bool RawBMP::load_file(std::string file_name, int _ref_x, int _ref_y)
 	}
 
 	Logger(logTRACE) << file_name << " load BMP done. height=" << height << " width=" << width << std::endl;
-	return true;
 }
 
-int RawBMP::get_width()
+ImageBuffer::ImageBuffer()
 {
-	return width;
+	raw_buffer = NULL;
+	width = 0;
+	height = 0;
 }
 
-int RawBMP::get_height()
+void ImageBuffer::set_and_allocate_buffer(int _width, int _height)
 {
-	return height;
+	if (raw_buffer)
+		free(raw_buffer);
+
+	raw_buffer = (unsigned char*)calloc(_width * _height * 3, sizeof(unsigned char));
+	width = _width;
+	height = _height;
 }
 
-int RawBMP::get_pos_x()
-{
-	return pos_x;
-}
-
-int RawBMP::get_pos_y()
-{
-	return pos_y;
-}
-
-int RawBMP::get_angle()
-{
-	return angle;
-}
-
-void RawBMP::set_angle(int _angle)
-{
-	angle = _angle + base_rot;
-}
-
-void RawBMP::set_pos_x(int _pos_x)
-{
-	pos_x = _pos_x;
-}
-
-void RawBMP::set_pos_y(int _pos_y)
-{
-	pos_y = _pos_y;
-}
-
-void RawBMP::set_base_rot(int _base_rot)
-{
-	base_rot = _base_rot;
-}
-
-int RawBMP::get_ref_x()
-{
-	return ref_x;
-}
-
-int RawBMP::get_ref_y()
-{
-	return ref_y;
-}
-
-void RawBMP::get_pixel_at_pos(Pixel* pixel, int row, int col)
+void ImageBuffer::get_pixel_at_pos(Pixel* pixel, int row, int col)
 {
 	pixel->r = raw_buffer[3 * (row * width + col)];
 	pixel->g = raw_buffer[3 * (row * width + col) + 1];
 	pixel->b = raw_buffer[3 * (row * width + col) + 2];
 }
 
-unsigned char* RawBMP::get_raw_buffer()
+void ImageBuffer::set_pixel_at_pos(Pixel pixel, int row, int col)
+{
+	raw_buffer[3 * (row * width + col)] = pixel.r;
+	raw_buffer[3 * (row * width + col) + 1] = pixel.g;
+	raw_buffer[3 * (row * width + col) + 2] = pixel.b;
+}
+
+unsigned char* ImageBuffer::get_raw_buffer()
 {
 	return raw_buffer;
+}
+
+void ImageBuffer::clear_raw_buffer()
+{
+	if (!raw_buffer)
+		return;
+
+	memset(raw_buffer, 0, width * height * 3);
+}
+
+ImageBuffer::~ImageBuffer()
+{
+	if (raw_buffer)
+		free(raw_buffer);
+
+	raw_buffer = NULL;
+}
+
+
+
+FIPImageLayer::FIPImageLayer()
+	:FIPLayer()
+{
+	
+}
+
+FIPImageLayer::~FIPImageLayer()
+{
+	
+}
+
+void FIPImageLayer::get_pixel_at_pos(Pixel* pixel, int row, int col)
+{
+	image_buffer.get_pixel_at_pos(pixel, row, col);
+}
+
+bool FIPImageLayer::load_file(std::string file_name, int _ref_x, int _ref_y)
+{
+	if (!image_buffer.load_from_bmp_file(file_name))
+	{
+		Logger(TLogLevel::logERROR) << "FIPImageLayer: error to load bmp file " << file_name << std::endl;
+		return false;
+	}
+
+	ref_x = _ref_x;
+	ref_y = _ref_y;
+	height = image_buffer.height;
+	width = image_buffer.width;
+
+	return true;
+}
+
+unsigned char* FIPImageLayer::get_raw_buffer()
+{
+	return image_buffer.get_raw_buffer();
 }

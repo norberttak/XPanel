@@ -741,6 +741,99 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		}
 	}
 	
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_TEXT_LAYER)))
+	{
+		int page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
+		if (page_index >= 0)
+		{
+			std::filesystem::path fip_fonts_bmp = config.plugin_path;
+			fip_fonts_bmp /= "fip-fonts.bmp";
+
+			if (config.device_configs.back().fip_screens[section_id]->add_text_layer_to_page(page_index, fip_fonts_bmp.string(), 0) < 0)
+				return EXIT_FAILURE;
+			else
+				return EXIT_SUCCESS;
+		}
+		else
+		{
+			Logger(logERROR) << "Parser: invalid FIP page index" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_TEXT_VALUE_CONST)))
+	{
+		int page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
+		int layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(page_index);
+
+		if (page_index >= 0 && layer_index >= 0)
+		{
+			config.device_configs.back().fip_screens[section_id]->set_text(page_index, layer_index, m[1]);
+			Logger(logTRACE) << "Parser: set const text for page " << page_index << " / layer " << layer_index << m[1] << std::endl;
+			return EXIT_SUCCESS;
+		}
+		else
+		{
+			Logger(logERROR) << "Parser: invalid FIP page or layer index" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_TEXT_VALUE_DATAREF)))
+	{
+		ScreenAction* action = new ScreenAction();
+
+		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
+		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);
+
+		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+		if (dataRef == NULL)
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+			return EXIT_FAILURE;
+		}
+		action->data_ref = dataRef;
+		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
+		action->type = SC_SET_TEXT;
+
+		Logger(logTRACE) << "config parser: add FIP text set dataref: " << action->data_ref << std::endl;
+		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_TEXT_VALUE_LUA)))
+	{
+		ScreenAction* action = new ScreenAction();
+
+		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
+		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);
+		action->lua_str = m[1];
+		action->type = SC_SET_TEXT;
+
+		Logger(logTRACE) << "config parser: add FIP set text lua: " << action->lua_str << std::endl;
+		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
+		return EXIT_SUCCESS;
+	}
+
+	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_LAYER_MASK)))
+	{
+		int page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
+		int layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(page_index);
+
+		if (page_index >= 0 && layer_index >= 0)
+		{
+			MaskWindow mask(stoi(m[1]), stoi(m[2]), stoi(m[4]), stoi(m[3]));
+			config.device_configs.back().fip_screens[section_id]->set_mask(page_index, layer_index, mask);
+			Logger(logTRACE) << "Parser: set mask for page " << page_index << " / layer " << layer_index << std::endl;
+			return EXIT_SUCCESS;
+		}
+		else
+		{
+			Logger(logERROR) << "Parser: invalid FIP page or layer index" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+
 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_OFFSET_CONST)))
 	{
 		ScreenAction *action =new ScreenAction();

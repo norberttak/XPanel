@@ -29,15 +29,31 @@ void FIPScreen::evaluate_and_store_screen_action()
 	for (auto &action : screen_action_queue)
 	{
 		int action_value = 0;
+		std::string action_value_str = "";
+
 		if (action->data_ref != NULL)
 		{
-			action_value = action->scale_factor * read_data_ref_int(action->data_ref, action->data_ref_type);
+			if (action->data_ref_type == xplmType_Data)
+				action_value_str = read_dataref_str(action->data_ref);
+			else 
+			{
+				action_value = action->scale_factor * read_data_ref_int(action->data_ref, action->data_ref_type);
+				if (action->type == SC_SET_TEXT)
+					action_value_str = std::to_string(action_value);
+			}
 		}
 		else if (action->lua_str != "")
 		{
-			double ret_value=0;
-			LuaHelper::get_instace()->do_string("return " + action->lua_str, ret_value);
-			action_value = (int)ret_value;
+			if (action->type == SC_SET_TEXT)
+			{
+				LuaHelper::get_instace()->do_string("return " + action->lua_str, action_value_str);
+			}
+			else
+			{
+				double ret_value = 0;
+				LuaHelper::get_instace()->do_string("return " + action->lua_str, ret_value);
+				action_value = (int)ret_value;
+			}
 		}
 		else if (action->constant_val != 0)
 		{
@@ -49,10 +65,11 @@ void FIPScreen::evaluate_and_store_screen_action()
 			//return;
 		}
 
-		if (action->scale_factor == 0 || abs(action->value_old - action_value) < (1/action->scale_factor))
+		if ((action->scale_factor == 0 || abs(action->value_old - action_value) < (1/action->scale_factor)) && (action->value_str_old == action_value_str))
 			continue;
 
 		action->value_old = action_value;
+		action->value_str_old = action_value_str;
 
 		//Logger(logTRACE) << "FIP screen: value changed (page " << action->page_index << " layer " << action->layer_index << "): " << action_value << std::endl;
 
@@ -66,6 +83,9 @@ void FIPScreen::evaluate_and_store_screen_action()
 			break;
 		case SC_TRANSLATION_Y:
 			translate_layer_y(action->page_index, action->layer_index, action_value);
+			break;
+		case SC_SET_TEXT:
+			set_text(action->page_index, action->layer_index, action_value_str);
 			break;
 		default:
 			Logger(logERROR) << "FIP screen: unknown action type" << std::endl;
@@ -121,6 +141,30 @@ int FIPScreen::add_layer_to_page(int page_index, std::string bmp_file_name, int 
 	int layer_index = pages[page_index]->add_layer_from_bmp_file(bmp_file_name, ref_x, ref_y, base_rot);
 	Logger(logTRACE) << "FIP screen: new layer index=" << layer_index << std::endl;
 	return layer_index;
+}
+
+int FIPScreen::add_text_layer_to_page(int page_index, std::string font_file_name, int base_rot)
+{
+	Logger(logTRACE) << "FIP screen: add text layer to page " << page_index << "font file name:" << font_file_name <<  std::endl;
+
+	if (!std::filesystem::exists(font_file_name))
+	{
+		Logger(logERROR) << "FIP Screen: font bmp file doesn't exist: " << font_file_name << std::endl;
+		return -1;
+	}
+	int layer_index = pages[page_index]->add_text_layer(font_file_name, base_rot);
+	Logger(logTRACE) << "FIP screen: new text layer index=" << layer_index << std::endl;
+	return layer_index;
+}
+
+void FIPScreen::set_text(int page_index, int layer_index, std::string text)
+{
+	pages[page_index]->set_text(layer_index, text);
+}
+
+void FIPScreen::set_mask(int page_index, int layer_index, MaskWindow& mask)
+{
+	pages[page_index]->set_mask(layer_index, mask);
 }
 
 void FIPScreen::rotate_layer(int page_index, int layer_index, int angle)
