@@ -25,6 +25,7 @@ It can display 24-bit BMP data (without the header and padding parts)
 
 The current implementation uses the Saitek device driver which provides the low-level
 functions to set images on the screen and handle buttons/LEDs.
+
 ## How to install FIP device driver?
 ### Windows
 First of all, you need to install the Saitek/Logitech FIP device driver. 
@@ -91,6 +92,7 @@ The value for the translation is in pixel units. You can use three different sou
 The ref_x, ref_y point of your BMP file will be moved to the value of position defined by offest_x and offest_y respectively.
 
 If you define more than one offest_x only the last one will be used. The same is true for the offset_y as well.
+
 ### Rotate a layer
 The center of rotation is the ref_x and ref_y property defined in the layer declaration.
 The angle of rotation is defined in degree units (not radians). The positive rotation angle means clockwise rotation.
@@ -109,7 +111,43 @@ so in the configuration file you should define this:
 ```
 With the above config only those parts of the layer image will be displayed that are inside the defined mask window.
 
-## Create your own custom instrument displays
+### Text layers ###
+XPanel plugin can render ASCII text characters to the FIP screen. You can put text in any position on the screen. These texts are handled as text layers. All the functions that are available for the image layers, can be used to text layers as well (mask, translate, rotate).
+#### config options for a text layer ####
+You can create text layers in the config file using the type="text" definition. The displayed text is set by the text=... field. The text can be either a constant value a dataref (numeric or text type) or a return value of a lua function.
+
+```ini
+[layer:type="text"]
+offset_x="const:50"
+offset_y="const:40"
+rotation="const:45"
+mask="screen_x:0,screen_y:120,height:100,width:60"
+text="const:Hello XPlane"
+            
+[layer:type="text"]
+text="dataref:/sim/cockpit2/gauges/indicators/airspeed_kts_pilot"
+
+[layer:type="text"]
+text="lua:fip_text_test()"
+
+```
+
+## Generate new fonts for text layers##
+The plugin has been released with a simple font set (fip-fonts.bmp). If you'd like to generate a new font collection you can use [bmfont](http://www.angelcode.com/products/bmfont/) tool. 
+
+![[fip-fonts.bmp]]
+
+1. bmfont program creates a PNG image that needs to convert to a 24bit BMP
+format. You can do it with your favorite image editor.
+
+2. bmfont program also generates a .fnt file that holds the position and size of each characters in the image. I created a python script (convert.py) that converts this info into a C header file (fip-fonts.h) that will be used by the Xpanel plugin.
+```
+python3 convert.py
+```
+3. Once you created the new FipFonts.h copy it to the src folder and recompile
+the plugin. Put the fip-fonts.bmp file in the install folder of the plugin.
+
+## [Example] Create your own custom instrument displays
 In this example, we create a virtual ADF display. The ADF has a needle pointer and
 a background scale which can be rotated by the OBS knob. You can see this kind of instrument on many GA aircraft like C172-SP.
 
