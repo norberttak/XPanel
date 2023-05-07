@@ -1,0 +1,90 @@
+@page {
+  size: A4;
+  margin: 1.5cm;
+
+  @bottom-right-corner {
+      content: counter(page);
+      font-size: 10pt;
+      margin-bottom: 0.5cm;
+ }
+}
+
+body {
+  font-family: "Noto Sans", Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+  font-size: 11pt;
+}
+
+p {
+  text-align: justify;
+}
+
+table img {
+  max-width: 4cm;
+}
+
+a:link {
+  outline: none;
+  text-decoration: underline;
+  color: #000;
+  font-weight: bold;
+}
+
+pre {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: .90em;
+  background-color: #f5f5f5;
+  padding: 10px;
+  margin-left: .5cm;
+  white-space: pre-wrap;
+  display: block;
+  width: auto;
+  overflow: auto;
+  word-wrap: normal;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: .90em;
+  background-color: #f5f5f5;
+  padding: 10px;
+}
+
+pre > code {
+  display: block;
+  text-indent: 0;
+  white-space: inherit;
+}
+
+p code, li code {
+  padding: 4px;
+}
+
+pre.sourceCode{
+ color: initial;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+td, th {
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+blockquote{
+  color: #fff;
+  background-color: #777;
+  padding: 2mm;
+  border-radius: 4px;
+  border: 1px solid #000;
+}
+
+blockquote pre, blockquote code {
+  background-color: #555;
+}
+
+.pb {
+  page-break-before: always;
+}
