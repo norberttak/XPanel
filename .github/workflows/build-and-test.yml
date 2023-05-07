@@ -82,3 +82,19 @@ jobs:
         with:
           name: built-plugin-linux
           path: ${{ github.workspace }}/install/XPanel/64/*
+
+  docs:
+    name: Docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get update -qq && sudo apt-get install -y pandoc weasyprint fonts-noto fonts-liberation2
+      - uses: actions/checkout@v3
+      - name: Generate PDF
+        working-directory: ./doc
+        run: pandoc -f gfm -t pdf --pdf-engine weasyprint -c style.css -o documentation.pdf documentation.md
+      - name: Upload docs
+        uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: doc/documentation.pdf

@@ -323,7 +323,7 @@ Every button shall be defined as a new section and need to have a pre-defined id
 <tr><td >PLAY</td> <td ></td></tr>
 <tr><td >COPLT</td> <td ></td></tr>
 <tr><td >DISPBACKUP</td> <td ></td></tr>
-<tr><td >VOLSQ</td> <td ></td></tr>  
+<tr><td >VOLSQ</td> <td ></td></tr>
 </tbody>
 </table>
 
@@ -373,7 +373,7 @@ on_push="commandref:/sim/cmd/HDG:end"
 ```
 
 #### Dynamic speed feature for the dataref change actions {#DynamicSpeed}
-On a Saitek device, all the rotation knobs are simple bit-mapped buttons. Turning to one direction sets a bit while turning to the opposite direction turns another bit. From xpanel point of view, this is a simple button (more precisely two buttons). Anyhow it is very boring to rotate the knobs for a long time when you need to change the values on a wide range. To help this you can define speed factors for the action. 
+On a Saitek device, all the rotation knobs are simple bit-mapped buttons. Turning to one direction sets a bit while turning to the opposite direction turns another bit. From xpanel point of view, this is a simple button (more precisely two buttons). Anyhow it is very boring to rotate the knobs for a long time when you need to change the values on a wide range. To help this you can define speed factors for the action.
 It measures the average speed of rotation and based on that it will apply a multiplier for the dataref/commandref change.
 You can define two-speed values: mid and high. You can define such behavior for every  button/rotation encoder with this syntax:
 
@@ -541,7 +541,7 @@ line="dataref:sim/test/altimeter"
 </table>
 
 ## Encoders {#Encoders}
-The TRC-1000 devices have a 1-byte wide encoder. These type of encoders has two events you can use: `on_increment` and `on_decrement`. You can change a `dataref`, execute an XPlane command or call a Lua function. This is the same as for a simple button. 
+The TRC-1000 devices have a 1-byte wide encoder. These type of encoders has two events you can use: `on_increment` and `on_decrement`. You can change a `dataref`, execute an XPlane command or call a Lua function. This is the same as for a simple button.
 Similarly to the bitmapped rotation knobs, you can define a dynamic speed behavior for the encoders as well:
 ```ini
 [encoder:id="HDG"]
@@ -555,42 +555,42 @@ on_decrement="dataref:sim/cockpit/autopilot/heading_mag:-1:0:360"
 # Saitek Flight Information Panel (FIP) {#ChapterFIP}
 ## General description
 The Saitek FIP is a mini screen with 320x240 pixel resolution and a USB connection. The main purpose of the device is to display flight instruments (speed, altimeter, vario, HSI, CDI, etc.)
-The FIP device contains six push buttons with an LED backlight, two rotation knobs, and an up/down button to change the virtual pages. 
+The FIP device contains six push buttons with an LED backlight, two rotation knobs, and an up/down button to change the virtual pages.
 [See details here.](https://support.logi.com/hc/hu/articles/360025266434-Product-Gallery-Flight-Instrument-Panel)
 
 ![Markdown image](flight-sim-instrument-panel.png)
 
-The Xpanel plugin allows you to customize the screen content and connect it to the 
+The Xpanel plugin allows you to customize the screen content and connect it to the
 simulator's internal values. Of course, the button functions and the LED backlights are also
 configurable with the plugin.
 
 ## Saitek FIP device
 The FIP device connects to the PC via a USB bulk endpoint. It has support for virtual pages
 which means you can define many pages with different contents and the pages can be changed
-runtime by the up/down arrow buttons on the device. 
+runtime by the up/down arrow buttons on the device.
 
-The device can be identified and opened by the unique serial number of your device. This serial number is displayed on the screen as soon as you give power to the device. For example my test device serial number MZB05779E2. The unique serial number allows you to connect more than one FIP device at the same time. 
+The device can be identified and opened by the unique serial number of your device. This serial number is displayed on the screen as soon as you give power to the device. For example my test device serial number MZB05779E2. The unique serial number allows you to connect more than one FIP device at the same time.
 
-It can display 24-bit BMP data (without the header and padding parts) 
+It can display 24-bit BMP data (without the header and padding parts)
 
 The current implementation uses the Saitek device driver which provides the low-level
 functions to set images on the screen and handle buttons/LEDs.
 
 ## How to install FIP device driver?
 ### Windows
-First of all, you need to install the Saitek/Logitech FIP device driver. 
+First of all, you need to install the Saitek/Logitech FIP device driver.
 This can be downloaded from [this location](https://download01.logi.com/web/ftp/pub/techsupport/simulation/Flight_Instrument_Panel_x64_Drivers_8.0.150.0.exe)
 Please note: you need only the "Flight Instrument Panel Drivers" from the above location. The Logitech support page
-contains an "X Plane Plug-in". If you installed it previously please remove it because this will 
+contains an "X Plane Plug-in". If you installed it previously please remove it because this will
 conflict with the XPanel plugin.
 
 ### Linux/Mac
 Currently, Saitek/Logitech doesn't provide the device driver for Linux and Mac systems.
-Therefore it can't be used on that operating system. I'm looking for the replacement of 
+Therefore it can't be used on that operating system. I'm looking for the replacement of
 the device driver on these systems.
 
 ## Config options
-The Xpanel config options are created to reflect the SW design hierarchy. 
+The Xpanel config options are created to reflect the SW design hierarchy.
 At the top level, the FIP *device* is declared with its serial number.
 
 The device contain one *screen*, 6 push *buttons*, 2 *rotation knobs* and 6 *LEDs*.
@@ -601,7 +601,7 @@ instrument like a Speed meter, CDI, HSI, etc. You can select the actual page by 
 
 A virtual page is composed of multiple *layers*. Layers are BMP files with 24-bit color depth.
 
-Layers are put in the order of appearance in the config file. The first layer will be the 
+Layers are put in the order of appearance in the config file. The first layer will be the
 backmost while the last will be in the front. The black color pixels (RGB: 0,0,0) are used as
 transparent pixels, so those pixels won't overwrite layers behind them.
 
@@ -675,7 +675,7 @@ offset_y="const:40"
 rotation="const:45"
 mask="screen_x:0,screen_y:120,height:100,width:60"
 text="const:Hello XPlane"
-            
+
 [layer:type="text"]
 text="dataref:/sim/cockpit2/gauges/indicators/airspeed_kts_pilot"
 
@@ -685,7 +685,7 @@ text="lua:fip_text_test()"
 ```
 
 ## Generate new fonts for text layers##
-The plugin has been released with a simple font set (fip-fonts.bmp). If you'd like to generate a new font collection you can use [bmfont](http://www.angelcode.com/products/bmfont/) tool. 
+The plugin has been released with a simple font set (fip-fonts.bmp). If you'd like to generate a new font collection you can use [bmfont](http://www.angelcode.com/products/bmfont/) tool.
 
 ![[fip-fonts.bmp]]
 
@@ -724,13 +724,13 @@ The ring scale image can be found in test/fip-images/Adf_Kompass_Ring.bmp:
 The size of the BMP file is 240x240 pixels.
 
 As this ring scale can be rotated by the OBS knob,
-we select as a reference point the middle of the image (120,120). This will be the rotation 
+we select as a reference point the middle of the image (120,120). This will be the rotation
 center.
 We want to put the image in the top-right
 corner of the 320x240 size screen. This means we have to translate the image along the x-axis
-by 200 pixels (320-120=200). 
+by 200 pixels (320-120=200).
 
-The angle of rotation is connected to a dataref value of the simulator. If you turn the rotation OBS 
+The angle of rotation is connected to a dataref value of the simulator. If you turn the rotation OBS
 in the simulator, the dataref value will be updated. The plugin will read this value and rotate the image
 according to the actual value. The scale parameter means a proportional
 scale factor for the amount of rotation. The -1.0 in this example simply means an inverted direction.
@@ -935,4 +935,4 @@ end
 ```
 
 # Trouble shooting {#trouble-shooting}
-Xpanel plugin has log mechnism to put log messages into XPlane's main log. Every error detected by the plugin will be put into the main log file (c:\X-Plane12\log.txt in my setup). 
+Xpanel plugin has log mechnism to put log messages into XPlane's main log. Every error detected by the plugin will be put into the main log file (c:\X-Plane12\log.txt in my setup).
