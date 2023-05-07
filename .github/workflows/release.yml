@@ -58,6 +58,11 @@ jobs:
           cp FIP-SDK/fonts/fip-fonts.bmp built-plugin-windows/plugins/XPanel/64/
           cp FIP-SDK/fonts/fip-fonts.bmp built-plugin-linux/plugins/XPanel/64/
 
+      - name: Copy Doc PDF
+        run: |
+          cp doc/documentation.pdf built-plugin-windows/plugins/XPanel/64/
+          cp doc/documentation.pdf built-plugin-linux/plugins/XPanel/64/
+
       - name: Create release plugin zip (Windows)
         run: |
           cd built-plugin-windows
