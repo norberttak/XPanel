@@ -12,13 +12,14 @@ It has a configuration file where you can define the logical connections between
 
 Currently, it supports these types of USB-HID devices:
 
-| ![MultiPanel](multi-panel-01.jpg)      | [Saitek Multi Panel](https://www.saitek.com/uk/prod-bak/multi.html)                               | This is a device that mainly contains the buttons associated with the autopilot functions  |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| ![RadioPanel](radio-panel-01.jpg)      | [Saitek Radio Panel](https://www.saitek.com/uk/prod-bak/radio.html)                               | Device to control radio functions of your airplane                                         |
-| ![SwitchPanel](switch-panel-03.jpg)    | [Saitek Switch Panel](https://www.saitek.com/uk/prod-bak/switch.html)                             | Device with switches to control the electrical systems of your plane                       |
-| ![FIP](Flight-Instrument-Panel-01.jpg) | [Logitech/Saitek Flight Instrument Panel](https://www.saitek.com/uk/prod-bak/fip.html)            | Device with a graphical screen to display aircraft instruments (supported only on Windows) |
-| ![TRC100](trc1000.jpg)                 | [TRC-1000 PFD/MFD & Audio Panel](https://www.simkits.com/product/trc1000-complete-glass-cockpit/) | These devices are replica of Garmin G1000 cockpit panels                                   |
-| ![Custom USB HID devices](arduino-leonardo.jpg)| Custom USB HID Devices | You can use a custom USB HID device like Arduino Leonardo board |
+| Device                                          | URL                                                                                               | Description                                                                                |
+|-------------------------------------------------|---------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| ![MultiPanel](multi-panel-01.jpg)               | [Saitek Multi Panel](https://www.saitek.com/uk/prod-bak/multi.html)                               | This is a device that mainly contains the buttons associated with the autopilot functions  |
+| ![RadioPanel](radio-panel-01.jpg)               | [Saitek Radio Panel](https://www.saitek.com/uk/prod-bak/radio.html)                               | Device to control radio functions of your airplane                                         |
+| ![SwitchPanel](switch-panel-03.jpg)             | [Saitek Switch Panel](https://www.saitek.com/uk/prod-bak/switch.html)                             | Device with switches to control the electrical systems of your plane                       |
+| ![FIP](Flight-Instrument-Panel-01.jpg)          | [Logitech/Saitek Flight Instrument Panel](https://www.saitek.com/uk/prod-bak/fip.html)            | Device with a graphical screen to display aircraft instruments (supported only on Windows) |
+| ![TRC100](trc1000.jpg)                          | [TRC-1000 PFD/MFD & Audio Panel](https://www.simkits.com/product/trc1000-complete-glass-cockpit/) | These devices are replica of Garmin G1000 cockpit panels                                   |
+| ![Custom USB HID devices](arduino-leonardo.jpg) | Custom USB HID Devices                                                                            | You can use a custom USB HID device like Arduino Leonardo board                            |
 
 # Install
 ## Windows
