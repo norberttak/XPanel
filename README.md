@@ -6,7 +6,7 @@
   </picture>
 </p>
 
-**Detailed description and configuration options can be found [here](doc/documentation.md)** 
+**Detailed description and configuration options can be found [here](doc/documentation.md)**
 
 XPanel is a plugin for [X-Plane](https://www.x-plane.com/) >=11 flight simulator. If you have or plan to build a home cockpit then it is good to check this. It can connect your USB HID hardware devices to the X-Plane system.
 
@@ -14,13 +14,14 @@ It has a configuration file where you can define the logical connections between
 
 Currently, it supports these types of USB-HID devices:
 
-| ![MultiPanel](doc/multi-panel-01.jpg)      | [Saitek Multi Panel](https://www.saitek.com/uk/prod-bak/multi.html)                               | This is a device that mainly contains the buttons associated with the autopilot functions  |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| ![RadioPanel](doc/radio-panel-01.jpg)      | [Saitek Radio Panel](https://www.saitek.com/uk/prod-bak/radio.html)                               | Device to control radio functions of your airplane                                         |
-| ![SwitchPanel](doc/switch-panel-03.jpg)    | [Saitek Switch Panel](https://www.saitek.com/uk/prod-bak/switch.html)                             | Device with switches to control the electrical systems of your plane                       |
-| ![FIP](doc/Flight-Instrument-Panel-01.jpg) | [Logitech/Saitek Flight Instrument Panel](https://www.saitek.com/uk/prod-bak/fip.html)            | Device with a graphical screen to display aircraft instruments (supported only on Windows) |
-| ![TRC100](doc/trc1000.jpg)                 | [TRC-1000 PFD/MFD & Audio Panel](https://www.simkits.com/product/trc1000-complete-glass-cockpit/) | These devices are replica of Garmin G1000 cockpit panels                                   |
-| ![Custom USB HID devices](doc/arduino-leonardo.jpg)| Custom USB HID Devices | You can use a custom USB HID device like Arduino Leonardo board |
+| Device                                              | URL                                                                                               | Description                                                                                |
+|-----------------------------------------------------|---------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| ![MultiPanel](doc/multi-panel-01.jpg)               | [Saitek Multi Panel](https://www.saitek.com/uk/prod-bak/multi.html)                               | This is a device that mainly contains the buttons associated with the autopilot functions  |
+| ![RadioPanel](doc/radio-panel-01.jpg)               | [Saitek Radio Panel](https://www.saitek.com/uk/prod-bak/radio.html)                               | Device to control radio functions of your airplane                                         |
+| ![SwitchPanel](doc/switch-panel-03.jpg)             | [Saitek Switch Panel](https://www.saitek.com/uk/prod-bak/switch.html)                             | Device with switches to control the electrical systems of your plane                       |
+| ![FIP](doc/Flight-Instrument-Panel-01.jpg)          | [Logitech/Saitek Flight Instrument Panel](https://www.saitek.com/uk/prod-bak/fip.html)            | Device with a graphical screen to display aircraft instruments (supported only on Windows) |
+| ![TRC100](doc/trc1000.jpg)                          | [TRC-1000 PFD/MFD & Audio Panel](https://www.simkits.com/product/trc1000-complete-glass-cockpit/) | These devices are replica of Garmin G1000 cockpit panels                                   |
+| ![Custom USB HID devices](doc/arduino-leonardo.jpg) | Custom USB HID Devices                                                                            | You can use a custom USB HID device like Arduino Leonardo board                            |
 
 # Install
 ## Windows
