@@ -8,15 +8,63 @@
 #include <string>
 #include <vector>
 #include "Configuration.h"
+#include "IniFileParser.h"
 
 class Configparser
 {
 private:
-	const std::string RE_FLOAT = "([+-]*[0-9\\.]+)";
-	const std::string RE_INT = "([+-]*[0-9]+)";
-	const std::string RE_REF = "([a-zA-Z0-9\\/_-]+)";
-	const std::string RE_TEXT = "(.+)";
-	const std::string RE_LUA = "(.+)";
+	typedef int (Configparser::* f_handle_on_key_value)(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+
+	std::map<std::string, f_handle_on_key_value> process_functions;
+	std::vector<std::string> tokenize(std::string line);
+	void check_and_get_array_index(std::string& dataref, int& index);
+	int process_ini_section(IniFileSection& section, Configuration& config);
+
+	int process_fip_layer_section(IniFileSection& section, Configuration& config);
+
+	int handle_on_push_or_release(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_lit_or_unlit_or_blink(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_dynamic_speed(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_vid(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_pid(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_log_level(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_acf_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_script_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_line_add(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_set_bcd(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_encoder_inc_or_dec(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_fip_serial(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_fip_offset(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_fip_rotation(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_fip_mask(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_fip_text(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+
+
+	const std::string TOKEN_VID = "vid";
+	const std::string TOKEN_PID = "pid";
+	const std::string TOKEN_SERIAL = "serial";
+	const std::string TOKEN_SCRIPT = "script_file";
+	const std::string TOKEN_ACF = "aircraft_acf";
+	const std::string TOKEN_LOG_LEVEL = "log_level";
+
+	const std::string TOKEN_DYN_SPEED_MID = "dynamic_speed_mid";
+	const std::string TOKEN_DYN_SPEED_HIGH = "dynamic_speed_high";
+
+	const std::string TOKEN_SECTION_DEVICE = "device";
+	const std::string TOKEN_SECTION_BUTTON = "button";
+	const std::string TOKEN_SECTION_LIGHT = "light";
+	const std::string TOKEN_SECTION_ROT_ENCODER = "encoder";
+	const std::string TOKEN_SECTION_DISPLAY = "display";
+	const std::string TOKEN_SECTION_MULTI_DISPLAY = "multi_display";
+	const std::string TOKEN_SECTION_FIP_SCREEN = "screen";
+
+	const std::string TOKEN_FIP_PAGE = "page";
+	const std::string TOKEN_FIP_LAYER = "layer";
+	const std::string TOKEN_FIP_TEXT = "text";
+	const std::string TOKEN_FIP_MASK = "mask";
+	const std::string TOKEN_FIP_OFFSET_X = "offset_x";
+	const std::string TOKEN_FIP_OFFSET_Y = "offset_y";
+	const std::string TOKEN_FIP_ROTATION = "rotation";
 
 	const std::string DEVICE_TYPE_SAITEK_MULTI = "saitek_multi";
 	const std::string DEVICE_TYPE_SAITEK_RADIO = "saitek_radio";
@@ -26,92 +74,34 @@ private:
 	const std::string DEVICE_TYPE_TRC1000PFD = "trc1000_pfd";
 	const std::string DEVICE_TYPE_TRC1000AUDIO = "trc1000_audio";
 
-	const std::string TOKEN_DEVICE  = "\\[device:id=\"([a-zA-Z0-9_-]+)\"\\]";
-	const std::string TOKEN_VID		= "vid=\"(.+)\"";
-	const std::string TOKEN_PID		= "pid=\"(.+)\"";
-	const std::string TOKEN_SERIAL  = "serial=\"(.+)\"";
-	const std::string TOKEN_SCRIPT	= "script_file=\"(.+)\"";
-	const std::string TOKEN_ACF		= "aircraft_acf=\"(.+)\"";
+	const std::string TOKEN_DATAREF = "dataref";
+	const std::string TOKEN_COMMANDREF = "commandref";
+	const std::string TOKEN_LUA = "lua";
+	const std::string TOKEN_CONST = "const";
+	const std::string TOKEN_BCD = "bcd";
+	const std::string TOKEN_ON_SELECT = "on_select";
+	const std::string TOKEN_BEGIN = "begin";
+	const std::string TOKEN_END = "end";
+	const std::string TOKEN_ON_PUSH = "on_push";
+	const std::string TOKEN_ON_RELEASE = "on_release";
+	const std::string TOKEN_LIT = "trigger_lit";
+	const std::string TOKEN_UNLIT = "trigger_unlit";
+	const std::string TOKEN_BLINK = "trigger_blink";
+	const std::string TOKEN_DISPLAY_LINE = "line";
+	const std::string TOKEN_ENCODER_INC = "on_increment";
+	const std::string TOKEN_ENCODER_DEC = "on_decrement";
+	const std::string TOKEN_IMAGE = "image";
+	const std::string TOKEN_TEXT = "text";
+	const std::string TOKEN_TYPE = "type";
 
-	// Button
-	const std::string TOKEN_BUTTON = "\\[button:id=\"([a-zA-Z0-9_-]+)\"\\]";
-	const std::string TOKEN_DYN_SPEED = "dynamic_speed_([mid|high]+)=\"" + RE_FLOAT+ "tick\\/sec:"+ RE_INT + "x\"";
-
-	const std::string TOKEN_LOG_LEVEL = "log_level=\"(.+)\"";
-	const std::string TOKEN_BUTTON_PUSH_DATAREF = "on_push=\"dataref:"+RE_REF+":"+RE_INT+"\"";
-	const std::string TOKEN_BUTTON_PUSH_DATAREF_ARRAY = "on_push=\"dataref:"+RE_REF+"\\["+RE_INT+"\\]:"+RE_INT+"\"";
-	const std::string TOKEN_BUTTON_PUSH_COMMANDREF = "on_push=\"commandref:"+RE_REF+":([begin|end|once]*)\"";
-	const std::string TOKEN_BUTTON_PUSH_LUA = "on_push=\"lua:" + RE_LUA+"\"";
-
-	const std::string TOKEN_BUTTON_RELEASE_DATAREF = "on_release=\"dataref:"+RE_REF+":"+RE_INT+"\"";
-	const std::string TOKEN_BUTTON_RELEASE_DATAREF_ARRAY = "on_release=\"dataref:"+RE_REF+"\\["+RE_INT+"\\]:"+RE_INT+"\"";
-	const std::string TOKEN_BUTTON_RELEASE_COMMANDREF = "on_release=\"commandref:"+RE_REF+":([begin|end|once]*)\"";
-	const std::string TOKEN_BUTTON_RELEASE_LUA = "on_release=\"lua:" + RE_LUA + "\"";
-
-	const std::string TOKEN_BUTTON_PUSH_DATAREF_CHANGE = "on_push=\"dataref:"+RE_REF+":"+RE_FLOAT+":"+RE_FLOAT+":"+RE_FLOAT+"\"";
-	const std::string TOKEN_BUTTON_RELEASE_DATAREF_CHANGE = "on_release=\"dataref:"+RE_REF+":"+RE_FLOAT+":"+RE_FLOAT+":"+RE_FLOAT+"\"";
-
-	const std::string TOKEN_CONDITIONAL_PUSH_DATAREF_CHANGE = "on_push=\"on_select:([a-zA-Z0-9_-]+),dataref:" + RE_REF + ":" + RE_FLOAT + ":" + RE_FLOAT + ":" + RE_FLOAT + "\"";
-	const std::string TOKEN_CONDITIONAL_PUSH_COMMANDREF = "on_push=\"on_select:([a-zA-Z0-9_-]+),commandref:" + RE_REF + ":([begin|end|once]*)\"";
-	const std::string TOKEN_CONDITIONAL_PUSH_LUA = "on_push=\"on_select:([a-zA-Z0-9_-]+),lua:" + RE_LUA + "\"";
-	const std::string TOKEN_CONDITIONAL_RELEASE_DATAREF_CHANGE = "on_release=\"on_select:([a-zA-Z0-9_-]+),dataref:" + RE_REF + ":" + RE_FLOAT + ":" + RE_FLOAT + ":" + RE_FLOAT + "\"";
-	const std::string TOKEN_CONDITIONAL_RELEASE_COMMANDREF = "on_release=\"on_select:([a-zA-Z0-9_-]+),commandref:" + RE_REF + ":([begin|end|once]*)\"";
-	const std::string TOKEN_CONDITIONAL_RELEASE_LUA = "on_release=\"on_select:([a-zA-Z0-9_-]+),lua:" + RE_LUA + "\"";
-
-	// Button light
-	const std::string TOKEN_LIGHT = "\\[light:id=\"([a-zA-Z0-9_-]+)\"\\]";
-	const std::string TOKEN_TRIGGER_LIT = "trigger_lit=\"dataref:"+RE_REF+":"+RE_FLOAT+"\"";
-	const std::string TOKEN_TRIGGER_UNLIT = "trigger_unlit=\"dataref:"+RE_REF+":"+RE_FLOAT+"\"";
-	const std::string TOKEN_TRIGGER_LIT_LUA = "trigger_lit=\"lua:" + RE_LUA + ":" + RE_FLOAT + "\"";
-	const std::string TOKEN_TRIGGER_UNLIT_LUA = "trigger_unlit=\"lua:" + RE_LUA + ":" + RE_FLOAT + "\"";
-	const std::string TOKEN_TRIGGER_BLINK = "trigger_blink=\"dataref:"+RE_REF+":"+RE_FLOAT+"\"";
-
-	// Rotary Encoder
-	const std::string TOKEN_ROT_ENCODER = "\\[encoder:id=\"([a-zA-Z0-9_-]+)\"\\]";
-	const std::string TOKEN_ROT_ENCODER_ON_INC_COMMANDREF = "on_increment=\"commandref:" + RE_REF + ":([begin|end|once]*)\"";
-	const std::string TOKEN_ROT_ENCODER_ON_DEC_COMMANDREF = "on_decrement=\"commandref:" + RE_REF + ":([begin|end|once]*)\"";
-	const std::string TOKEN_ROT_ENCODER_ON_INC_DATAREF_CHANGE = "on_increment=\"dataref:" + RE_REF + ":" + RE_FLOAT + ":" + RE_FLOAT + ":" + RE_FLOAT + "\"";
-	const std::string TOKEN_ROT_ENCODER_ON_DEC_DATAREF_CHANGE = "on_decrement=\"dataref:" + RE_REF + ":" + RE_FLOAT + ":" + RE_FLOAT + ":" + RE_FLOAT + "\"";
-	const std::string TOKEN_ROT_ENCODER_ON_INC_LUA = "on_increment=\"lua:" + RE_LUA + "\"";
-	const std::string TOKEN_ROT_ENCODER_ON_DEC_LUA = "on_decrement=\"lua:" + RE_LUA + "\"";
-
-	// Generic display
-	const std::string TOKEN_DISPLAY = "\\[display:id=\"([a-zA-Z0-9_-]+)\",bcd=\"(yes|no)\"\\]";
-	const std::string TOKEN_DISPLAY_LINE = "line=\"dataref:" + RE_REF + "\"";
-	const std::string TOKEN_DISPLAY_LINE_ARRAY = "line=\"dataref:" + RE_REF + "\\[" + RE_INT + "\\]\"";
-	const std::string TOKEN_DISPLAY_LINE_CONST = "line=\"const:" + RE_FLOAT + "\"";
-	const std::string TOKEN_DISPLAY_LINE_LUA = "line=\"lua:" + RE_LUA + "\"";
-
-	// Multi function Display
-	const std::string TOKEN_MULTI_DISPLAY = "\\[multi_display:id=\"([a-zA-Z0-9_-]+)\"\\]";
-	const std::string TOKEN_MULTI_DISPLAY_LINE = "line=\"on_select:([a-zA-Z0-9_-]+),dataref:"+RE_REF+"\"";
-	const std::string TOKEN_MULTI_DISPLAY_LINE_CONST = "line=\"on_select:([a-zA-Z0-9_-]+),const:" + RE_FLOAT + "\"";
-	const std::string TOKEN_MULTI_DISPLAY_LINE_LUA = "line=\"on_select:([a-zA-Z0-9_-]+),lua:" + RE_LUA + "\"";
-
-	// FIP screen
-	const std::string TOKEN_FIP_SCREEN = "\\[screen:id=\"([a-zA-Z0-9_-]+)\"\\]";
-	const std::string TOKEN_FIP_PAGE  = "\\[page:id=\"([a-zA-Z0-9_-]+)\"\\]";	
-	const std::string TOKEN_FIP_LAYER = "\\[layer:image=\"([a-zA-Z0-9_\\-/\\.]+),ref_x:" + RE_INT + ",ref_y:" + RE_INT + ",base_rot=" + RE_INT + "\"\\]";
-	const std::string TOKEN_FIP_TEXT_LAYER = "\\[layer:type=\"text\"\\]";
-	const std::string TOKEN_FIP_TEXT_VALUE_CONST = "text=\"const:" + RE_TEXT + "\"";
-	const std::string TOKEN_FIP_TEXT_VALUE_DATAREF = "text=\"dataref:" + RE_REF + "\"";
-	const std::string TOKEN_FIP_TEXT_VALUE_LUA = "text=\"lua:" + RE_LUA + "\"";
-	const std::string TOKEN_FIP_LAYER_MASK = "mask=\"screen_x:" + RE_INT + ",screen_y:" + RE_INT + ",height:" + RE_INT + ",width:" + RE_INT + "\"";
-	const std::string TOKEN_FIP_OFFSET_CONST = "offset_([xy]+)=\"const:" + RE_INT + "\"";
-	const std::string TOKEN_FIP_OFFSET_DATAREF = "offset_([xy]+)=\"dataref:" + RE_REF + ",scale:" + RE_FLOAT + "\"";
-	const std::string TOKEN_FIP_OFFSET_LUA = "offset_([xy]+)=\"lua:" + RE_LUA + "\"";
-	const std::string TOKEN_FIP_ROTATION_CONST = "rotation=\"const:" + RE_INT + "\"";
-	const std::string TOKEN_FIP_ROTATION_DATAREF = "rotation=\"dataref:" + RE_REF + ",scale:" + RE_FLOAT + "\"";
-	const std::string TOKEN_FIP_ROTATION_LUA = "rotation=\"lua:" + RE_LUA + "\"";
-
-	std::string section_id = "";
 	std::string last_error_message = "";
-	float speed_mid=0;
-	int multi_mid=1;
-	float speed_high=0;
-	int multi_high=1;
-	int current_line_nr=0;
-	int parse_line(std::string line, Configuration& config);
+	std::string last_device_id = "";
+	float speed_mid = 0;
+	int multi_mid = 1;
+	float speed_high = 0;
+	int multi_high = 1;
 public:
+	Configparser();
+	~Configparser();
 	int parse_file(std::string file_name, Configuration& config);
 };

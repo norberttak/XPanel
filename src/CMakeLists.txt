@@ -2,6 +2,7 @@ add_library(xpanel SHARED
     Action.cpp
     AgeingCounter.cpp
     ArduinoHomeCockpit.cpp
+    IniFileParser.cpp
     ConfigParser.cpp
     Configuration.cpp
     Device.cpp
