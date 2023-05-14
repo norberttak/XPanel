@@ -31,6 +31,11 @@ void GenericDisplay::set_nr_bytes(int _nr_of_bytes)
 	nr_of_bytes = _nr_of_bytes;
 }
 
+void GenericDisplay::set_bcd(bool _use_bcd)
+{
+	use_bcd = _use_bcd;
+}
+
 void GenericDisplay::add_dataref(XPLMDataRef _data_ref)
 {
 	dataref_index = -1;
