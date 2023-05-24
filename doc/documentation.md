@@ -612,12 +612,12 @@ serial="YOUR_DEVICE_SERIAL"
 
     [screen:id="fip-screen"]
     [page:id="ADF"]
-        [layer:image="fip-images/Adf_Kompass_Ring.bmp,ref_x:120,ref_y:120,base_rot=0"]
+        [layer:image="fip-images/Adf_Kompass_Ring.bmp,ref_x:120,ref_y:120,base_rot:0"]
         offset_x="const:200"
         offset_y="const:120"
         rotation="dataref:sim/cockpit/radios/adf1_cardinal_dir,scale:-1"
 
-        [layer:image="fip-images/adf_needle.bmp,ref_x:90,ref_y:8,base_rot=-90"]
+        [layer:image="fip-images/adf_needle.bmp,ref_x:90,ref_y:8,base_rot:-90"]
         offset_x="const:200"
         offset_y="const:120"
         rotation="dataref:sim/cockpit2/radios/indicators/adf1_relative_bearing_deg,scale:1"
@@ -627,7 +627,21 @@ You can select the most convenient reference point which allows you to use to ei
 
 For your convenience, the layer can have a base rotation value. This means that even if the BMP file is created with a different
 orientation you can rotate it according to your purposes. Further rotation is allowed on the layer but the
-rotation angle=0 will be the position defined by the base_rot property.
+rotation angle:0 will be the position defined by the base_rot property.
+
+**Warning**
+Starting with **v1.8** there is a small change in the FIP layer definition: the base_rot value separator now (in accordance with every other options) is a ':' and not an '=' as in previous version. Please update your config files.
+
+Old format:
+```ini
+[layer:image="fip-images/Adf_Kompass_Ring.bmp,ref_x:120,ref_y:120,base_rot=0"]
+```
+
+New format:
+```ini
+[layer:image="fip-images/Adf_Kompass_Ring.bmp,ref_x:120,ref_y:120,base_rot:0"]
+```
+
 
 A layer can be moved in two different ways: translation and rotation.
 
@@ -658,7 +672,7 @@ You can define a mask for a layer. This means that only a part of the layer imag
 so in the configuration file, you should define this:
 ```ini
         [page:id="TEST_MASK"]
-            [layer:image="fip-images/bmp_test_big_image.bmp,ref_x:0,ref_y:157,base_rot=0"]
+            [layer:image="fip-images/bmp_test_big_image.bmp,ref_x:0,ref_y:157,base_rot:0"]
             mask="screen_x:0,screen_y:120,height:100,width:60"
 ```
 With the above config only those parts of the layer image will be displayed that are inside the defined mask window.
@@ -739,7 +753,7 @@ If you put for example -1.5 it will rotate x1.5 speed.
 
 ```ini
 [page:id="ADF"]
-    [layer:image="fip-images/Adf_Kompass_Ring.bmp,ref_x:120,ref_y:120,base_rot=0"]
+    [layer:image="fip-images/Adf_Kompass_Ring.bmp,ref_x:120,ref_y:120,base_rot:0"]
     offset_x="const:200"
     offset_y="const:120"
     rotation="dataref:sim/cockpit/radios/adf1_cardinal_dir,scale:-1"
@@ -759,7 +773,7 @@ we put the ring scale image previously.
 The rotation of the needle (on this default C172 aircraft) shall be connected to the adf1_relative_bearing_deg dataref
 
 ```ini
-    [layer:image="fip-images/adf_needle.bmp,ref_x:90,ref_y:8,base_rot=-90"]
+    [layer:image="fip-images/adf_needle.bmp,ref_x:90,ref_y:8,base_rot:-90"]
     offset_x="const:200"
     offset_y="const:120"
     rotation="dataref:sim/cockpit2/radios/indicators/adf1_relative_bearing_deg,scale:1"

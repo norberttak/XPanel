@@ -196,6 +196,7 @@ xcopy /y /d "$(SolutionDir)FIP-SDK\fonts\fip-fonts.bmp" "$(OutDir)"
     <ClCompile Include="..\src\FIPLayer.cpp" />
     <ClCompile Include="..\src\FIPTextLayer.cpp" />
     <ClCompile Include="..\src\GenericDisplay.cpp" />
+    <ClCompile Include="..\src\IniFileParser.cpp" />
     <ClCompile Include="..\src\Logger.cpp" />
     <ClCompile Include="..\src\LuaHelper.cpp" />
     <ClCompile Include="..\src\MessageWindow.cpp" />

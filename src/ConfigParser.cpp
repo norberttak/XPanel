@@ -10,10 +10,53 @@
 #include <filesystem>
 #include <regex>
 #include "ConfigParser.h"
+#include "IniFileParser.h"
 #include "Trigger.h"
 #include "MultiPurposeDisplay.h"
 #include "FIPScreen.h"
 #include "Logger.h"
+
+Configparser::Configparser()
+{
+	process_functions[TOKEN_ON_PUSH] = &Configparser::handle_on_push_or_release;
+	process_functions[TOKEN_ON_RELEASE] = &Configparser::handle_on_push_or_release;
+	process_functions[TOKEN_VID] = &Configparser::handle_on_vid;
+	process_functions[TOKEN_PID] = &Configparser::handle_on_pid;
+	process_functions[TOKEN_LOG_LEVEL] = &Configparser::handle_on_log_level;
+	process_functions[TOKEN_ACF] = &Configparser::handle_on_acf_file;
+	process_functions[TOKEN_SCRIPT] = &Configparser::handle_on_script_file;
+	process_functions[TOKEN_LIT] = &Configparser::handle_on_lit_or_unlit_or_blink;
+	process_functions[TOKEN_UNLIT] = &Configparser::handle_on_lit_or_unlit_or_blink;
+	process_functions[TOKEN_BLINK] = &Configparser::handle_on_lit_or_unlit_or_blink;
+	process_functions[TOKEN_DYN_SPEED_MID] = &Configparser::handle_on_dynamic_speed;
+	process_functions[TOKEN_DYN_SPEED_HIGH] = &Configparser::handle_on_dynamic_speed;
+	process_functions[TOKEN_DISPLAY_LINE] = &Configparser::handle_on_line_add;
+	process_functions[TOKEN_BCD] = &Configparser::handle_on_set_bcd;
+	process_functions[TOKEN_ENCODER_INC] = &Configparser::handle_on_encoder_inc_or_dec;
+	process_functions[TOKEN_ENCODER_DEC] = &Configparser::handle_on_encoder_inc_or_dec;
+	process_functions[TOKEN_SERIAL] = &Configparser::handle_on_fip_serial;
+	process_functions[TOKEN_FIP_OFFSET_X] = &Configparser::handle_on_fip_offset;
+	process_functions[TOKEN_FIP_OFFSET_Y] = &Configparser::handle_on_fip_offset;
+	process_functions[TOKEN_FIP_ROTATION] = &Configparser::handle_on_fip_rotation;
+	process_functions[TOKEN_FIP_MASK] = &Configparser::handle_on_fip_mask;
+	process_functions[TOKEN_FIP_TEXT] = &Configparser::handle_on_fip_text;
+}
+
+Configparser::~Configparser()
+{
+	process_functions.clear();
+}
+
+std::vector<std::string> Configparser::tokenize(std::string line)
+{
+	std::regex regex("[:|,]+");
+	std::sregex_token_iterator iter(line.begin(), line.end(), regex, -1);
+	std::sregex_token_iterator end;
+
+	std::vector<std::string> tokens(iter, end);
+
+	return tokens;
+}
 
 int Configparser::parse_file(std::string file_name, Configuration& config)
 {
@@ -25,771 +68,888 @@ int Configparser::parse_file(std::string file_name, Configuration& config)
 		return EXIT_FAILURE;
 	}
 
-	std::string line;
-	std::stringstream error_details;
-	current_line_nr = 0;
-	while (std::getline(input_file, line)) {
-		current_line_nr++;
-		if (parse_line(line, config) != EXIT_SUCCESS)
+	IniFileParser ini_parser;
+	ini_parser.parse(input_file, file_name);
+	input_file.close();
+
+	if (ini_parser.get_number_of_errors() > 0)
+		return EXIT_FAILURE;
+
+	IniFile ini_file = ini_parser.get_parsed_ini_file();
+
+	int error_count = 0;
+	for (auto& ini_section : ini_file.sections)
+	{
+		try {
+			if (process_ini_section(ini_section, config) != EXIT_SUCCESS)
+				error_count++;
+		}
+		catch (std::exception& e)
 		{
-			Logger(TLogLevel::logERROR) << "parser: error parse line (at line " << current_line_nr << "): " << line << std::endl;
-			input_file.close();
-			return EXIT_FAILURE;
+			error_count++;
+			Logger(TLogLevel::logERROR) << "parser: exception happend. section starts at " << ini_section.header.line << " line, e=" << e.what() << std::endl;
 		}
 	}
 
-	input_file.close();
-	return EXIT_SUCCESS;
+	return (error_count == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
-int Configparser::parse_line(std::string line, Configuration& config)
+int Configparser::process_ini_section(IniFileSection& section, Configuration& config)
 {
-	// comments are marked by semicolon (;)
-	size_t pos = line.find(';', 0);
-	if (pos != std::string::npos)
-		line.erase(line.find(';', 0), line.length() - pos);
-
-	// remove the leading and trailing whitespace
-	std::regex r("^\\s+");
-	line = std::regex_replace(line, r, "");
-	r = "\\s+$";
-	line = std::regex_replace(line, r, "");
-
-	if (line.size() == 0)
-		return EXIT_SUCCESS;
-
-	std::cmatch m;
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_DEVICE)))
+	if (section.header.name == TOKEN_SECTION_DEVICE)
 	{
-		section_id = m[1];
-
 		DeviceConfiguration* c = new DeviceConfiguration();
 		config.device_configs.push_back(*c);
 
-		if (section_id == DEVICE_TYPE_SAITEK_MULTI)
+		if (section.header.id == DEVICE_TYPE_SAITEK_MULTI)
 			config.device_configs.back().device_type = SAITEK_MULTI;
-		else if (section_id == DEVICE_TYPE_SAITEK_RADIO)
+		else if (section.header.id == DEVICE_TYPE_SAITEK_RADIO)
 			config.device_configs.back().device_type = SAITEK_RADIO;
-		else if (section_id == DEVICE_TYPE_SAITEK_SWITCH)
+		else if (section.header.id == DEVICE_TYPE_SAITEK_SWITCH)
 			config.device_configs.back().device_type = SAITEK_SWITCH;
-		else if (section_id == DEVICE_TYPE_ARDUINO_HOME_COCKPIT)
+		else if (section.header.id == DEVICE_TYPE_ARDUINO_HOME_COCKPIT)
 			config.device_configs.back().device_type = HOME_COCKPIT;
-		else if (section_id == DEVICE_TYPE_SAITEK_FIP_SCREEN)
+		else if (section.header.id == DEVICE_TYPE_SAITEK_FIP_SCREEN)
 			config.device_configs.back().device_type = LOGITECH_FIP;
-		else if (section_id == DEVICE_TYPE_TRC1000PFD)
+		else if (section.header.id == DEVICE_TYPE_TRC1000PFD)
 			config.device_configs.back().device_type = TRC1000_PFD;
-		else if (section_id == DEVICE_TYPE_TRC1000AUDIO)
+		else if (section.header.id == DEVICE_TYPE_TRC1000AUDIO)
 			config.device_configs.back().device_type = TRC1000_AUDIO;
 		else
 		{
-			Logger(TLogLevel::logERROR) << "parser: unknown device type (at line " << current_line_nr << "): " << line << std::endl;
+			last_device_id = "";
+			Logger(TLogLevel::logERROR) << "parser: unknown device type: " << section.header.name << std::endl;
 			return EXIT_FAILURE;
 		}
-		Logger(TLogLevel::logDEBUG) << "parser: new device detected: "<< section_id << std::endl;
-		return EXIT_SUCCESS;
+		last_device_id = section.header.id;
 	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_VID)))
+	else if (section.header.name == TOKEN_SECTION_BUTTON)
 	{
-		std::stringstream ss;
-		ss << std::hex << m[1];
-		ss >> config.device_configs.back().vid;
-		Logger(TLogLevel::logDEBUG) << "parser: vid=" << config.device_configs.back().vid << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_PID)))
-	{
-		std::stringstream ss;
-		ss << std::hex << m[1];
-		ss >> config.device_configs.back().pid;
-		Logger(TLogLevel::logDEBUG) << "parser: pid=" << config.device_configs.back().pid << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_SERIAL)))
-	{
-		std::stringstream ss;
-		ss << std::hex << m[1];
-		ss >> config.device_configs.back().serial_number;
-		Logger(TLogLevel::logDEBUG) << "parser: serial=" << config.device_configs.back().serial_number  << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_SCRIPT)))
-	{
-		if (section_id != "")
-			Logger(TLogLevel::logWARNING) << "Script shall be defined in the common part of the config file!" << std::endl;
-
-		config.script_file = m[1];
-		Logger(TLogLevel::logDEBUG) << "parser: script file=" << config.script_file << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ACF)))
-	{
-		if (section_id != "")
-			Logger(TLogLevel::logWARNING) << "ACF file shall be defined in the common part of the config file!" << std::endl;
-
-		config.aircraft_acf = m[1];
-		Logger(TLogLevel::logDEBUG) << "parser: ACF file=" << config.aircraft_acf << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_LOG_LEVEL)))
-	{
-		if (section_id != "")
-			Logger(TLogLevel::logWARNING) << "Log level shall be defined in the common part of the config file!" << std::endl;
-
-		TLogLevel level;
-		if (m[1] == "DEBUG")
-			level = TLogLevel::logDEBUG;
-		else if (m[1] == "INFO")
-			level = TLogLevel::logINFO;
-		else if (m[1] == "WARNING")
-			level = TLogLevel::logWARNING;
-		else if (m[1] == "ERROR")
-			level = TLogLevel::logERROR;
-		else if (m[1] == "TRACE")
-			level = TLogLevel::logTRACE;
-		else {
-			Logger(TLogLevel::logERROR) << "parser: unknown log level: " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-
-		Logger::set_log_level(level);
-		Logger(TLogLevel::logDEBUG) << "parser: log level set to " << level << std::endl;
-
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON)))
-	{
-		section_id = m[1];
-		Logger(TLogLevel::logDEBUG) << "parser: button detected " << section_id << std::endl;
 		multi_mid = 1; multi_high = 1;
 		speed_mid = 0; speed_high = 0;
-		return EXIT_SUCCESS;
+		Logger(TLogLevel::logDEBUG) << "parser: button detected " << section.header.id << std::endl;
+	}
+	else if (section.header.name == TOKEN_SECTION_LIGHT)
+	{
+		Logger(TLogLevel::logDEBUG) << "parser: light detected " << section.header.id << std::endl;
+	}
+	else if (section.header.name == TOKEN_SECTION_ROT_ENCODER)
+	{
+		multi_mid = 1; multi_high = 1;
+		speed_mid = 0; speed_high = 0;
+		Logger(TLogLevel::logDEBUG) << "parser: rotation encoder detected " << section.header.id << std::endl;
+	}
+	else if (section.header.name == TOKEN_SECTION_DISPLAY)
+	{
+		config.device_configs.back().generic_displays[section.header.id] = new GenericDisplay(false);
+		if (section.header.properties.count(TOKEN_BCD) > 0)
+			config.device_configs.back().generic_displays[section.header.id]->set_bcd(section.header.properties[TOKEN_BCD] == "yes" ? true : false);
+
+		Logger(TLogLevel::logDEBUG) << "parser: display detected " << section.header.id << std::endl;
+	}
+	else if (section.header.name == TOKEN_SECTION_MULTI_DISPLAY)
+	{
+		config.device_configs.back().multi_displays[section.header.id] = new MultiPurposeDisplay();
+		Logger(TLogLevel::logDEBUG) << "parser: multi display detected " << section.header.id << std::endl;
+	}
+	else if (section.header.name == TOKEN_SECTION_FIP_SCREEN)
+	{
+		FIPScreen* screen = new FIPScreen();
+		config.device_configs.back().fip_screens[last_device_id] = screen;
+		Logger(TLogLevel::logDEBUG) << "parser: fip screen added: " << section.header.id << std::endl;
+	}
+	else if (section.header.name == TOKEN_FIP_PAGE)
+	{
+		config.device_configs.back().fip_screens[last_device_id]->add_page(section.header.id, false);
+		Logger(TLogLevel::logDEBUG) << "parser: FIP page added " << section.header.id << std::endl;
+	}
+	else if (section.header.name == TOKEN_FIP_LAYER)
+	{
+		if (process_fip_layer_section(section, config) == EXIT_FAILURE)
+			return EXIT_FAILURE;
+	}
+	else if (section.header.name == "")
+	{
+		// This is the root section of the ini tree for the plugin level options (log_level, ...)
+		Logger(TLogLevel::logDEBUG) << "parser: common options detected" << std::endl;
+	}
+	else
+	{
+		Logger(TLogLevel::logERROR) << "parser: unknown section name: " << section.header.name << std::endl;
+		return EXIT_FAILURE;
 	}
 
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_DYN_SPEED)))
+
+	for (auto& key_value : section.key_value_pairs)
 	{
-		if (m[1] == "mid") {
-			speed_mid = stof(m[2]);
-			multi_mid = stoi(m[3]);
-		}
-		else 
+		if (process_functions.count(key_value.first) == 0)
 		{
-			speed_high = stof(m[2]);
-			multi_high = stoi(m[3]);
-		}		
+			Logger(logERROR) << "parser: unknown key value: " << key_value.first << std::endl;
+			return EXIT_FAILURE;
+		}
 
-		Logger(TLogLevel::logDEBUG) << "parser: dynamic speed config: " << m[1] << ":" << m[2] <<"x"<< m[3] << std::endl;
-		return EXIT_SUCCESS;
+		// call process function for the 'key':
+		if ((*this.*process_functions[key_value.first])(section.header, key_value.first, key_value.second, config) != EXIT_SUCCESS)
+		{
+			Logger(logERROR) << "parser: error while processing key: " << key_value.first << std::endl;
+			return EXIT_FAILURE;
+		}
+
+		Logger(TLogLevel::logDEBUG) << "parser: key/value processed: " << key_value.first << "-" << key_value.second << std::endl;
+	}
+	return EXIT_SUCCESS;
+}
+
+int Configparser::process_fip_layer_section(IniFileSection& section, Configuration& config)
+{
+	if (section.header.properties.count(TOKEN_IMAGE) > 0)
+	{
+		int page_index = config.device_configs.back().fip_screens[last_device_id]->get_last_page_index();
+		if (page_index < 0)
+		{
+			Logger(logERROR) << "Parser: invalid FIP page index. section starts at " << section.header.line << std::endl;
+			return EXIT_FAILURE;
+		}
+
+		std::vector<std::string> m = tokenize(section.header.properties[TOKEN_IMAGE]);
+
+		//fip-images/Adf_Kompass_Ring.bmp,ref_x:0,ref_y:0,base_rot:0
+		if (m.size() >= 7)
+		{
+			std::filesystem::path bmp_file_absolute_path = std::filesystem::path(config.aircraft_path);
+			bmp_file_absolute_path /= std::string(m[0]);
+
+			int ref_x, ref_y, base_rot;
+			for (int i = 1; i <= 6; i += 2)
+			{
+				if (m[i] == "ref_x")
+					ref_x = stoi(m[i + 1]);
+				else if (m[i] == "ref_y")
+					ref_y = stoi(m[i + 1]);
+				else if (m[i] == "base_rot")
+					base_rot = stoi(m[i + 1]);
+				else
+				{
+					Logger(TLogLevel::logERROR) << "parse: invalid fip layer property name: " << m[i] << std::endl;
+					return EXIT_FAILURE;
+				}
+			}
+
+			if (config.device_configs.back().fip_screens[last_device_id]->add_layer_to_page(page_index, bmp_file_absolute_path.string(), ref_x, ref_y, base_rot) < 0)
+				return EXIT_FAILURE;
+		}
+		else
+		{
+			Logger(logERROR) << "Parser: invalid image layer syntax. section starts at " << section.header.line << " " << section.header.properties[TOKEN_IMAGE] << std::endl;
+			return EXIT_FAILURE;
+		}
+		Logger(TLogLevel::logDEBUG) << "parser: FIP image layer added " << section.header.id << std::endl;
+	}
+	else if (section.header.properties.count(TOKEN_TYPE) > 0 && section.header.properties[TOKEN_TYPE] == TOKEN_TEXT)
+	{
+		int page_index = config.device_configs.back().fip_screens[last_device_id]->get_last_page_index();
+		if (page_index >= 0)
+		{
+			std::filesystem::path fip_fonts_bmp = config.plugin_path;
+			fip_fonts_bmp /= "fip-fonts.bmp";
+
+			if (config.device_configs.back().fip_screens[last_device_id]->add_text_layer_to_page(page_index, fip_fonts_bmp.string(), 0) < 0)
+				return EXIT_FAILURE;
+		}
+		else
+		{
+			Logger(logERROR) << "Parser: invalid FIP page index. section starts at " << section.header.line << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	else
+	{
+		Logger(logERROR) << "Parser: invalid layer syntax. section starts at " << section.header.line << std::endl;
+		return EXIT_FAILURE;
 	}
 
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_PUSH_DATAREF)))
+	return EXIT_SUCCESS;
+}
+
+int Configparser::handle_on_vid(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	std::stringstream ss;
+	ss << std::hex << value;
+	ss >> config.device_configs.back().vid;
+	Logger(TLogLevel::logDEBUG) << "parser: vid=" << config.device_configs.back().vid << std::endl;
+
+	return EXIT_SUCCESS;
+}
+
+int Configparser::handle_on_pid(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	std::stringstream ss;
+	ss << std::hex << value;
+	ss >> config.device_configs.back().pid;
+	Logger(TLogLevel::logDEBUG) << "parser: pid=" << config.device_configs.back().pid << std::endl;
+
+	return EXIT_SUCCESS;
+}
+
+int Configparser::handle_on_log_level(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	if (section_header.id != "")
+		Logger(TLogLevel::logWARNING) << "Log level shall be defined in the common part of the config file!" << std::endl;
+
+	TLogLevel level;
+	if (value == "DEBUG")
+		level = TLogLevel::logDEBUG;
+	else if (value == "INFO")
+		level = TLogLevel::logINFO;
+	else if (value == "WARNING")
+		level = TLogLevel::logWARNING;
+	else if (value == "PARSER_ERROR")
+		level = TLogLevel::logERROR;
+	else if (value == "TRACE")
+		level = TLogLevel::logTRACE;
+	else {
+		Logger(TLogLevel::logERROR) << "parser: unknown log level: " << value << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	Logger::set_log_level(level);
+	Logger(TLogLevel::logDEBUG) << "parser: log level set to " << level << std::endl;
+
+	return EXIT_SUCCESS;
+}
+
+int Configparser::handle_on_acf_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	if (section_header.id != "")
+		Logger(TLogLevel::logWARNING) << "ACF file shall be defined in the common part of the config file!" << std::endl;
+
+	config.aircraft_acf = value;
+	Logger(TLogLevel::logDEBUG) << "parser: ACF file=" << config.aircraft_acf << std::endl;
+
+	return EXIT_SUCCESS;
+}
+
+int Configparser::handle_on_script_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	if (section_header.id != "")
+		Logger(TLogLevel::logWARNING) << "Script shall be defined in the common part of the config file!" << std::endl;
+
+	config.script_file = value;
+	Logger(TLogLevel::logDEBUG) << "parser: script file=" << config.script_file << std::endl;
+	return EXIT_SUCCESS;
+}
+
+/* Find the array index [] in the string. If index found the index part will be removed
+   from teh string and the parsed index is set in the index variable.
+   If no index found index will be set to -1 
+*/
+void Configparser::check_and_get_array_index(std::string& dataref, int& index)
+{
+	std::cmatch m;
+	if (std::regex_match(dataref.c_str(), m, std::regex("(.+)\\[([0-9]+)\\]")))
 	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+		dataref = m[1];
+		index = atoi(m[2].str().c_str());
+	}
+	else
+	{
+		index = -1;
+	}
+}
+
+int Configparser::handle_on_push_or_release(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	Action* action;
+
+	std::vector<std::string> m = tokenize(value);
+
+	//on_push="on_select:SW_DOWN_COM1,dataref:sim/cockpit2/radios/actuators/com1_frequency_hz_833:-5:0:160000"
+	//on_push="on_select:SW_UP_ADF,lua:radio_transfer('ADF1')"
+	//on_push="commandref:sim/flight_controls/flaps_up:once"
+	//on_release="dataref:B742/AP_panel/AT_on_sw:0"
+	//on_push = "lua:button_AP('push')"
+	//on_push="dataref:/sim/data/data_array[0]:1"
+
+	if (m.size() < 2)
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid syntax (section starts at line: " << section_header.line << "): " << value << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	//save condition (on_select) for further use
+	std::string condition = "";
+	if (m[0] == TOKEN_ON_SELECT)
+	{
+		condition = m[1];
+		m.erase(m.begin(), m.begin() + 2);
+	}
+
+	if (m.size() < 2)
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid syntax (section starts at line: " << section_header.line << "): " << value << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	if (m[0] == TOKEN_DATAREF)
+	{
+		if (m.size() < 3)
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid syntax (section starts at line: " << section_header.line << "): " << value << std::endl;
+			return EXIT_FAILURE;
+		}
+
+		int index;
+		check_and_get_array_index(m[1], index);
+		XPLMDataRef dataRef = XPLMFindDataRef(m[1].c_str());
+
 		if (dataRef == NULL)
 		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+			Logger(TLogLevel::logERROR) << "parser: invalid data ref (section starts at line: " << section_header.line << "): " << value << std::endl;
 			return EXIT_FAILURE;
 		}
-		Action* push_action = new Action(dataRef, stoi(m[2]));
-		Logger(TLogLevel::logDEBUG) << "parser: button push dataref " << m[1].str() << std::endl;
-		config.device_configs.back().push_actions[section_id].push_back(push_action);
-		return EXIT_SUCCESS;
-	}
 
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_PUSH_DATAREF_ARRAY)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
-		if (dataRef == NULL)
+		if (m.size() >= 5)
 		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
+			// dataref change with (delta,min,max):
+			action = new Action(dataRef, stof(m[2]), stof(m[4]), stof(m[3]));
 		}
-		Action* push_action = new Action(dataRef, stoi(m[2]), stoi(m[3]));
-		Logger(TLogLevel::logDEBUG) << "parser: button push dataref array " << m[1].str() << std::endl;
-		config.device_configs.back().push_actions[section_id].push_back(push_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_PUSH_LUA)))
-	{
-		Action* push_action = new Action(m[1]);
-		Logger(TLogLevel::logDEBUG) << "parser: button push lua string " << m[1].str() << std::endl;
-		config.device_configs.back().push_actions[section_id].push_back(push_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_RELEASE_DATAREF)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
-		if (dataRef == NULL)
+		else
 		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		Action* release_action = new Action(dataRef, stoi(m[2]));
-		Logger(TLogLevel::logDEBUG) << "parser: button release dataref " << m[1].str() << std::endl;
-		config.device_configs.back().release_actions[section_id].push_back(release_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_RELEASE_DATAREF_ARRAY)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		Action* release_action = new Action(dataRef, stoi(m[2]), stoi(m[3]));
-		Logger(TLogLevel::logDEBUG) << "parser: button release dataref array " << m[1].str() << std::endl;
-		config.device_configs.back().release_actions[section_id].push_back(release_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_RELEASE_LUA)))
-	{
-		Action* release_action = new Action(m[1]);
-		Logger(TLogLevel::logDEBUG) << "parser: button release lua string " << m[1].str() << std::endl;
-		config.device_configs.back().release_actions[section_id].push_back(release_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_PUSH_DATAREF_CHANGE)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		Action* push_action = new Action(dataRef, stof(m[2]), stof(m[3]), stof(m[4]));
-		Logger(TLogLevel::logDEBUG) << "parser: button push dataref " << m[1].str() << std::endl;
-		push_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
-		config.device_configs.back().push_actions[section_id].push_back(push_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_RELEASE_DATAREF_CHANGE)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		Action* release_action = new Action(dataRef, stof(m[2]), stof(m[3]), stof(m[4]));
-		Logger(TLogLevel::logDEBUG) << "parser: button release dataref " << m[1].str() << std::endl;
-		release_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
-		config.device_configs.back().release_actions[section_id].push_back(release_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_CONDITIONAL_PUSH_DATAREF_CHANGE)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[2].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		Action* push_action = new Action(dataRef, stof(m[3]), stof(m[5]), stof(m[4]));
-		push_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
-		push_action->add_condition(m[1]);
-		config.device_configs.back().push_actions[section_id].push_back(push_action);
-		Logger(TLogLevel::logDEBUG) << "parser: button conditional push dataref. on:" << m[1].str() << " dataref:" << m[2].str() << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_CONDITIONAL_RELEASE_DATAREF_CHANGE)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[2].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		Action* release_action = new Action(dataRef, stof(m[3]), stof(m[5]), stof(m[4]));
-		release_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
-		release_action->add_condition(m[1]);
-		config.device_configs.back().release_actions[section_id].push_back(release_action);
-		Logger(TLogLevel::logDEBUG) << "parser: button conditional release dataref. on:" << m[1].str() << " dataref:" << m[2].str() << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_PUSH_COMMANDREF)))
-	{
-		XPLMCommandRef commandRef = XPLMFindCommand(m[1].str().c_str());
-		if (commandRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid command ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		CommandType command_type = CommandType::NONE;
-
-		if (m.size() >= 3)
-		{
-			if (m[2] == "begin")
-				command_type = CommandType::BEGIN;
-			else if (m[2] == "end")
-				command_type = CommandType::END;
+			if (index >= 0)
+				action = new Action(dataRef, index, stoi(m[2]));
 			else
-				command_type = CommandType::ONCE;
+				action = new Action(dataRef, stoi(m[2]));
 		}
 
-		Action* push_action = new Action(commandRef, command_type);
-		push_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
-		Logger(TLogLevel::logDEBUG) << "parser: button push command " << m[1].str() << std::endl;
-		config.device_configs.back().push_actions[section_id].push_back(push_action);
-		return EXIT_SUCCESS;
+		Logger(TLogLevel::logDEBUG) << "parser: button push/release dataref " << m[1] << std::endl;
 	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_BUTTON_RELEASE_COMMANDREF)))
+	else if (m[0] == TOKEN_COMMANDREF)
 	{
-		XPLMCommandRef commandRef = XPLMFindCommand(m[1].str().c_str());
+		XPLMCommandRef commandRef = XPLMFindCommand(m[1].c_str());
 		if (commandRef == NULL)
 		{
-			Logger(TLogLevel::logERROR) << "parser: invalid command ref (at line: " << current_line_nr << "): " << line << std::endl;
+			Logger(TLogLevel::logERROR) << "parser: invalid command ref (section starts at " << section_header.line << "): " << value << std::endl;
 			return EXIT_FAILURE;
 		}
 		CommandType command_type = CommandType::ONCE;
 
 		if (m.size() >= 3)
 		{
-			if (m[2] == "begin")
+			if (m[2] == TOKEN_BEGIN)
 				command_type = CommandType::BEGIN;
-			else if (m[2] == "end")
+			else if (m[2] == TOKEN_END)
 				command_type = CommandType::END;
 			else
 				command_type = CommandType::ONCE;
 		}
 
-		Action* release_action = new Action(commandRef, command_type);
-		release_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
-		Logger(TLogLevel::logDEBUG) << "parser: button release command " << m[1].str() << std::endl;
-		config.device_configs.back().release_actions[section_id].push_back(release_action);
-		return EXIT_SUCCESS;
+		action = new Action(commandRef, command_type);
+	}
+	else if (m[0] == TOKEN_LUA)
+	{
+		action = new Action(m[1]);
+		Logger(TLogLevel::logDEBUG) << "parser: button push/release lua string " << m[1] << std::endl;
+	}
+	else
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid action ref (section starts at " << section_header.line << "): " << value << std::endl;
+		return EXIT_FAILURE;
 	}
 
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_CONDITIONAL_PUSH_COMMANDREF)))
+	//if saved any condition before, we add it to the action
+	if (condition != "")
+		action->add_condition(condition);
+
+	action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
+
+	if (key == TOKEN_ON_PUSH)
+		config.device_configs.back().push_actions[section_header.id].push_back(action);
+	else if (key == TOKEN_ON_RELEASE)
+		config.device_configs.back().release_actions[section_header.id].push_back(action);
+	else
 	{
-		XPLMCommandRef commandRef = XPLMFindCommand(m[2].str().c_str());
-		if (commandRef == NULL)
+		Logger(TLogLevel::logERROR) << "parser: invalid key (section starts at line: " << section_header.line << "): " << key << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
+}
+
+int Configparser::handle_on_dynamic_speed(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	//dynamic_speed_mid="2tick/sec:2x"
+	//dynamic_speed_high = "6tick/sec:4x"
+
+	std::cmatch m;
+	if (std::regex_match(value.c_str(), m, std::regex("([+-]*[0-9\\.]+)tick\\/sec:([+-]*[0-9]+)x")))
+	{
+
+		if (key == TOKEN_DYN_SPEED_MID) {
+			speed_mid = stof(m[1]);
+			multi_mid = stoi(m[2]);
+		}
+		else
 		{
-			Logger(TLogLevel::logERROR) << "parser: invalid command ref (at line: " << current_line_nr << "): " << line << std::endl;
+			speed_high = stof(m[1]);
+			multi_high = stoi(m[2]);
+		}
+
+		Logger(TLogLevel::logDEBUG) << "parser: dynamic speed config: " << key << ":" << m[1] << "x" << m[2] << std::endl;
+		return EXIT_SUCCESS;
+	}
+	else
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid dynamic speed syntax: " << value << std::endl;
+		return EXIT_FAILURE;
+	}
+}
+
+int Configparser::handle_on_lit_or_unlit_or_blink(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	//trigger_unlit="dataref:sim/custom/lights/button/absu_zk:0"
+	//trigger_lit="lua:get_led_status():1"
+
+	TriggerType trigger_type;
+	if (key == TOKEN_LIT)
+		trigger_type = TriggerType::LIT;
+	else if (key == TOKEN_UNLIT)
+		trigger_type = TriggerType::UNLIT;
+	else if (key == TOKEN_BLINK)
+		trigger_type = TriggerType::BLINK;
+	else
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid key value: " << key << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	Trigger* trigger;
+
+	std::vector<std::string> m = tokenize(value);
+	if (m.size() < 3)
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid syntax (section starts at line: " << section_header.line << "): " << value << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	if (m[0] == TOKEN_DATAREF)
+	{
+		XPLMDataRef dataRef = XPLMFindDataRef(m[1].c_str());
+		if (dataRef == NULL)
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid data ref (section starts at line: " << section_header.line << "): " << value << std::endl;
 			return EXIT_FAILURE;
 		}
-		CommandType command_type = CommandType::NONE;
 
-		if (m.size() >= 4)
+		trigger = new Trigger(dataRef, stod(m[2]), trigger_type);
+		Logger(TLogLevel::logDEBUG) << "parser: light lit/unlit/blink dataref " << m[1] << std::endl;
+	}
+	else if (m[0] == TOKEN_LUA)
+	{
+		trigger = new Trigger(m[1], stod(m[2]), trigger_type);
+		Logger(TLogLevel::logDEBUG) << "parser: light lit/unlit/blink lua " << m[1] << std::endl;
+	}
+	else
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid action ref (section starts at line: " << section_header.line << "): " << value << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	config.device_configs.back().light_triggers[section_header.id].push_back(trigger);
+	return EXIT_SUCCESS;
+}
+
+int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	//line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L"
+	//line="dataref:sim/custom/gauges/compas/pkp_helper_course_L"
+	//line="dataref:sim/custom/gauges/compas/test[0] 
+	//line="const:1.5" 
+	//line="lua:test()"
+
+	std::vector<std::string> m = tokenize(value);
+
+	if (m.size() < 2)
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid syntax (section starts at line: " << section_header.line << "): " << value << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	std::string condition = "";
+	if (m[0] == TOKEN_ON_SELECT)
+	{
+		condition = m[1];
+		m.erase(m.begin(), m.begin() + 2);
+	}
+
+	if (m.size() < 2)
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid syntax (section starts at line: " << section_header.line << "): " << value << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	if (m[0] == TOKEN_DATAREF)
+	{
+		int index;
+		check_and_get_array_index(m[1], index);
+
+		XPLMDataRef dataRef = XPLMFindDataRef(m[1].c_str());
+		if (dataRef == NULL)
 		{
-			if (m[3] == "begin")
-				command_type = CommandType::BEGIN;
-			else if (m[3] == "end")
-				command_type = CommandType::END;
+			Logger(TLogLevel::logERROR) << "parser: invalid data ref (section starts at line: " << section_header.line << "): " << value << std::endl;
+			return EXIT_FAILURE;
+		}
+		if (section_header.name == TOKEN_SECTION_DISPLAY)
+		{
+			if (index >= 0)
+				config.device_configs.back().generic_displays[section_header.id]->add_dataref(dataRef,index);
 			else
-				command_type = CommandType::ONCE;
+				config.device_configs.back().generic_displays[section_header.id]->add_dataref(dataRef);
 		}
-
-		Action* push_action = new Action(commandRef, command_type);
-		push_action->add_condition(m[1]);
-		push_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
-		Logger(TLogLevel::logDEBUG) << "parser: button conditional (" << m[1] << ") push command " << m[2].str() << std::endl;
-		config.device_configs.back().push_actions[section_id].push_back(push_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_CONDITIONAL_PUSH_LUA)))
-	{
-		Action* push_action = new Action(m[2]);
-		push_action->add_condition(m[1]);
-		Logger(TLogLevel::logDEBUG) << "parser: button conditional (" << m[1] << ") push lua " << m[2].str() << std::endl;
-		config.device_configs.back().push_actions[section_id].push_back(push_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_CONDITIONAL_RELEASE_COMMANDREF)))
-	{
-		XPLMCommandRef commandRef = XPLMFindCommand(m[2].str().c_str());
-		if (commandRef == NULL)
+		else if (section_header.name == TOKEN_SECTION_MULTI_DISPLAY)
 		{
-			Logger(TLogLevel::logERROR) << "parser: invalid command ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		CommandType command_type = CommandType::NONE;
-
-		if (m.size() >= 4)
-		{
-			if (m[3] == "begin")
-				command_type = CommandType::BEGIN;
-			else if (m[3] == "end")
-				command_type = CommandType::END;
+			if (condition != "")
+				config.device_configs.back().multi_displays[section_header.id]->add_condition(condition, dataRef);
 			else
-				command_type = CommandType::ONCE;
+				config.device_configs.back().multi_displays[section_header.id]->add_dataref(dataRef);
 		}
-
-		Action* release_action = new Action(commandRef, command_type);
-		release_action->add_condition(m[1]);
-		release_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
-		Logger(TLogLevel::logDEBUG) << "parser: button conditional (" << m[1] << ") release command " << m[2].str() << std::endl;
-		config.device_configs.back().release_actions[section_id].push_back(release_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_CONDITIONAL_RELEASE_LUA)))
-	{
-		Action* release_action = new Action(m[2]);
-		release_action->add_condition(m[1]);		
-		Logger(TLogLevel::logDEBUG) << "parser: button conditional (" << m[1] << ") push release " << m[2].str() << std::endl;
-		config.device_configs.back().release_actions[section_id].push_back(release_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ROT_ENCODER)))
-	{
-		section_id = m[1];
-		Logger(TLogLevel::logDEBUG) << "parser: rotation encoder detected " << section_id << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ROT_ENCODER_ON_INC_COMMANDREF)))
-	{
-		XPLMCommandRef commandRef = XPLMFindCommand(m[1].str().c_str());
-		if (commandRef == NULL)
+		else
 		{
-			Logger(TLogLevel::logERROR) << "parser: invalid command ref (at line: " << current_line_nr << "): " << line << std::endl;
+			Logger(TLogLevel::logERROR) << "parser: invalid line for device type: " << section_header.name << std::endl;
 			return EXIT_FAILURE;
 		}
-		CommandType command_type = CommandType::NONE;
+
+		Logger(TLogLevel::logDEBUG) << "parser: generic display add line " << section_header.id << " " << m[1] << std::endl;
+		return EXIT_SUCCESS;
+	}
+	else if (m[0] == TOKEN_LUA)
+	{
+		if (section_header.name == TOKEN_SECTION_DISPLAY)
+		{
+			config.device_configs.back().generic_displays[section_header.id]->add_lua(m[1]);
+		}
+		else if (section_header.name == TOKEN_SECTION_MULTI_DISPLAY)
+		{
+			if (condition != "")
+				config.device_configs.back().multi_displays[section_header.id]->add_condition(condition, m[1]);
+			else
+				config.device_configs.back().multi_displays[section_header.id]->add_lua(m[1]);
+		}
+		else
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid line for device type: " << section_header.name << std::endl;
+			return EXIT_FAILURE;
+		}
+		Logger(TLogLevel::logDEBUG) << "parser: generic display add line " << section_header.id << " " << m[1] << std::endl;
+		return EXIT_SUCCESS;
+	}
+	else if (m[0] == TOKEN_CONST)
+	{
+		if (section_header.name == TOKEN_SECTION_DISPLAY)
+		{
+			config.device_configs.back().generic_displays[section_header.id]->add_const(stod(m[1]));
+		}
+		else if (section_header.name == TOKEN_SECTION_MULTI_DISPLAY)
+		{
+			if (condition != "")
+				config.device_configs.back().multi_displays[section_header.id]->add_condition(condition, stod(m[1]));
+			else
+				config.device_configs.back().multi_displays[section_header.id]->add_const(stod(m[1]));
+		}
+		else
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid line for device type: " << section_header.name << std::endl;
+			return EXIT_FAILURE;
+		}
+
+		Logger(TLogLevel::logDEBUG) << "parser: generic display add line " << section_header.id << " " << m[1] << std::endl;
+		return EXIT_SUCCESS;
+	}
+
+	return EXIT_FAILURE;
+}
+
+int Configparser::handle_on_set_bcd(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	if (section_header.name == TOKEN_SECTION_MULTI_DISPLAY)
+		config.device_configs.back().multi_displays[section_header.id]->set_bcd(value == "yes" ? true : false);
+	else if (section_header.name == TOKEN_SECTION_DISPLAY)
+		config.device_configs.back().generic_displays[section_header.id]->set_bcd(value == "yes" ? true : false);
+	else
+	{
+		Logger(TLogLevel::logERROR) << "parser: bcd option can be set for generic- or multidisplay items";
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
+}
+
+int Configparser::handle_on_encoder_inc_or_dec(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	//on_increment="commandref:sim/GPS/g1000n1_nav_inner_up:once"
+	//on_decrement = "commandref:sim/GPS/g1000n1_nav_inner_down:once"
+
+	if (section_header.name != TOKEN_SECTION_ROT_ENCODER)
+	{
+		Logger(TLogLevel::logERROR) << "parser: " << key << " is only valid for encoders" << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	std::vector<std::string> m = tokenize(value);
+
+	if (m.size() < 2)
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid syntax (section starts at line: " << section_header.line << "): " << value << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	std::string condition = "";
+	if (m[0] == TOKEN_ON_SELECT)
+	{
+		condition = m[1];
+		m.erase(m.begin(), m.begin() + 2);
+	}
+
+	if (m.size() < 2)
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid syntax (section starts at line: " << section_header.line << "): " << value << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	Action* action;
+
+	if (m[0] == TOKEN_COMMANDREF)
+	{
+		XPLMCommandRef commandRef = XPLMFindCommand(m[1].c_str());
+		if (commandRef == NULL)
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid command ref (section starts at line: " << section_header.line << "): " << value << std::endl;
+			return EXIT_FAILURE;
+		}
+		CommandType command_type = CommandType::ONCE;
 
 		if (m.size() >= 3)
 		{
-			if (m[2] == "begin")
+			if (m[2] == TOKEN_BEGIN)
 				command_type = CommandType::BEGIN;
-			else if (m[2] == "end")
+			else if (m[2] == TOKEN_END)
 				command_type = CommandType::END;
 			else
 				command_type = CommandType::ONCE;
 		}
 
-		Action* inc_action = new Action(commandRef, command_type);
-		Logger(TLogLevel::logDEBUG) << "parser: rot encoder inc command " << m[1].str() << std::endl;
-		inc_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
-		config.device_configs.back().encoder_inc_actions[section_id].push_back(inc_action);
-		return EXIT_SUCCESS;
+		action = new Action(commandRef, command_type);
+		Logger(TLogLevel::logDEBUG) << "parser: rot encoder inc/dec command " << m[1] << std::endl;
 	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ROT_ENCODER_ON_DEC_COMMANDREF)))
+	else if (m[0] == TOKEN_DATAREF)
 	{
-		XPLMCommandRef commandRef = XPLMFindCommand(m[1].str().c_str());
-		if (commandRef == NULL)
+		XPLMDataRef dataRef = XPLMFindDataRef(m[1].c_str());
+		if (dataRef == NULL)
 		{
-			Logger(TLogLevel::logERROR) << "parser: invalid command ref (at line: " << current_line_nr << "): " << line << std::endl;
+			Logger(TLogLevel::logERROR) << "parser: invalid data ref (section starts at line: " << section_header.line << "): " << value << std::endl;
 			return EXIT_FAILURE;
 		}
-		CommandType command_type = CommandType::NONE;
+		action = new Action(dataRef, stof(m[2]), stof(m[4]), stof(m[3]));
+		Logger(TLogLevel::logDEBUG) << "parser: encoder inc/dec dataref " << m[1] << std::endl;
 
+	}
+	else if (m[0] == TOKEN_LUA)
+	{
+		action = new Action(m[1]);
+		Logger(TLogLevel::logDEBUG) << "parser: rot encoder inc lua string " << m[1] << std::endl;
+	}
+	else
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid action ref (section starts at line: " << section_header.line << "): " << value << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
+
+	if (condition != "")
+		action->add_condition(condition);
+
+	if (key == TOKEN_ENCODER_INC)
+		config.device_configs.back().encoder_inc_actions[section_header.id].push_back(action);
+	else
+		config.device_configs.back().encoder_dec_actions[section_header.id].push_back(action);
+
+	return EXIT_SUCCESS;
+}
+
+int Configparser::handle_on_fip_serial(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	config.device_configs.back().serial_number = value;
+	Logger(TLogLevel::logDEBUG) << "parser: serial number: " << value << std::endl;
+	return EXIT_SUCCESS;
+}
+
+int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	//offset_x="const:80"
+	//offset_y = "dataref::sim/cockpit2/radios/actuators/com1_frequency_hz"
+
+	ScreenAction* action = new ScreenAction();
+	action->page_index = config.device_configs.back().fip_screens[last_device_id]->get_last_page_index();
+	action->layer_index = config.device_configs.back().fip_screens[last_device_id]->get_last_layer_index(action->page_index);
+
+	if (key == TOKEN_FIP_OFFSET_X)
+		action->type = SC_TRANSLATION_X;
+	else
+		action->type = SC_TRANSLATION_Y;
+
+
+	std::vector<std::string> m = tokenize(value);
+
+	if (m.size() < 2)
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid syntax (section starts at line: " << section_header.line << "): " << value << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	if (m[0] == TOKEN_CONST)
+	{
+		action->constant_val = stoi(m[1]);
+	}
+	else if (m[0] == TOKEN_DATAREF)
+	{
 		if (m.size() >= 3)
+			action->scale_factor = std::stod(m[2]);
+
+		XPLMDataRef dataRef = XPLMFindDataRef(m[1].c_str());
+		if (dataRef == NULL)
 		{
-			if (m[2] == "begin")
-				command_type = CommandType::BEGIN;
-			else if (m[2] == "end")
-				command_type = CommandType::END;
+			Logger(TLogLevel::logERROR) << "parser: invalid data ref (section starts at line: " << section_header.line << "): " << m[1] << std::endl;
+			return EXIT_FAILURE;
+		}
+		action->data_ref = dataRef;
+		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
+	}
+	else if (m[0] == TOKEN_LUA)
+	{
+		action->lua_str = m[1];
+	}
+	else
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid action ref (section starts at line: " << section_header.line << "): " << value << std::endl;
+		delete action;
+		return EXIT_FAILURE;
+	}
+
+	Logger(logTRACE) << "config parser: add FIP offset const: " << action->constant_val << std::endl;
+	config.device_configs.back().fip_screens[last_device_id]->add_screen_action(action);
+	return EXIT_SUCCESS;
+}
+
+int Configparser::handle_on_fip_rotation(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	ScreenAction* action = new ScreenAction();
+	action->page_index = config.device_configs.back().fip_screens[last_device_id]->get_last_page_index();
+	action->layer_index = config.device_configs.back().fip_screens[last_device_id]->get_last_layer_index(action->page_index);
+	action->type = SC_ROTATION;
+
+	std::vector<std::string> m = tokenize(value);
+
+	if (m[0] == TOKEN_CONST)
+	{
+		action->constant_val = stoi(m[1]);
+		Logger(logTRACE) << "config parser: add FIP rotation const: " << action->constant_val << std::endl;
+	}
+	else if (m[0] == TOKEN_DATAREF)
+	{
+		action->scale_factor = std::stod(m[3]);
+		XPLMDataRef dataRef = XPLMFindDataRef(m[1].c_str());
+		if (dataRef == NULL)
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid data ref (section starts at line: " << section_header.line << "): " << value << std::endl;
+			return EXIT_FAILURE;
+		}
+		action->data_ref = dataRef;
+		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
+	}
+	else if (m[0] == TOKEN_LUA)
+	{
+		action->lua_str = m[1];
+	}
+	else
+	{
+		Logger(TLogLevel::logERROR) << "parser: invalid action ref (section starts at line: " << section_header.line << "): " << value << std::endl;
+		delete action;
+		return EXIT_FAILURE;
+	}
+
+	config.device_configs.back().fip_screens[last_device_id]->add_screen_action(action);
+	return EXIT_SUCCESS;
+}
+
+int Configparser::handle_on_fip_mask(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	int page_index = config.device_configs.back().fip_screens[last_device_id]->get_last_page_index();
+	int layer_index = config.device_configs.back().fip_screens[last_device_id]->get_last_layer_index(page_index);
+
+	std::vector<std::string> m = tokenize(value);
+
+	if (m.size() >= 8 && page_index >= 0 && layer_index >= 0)
+	{
+		//"screen_x:0,screen_y:120,height:100,width:60"
+		int screen_x, screen_y, height, width;
+		for (int i = 0; i < 8; i += 2)
+		{
+			if (m[i] == "screen_x")
+				screen_x = stoi(m[1]);
+			else if (m[i] == "screen_y")
+				screen_y = stoi(m[i + 1]);
+			else if (m[i] == "height")
+				height = stoi(m[i + 1]);
+			else if (m[i] == "width")
+				width = stoi(m[i + 1]);
 			else
-				command_type = CommandType::ONCE;
-		}
-
-		Action* dec_action = new Action(commandRef, command_type);
-		dec_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
-		Logger(TLogLevel::logDEBUG) << "parser: rot encoder dec command " << m[1].str() << std::endl;
-		config.device_configs.back().encoder_dec_actions[section_id].push_back(dec_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ROT_ENCODER_ON_INC_DATAREF_CHANGE)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		Action* inc_action = new Action(dataRef, stof(m[2]), stof(m[4]), stof(m[3]));
-		Logger(TLogLevel::logDEBUG) << "parser: encoder inc dataref " << m[1].str() << std::endl;
-		inc_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
-		config.device_configs.back().encoder_inc_actions[section_id].push_back(inc_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ROT_ENCODER_ON_DEC_DATAREF_CHANGE)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		Action* dec_action = new Action(dataRef, stof(m[2]), stof(m[4]), stof(m[3]));
-		Logger(TLogLevel::logDEBUG) << "parser: encoder dec dataref " << m[1].str() << std::endl;
-		dec_action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
-		config.device_configs.back().encoder_dec_actions[section_id].push_back(dec_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ROT_ENCODER_ON_INC_LUA)))
-	{
-		Action* inc_action = new Action(m[1]);
-		Logger(TLogLevel::logDEBUG) << "parser: rot encoder inc lua string " << m[1].str() << std::endl;
-		config.device_configs.back().encoder_inc_actions[section_id].push_back(inc_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_ROT_ENCODER_ON_DEC_LUA)))
-	{
-		Action* dec_action = new Action(m[1]);
-		Logger(TLogLevel::logDEBUG) << "parser: rot encoder dec lua string " << m[1].str() << std::endl;
-		config.device_configs.back().encoder_inc_actions[section_id].push_back(dec_action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_LIGHT)))
-	{
-		section_id = m[1];
-		Logger(TLogLevel::logDEBUG) << "parser: light detected " << section_id << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_TRIGGER_LIT)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		Trigger* lit_trigger = new Trigger(dataRef, stoi(m[2]), TriggerType::LIT);
-		Logger(TLogLevel::logDEBUG) << "parser: light lit dataref " << m[1].str() << std::endl;
-		config.device_configs.back().light_triggers[section_id].push_back(lit_trigger);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_TRIGGER_UNLIT)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		Trigger* unlit_trigger = new Trigger(dataRef, stoi(m[2]), TriggerType::UNLIT);
-		Logger(TLogLevel::logDEBUG) << "parser: light unlit dataref " << m[1].str() << std::endl;
-		config.device_configs.back().light_triggers[section_id].push_back(unlit_trigger);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_TRIGGER_BLINK)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		Trigger* unlit_trigger = new Trigger(dataRef, stoi(m[2]), TriggerType::BLINK);
-		Logger(TLogLevel::logDEBUG) << "parser: light blink dataref " << m[1].str() << std::endl;
-		config.device_configs.back().light_triggers[section_id].push_back(unlit_trigger);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_TRIGGER_LIT_LUA)))
-	{
-		Trigger* lit_trigger = new Trigger(m[1], stoi(m[2]), TriggerType::LIT);
-		Logger(TLogLevel::logDEBUG) << "parser: light lit lua " << m[1].str() << std::endl;
-		config.device_configs.back().light_triggers[section_id].push_back(lit_trigger);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_TRIGGER_UNLIT_LUA)))
-	{
-		Trigger* unlit_trigger = new Trigger(m[1], stoi(m[2]), TriggerType::UNLIT);
-		Logger(TLogLevel::logDEBUG) << "parser: light unlit lua " << m[1].str() << std::endl;
-		config.device_configs.back().light_triggers[section_id].push_back(unlit_trigger);
-		return EXIT_SUCCESS;
-	}
-
-	// ---- Generic display ----
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_DISPLAY)))
-	{
-		section_id = m[1];
-		bool use_bcd = m[2].str() == "yes" ? true : false;
-
-		config.device_configs.back().generic_displays[section_id] = new GenericDisplay(use_bcd);
-		Logger(TLogLevel::logDEBUG) << "parser: generic display detected " << section_id << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_DISPLAY_LINE)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		config.device_configs.back().generic_displays[section_id]->add_dataref(dataRef);
-		Logger(TLogLevel::logDEBUG) << "parser: generic display add line " << section_id << " " << m[1] << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_DISPLAY_LINE_ARRAY)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		config.device_configs.back().generic_displays[section_id]->add_dataref(dataRef, stoi(m[2]));
-		Logger(TLogLevel::logDEBUG) << "parser: generic display add line " << section_id << " " << m[1] << "[" << m[2] << "]" << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_DISPLAY_LINE_CONST)))
-	{
-		double const_value = std::stod(m[1].str().c_str());
-		config.device_configs.back().generic_displays[section_id]->add_const(const_value);
-		Logger(TLogLevel::logDEBUG) << "parser: generic display add line " << section_id << " " << m[1] << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_DISPLAY_LINE_LUA)))
-	{
-		config.device_configs.back().generic_displays[section_id]->add_lua(m[1]);
-		Logger(TLogLevel::logDEBUG) << "parser: generic display add line " << section_id << " " << m[1] << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	// ---- Multi purpose display -----
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_MULTI_DISPLAY)))
-	{
-		section_id = m[1];
-		config.device_configs.back().multi_displays[section_id] = new MultiPurposeDisplay();
-		Logger(TLogLevel::logDEBUG) << "parser: multi display detected " << section_id << std::endl;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_MULTI_DISPLAY_LINE)))
-	{
-		XPLMDataRef dataRef = XPLMFindDataRef(m[2].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		config.device_configs.back().multi_displays[section_id]->add_condition(m[1], dataRef);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_MULTI_DISPLAY_LINE_CONST)))
-	{
-		double const_value = std::stod(m[2].str().c_str());
-		config.device_configs.back().multi_displays[section_id]->add_condition(m[1], const_value);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_MULTI_DISPLAY_LINE_LUA)))
-	{
-		config.device_configs.back().multi_displays[section_id]->add_condition(m[1], m[2]);
-		return EXIT_SUCCESS;
-	}
-	
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_SCREEN)))
-	{
-		FIPScreen* screen = new FIPScreen();
-		config.device_configs.back().fip_screens[section_id] = screen;
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_PAGE)))
-	{
-		config.device_configs.back().fip_screens[section_id]->add_page(m[1], false);
-		return EXIT_SUCCESS;
-	}
-
- 	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_LAYER)))
-	{
-		int page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
-		if (page_index >= 0)
-		{
-			std::filesystem::path bmp_file_absolute_path = std::filesystem::path(config.aircraft_path);
-			bmp_file_absolute_path /= std::string(m[1]);
-
-			if (config.device_configs.back().fip_screens[section_id]->add_layer_to_page(page_index, bmp_file_absolute_path.string(), stoi(m[2]), stoi(m[3]), stoi(m[4])) < 0)
+			{
+				Logger(logERROR) << "parser: invalid key name: " << m[i] << std::endl;
 				return EXIT_FAILURE;
-			else
-				return EXIT_SUCCESS;
+			}
 		}
-		else
-		{
-			Logger(logERROR) << "Parser: invalid FIP page index" << std::endl;
-			return EXIT_FAILURE;
-		}
+
+		MaskWindow mask(screen_x, screen_y, width, height);
+		config.device_configs.back().fip_screens[last_device_id]->set_mask(page_index, layer_index, mask);
+		Logger(logTRACE) << "Parser: set mask for page " << page_index << " / layer " << layer_index << std::endl;
 	}
-	
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_TEXT_LAYER)))
+	else
 	{
-		int page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
-		if (page_index >= 0)
-		{
-			std::filesystem::path fip_fonts_bmp = config.plugin_path;
-			fip_fonts_bmp /= "fip-fonts.bmp";
-
-			if (config.device_configs.back().fip_screens[section_id]->add_text_layer_to_page(page_index, fip_fonts_bmp.string(), 0) < 0)
-				return EXIT_FAILURE;
-			else
-				return EXIT_SUCCESS;
-		}
-		else
-		{
-			Logger(logERROR) << "Parser: invalid FIP page index" << std::endl;
-			return EXIT_FAILURE;
-		}
+		Logger(logERROR) << "Parser: invalid FIP page or layer index" << std::endl;
+		return EXIT_FAILURE;
 	}
 
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_TEXT_VALUE_CONST)))
+	return EXIT_SUCCESS;
+}
+
+int Configparser::handle_on_fip_text(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	int page_index = config.device_configs.back().fip_screens[last_device_id]->get_last_page_index();
+	int layer_index = config.device_configs.back().fip_screens[last_device_id]->get_last_layer_index(page_index);
+
+	if (page_index < 0 || layer_index < 0)
 	{
-		int page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
-		int layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(page_index);
-
-		if (page_index >= 0 && layer_index >= 0)
-		{
-			config.device_configs.back().fip_screens[section_id]->set_text(page_index, layer_index, m[1]);
-			Logger(logTRACE) << "Parser: set const text for page " << page_index << " / layer " << layer_index << m[1] << std::endl;
-			return EXIT_SUCCESS;
-		}
-		else
-		{
-			Logger(logERROR) << "Parser: invalid FIP page or layer index" << std::endl;
-			return EXIT_FAILURE;
-		}
+		Logger(logERROR) << "Parser: invalid FIP page or layer index. section starts at " << section_header.line << std::endl;
+		return EXIT_FAILURE;
 	}
 
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_TEXT_VALUE_DATAREF)))
+	std::vector<std::string> m = tokenize(value);
+
+	if (m[0] == TOKEN_CONST)
+	{
+		config.device_configs.back().fip_screens[last_device_id]->set_text(page_index, layer_index, m[1]);
+	}
+	else if (m[0] == TOKEN_DATAREF)
 	{
 		ScreenAction* action = new ScreenAction();
 
-		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
-		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);
+		action->page_index = page_index;
+		action->layer_index = layer_index;
 
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
+		XPLMDataRef dataRef = XPLMFindDataRef(m[1].c_str());
 		if (dataRef == NULL)
 		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
+			Logger(TLogLevel::logERROR) << "parser: invalid data ref (section starts at line: " << section_header.line << "): " << value << std::endl;
 			return EXIT_FAILURE;
 		}
 		action->data_ref = dataRef;
@@ -797,143 +957,25 @@ int Configparser::parse_line(std::string line, Configuration& config)
 		action->type = SC_SET_TEXT;
 
 		Logger(logTRACE) << "config parser: add FIP text set dataref: " << action->data_ref << std::endl;
-		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
-		return EXIT_SUCCESS;
+		config.device_configs.back().fip_screens[last_device_id]->add_screen_action(action);
 	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_TEXT_VALUE_LUA)))
+	else if (m[0] == TOKEN_LUA)
 	{
 		ScreenAction* action = new ScreenAction();
 
-		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
-		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);
+		action->page_index = page_index;
+		action->layer_index = layer_index;
 		action->lua_str = m[1];
 		action->type = SC_SET_TEXT;
 
 		Logger(logTRACE) << "config parser: add FIP set text lua: " << action->lua_str << std::endl;
-		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
-		return EXIT_SUCCESS;
+		config.device_configs.back().fip_screens[last_device_id]->add_screen_action(action);
 	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_LAYER_MASK)))
+	else
 	{
-		int page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
-		int layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(page_index);
-
-		if (page_index >= 0 && layer_index >= 0)
-		{
-			MaskWindow mask(stoi(m[1]), stoi(m[2]), stoi(m[4]), stoi(m[3]));
-			config.device_configs.back().fip_screens[section_id]->set_mask(page_index, layer_index, mask);
-			Logger(logTRACE) << "Parser: set mask for page " << page_index << " / layer " << layer_index << std::endl;
-			return EXIT_SUCCESS;
-		}
-		else
-		{
-			Logger(logERROR) << "Parser: invalid FIP page or layer index" << std::endl;
-			return EXIT_FAILURE;
-		}
+		Logger(TLogLevel::logERROR) << "parser: invalid action ref (section starts at line: " << section_header.line << "): " << value << std::endl;
+		return EXIT_FAILURE;
 	}
 
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_OFFSET_CONST)))
-	{
-		ScreenAction *action =new ScreenAction();
-		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
-		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);
-		action->constant_val = stoi(m[2]);
-		action->type = m[1] == "x" ? SC_TRANSLATION_X : SC_TRANSLATION_Y;
-
-		Logger(logTRACE) << "config parser: add FIP offset const: " << action->constant_val << std::endl;
-		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
-		return EXIT_SUCCESS;
-	}
-	
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_OFFSET_DATAREF)))
-	{
-		ScreenAction* action = new ScreenAction();
-
-		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
-		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);		
-		action->scale_factor = std::stod(m[3].str().c_str());
-
-		XPLMDataRef dataRef = XPLMFindDataRef(m[2].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		action->data_ref = dataRef;
-		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
-		action->type = m[1] == "x" ? SC_TRANSLATION_X : SC_TRANSLATION_Y;
-		
-		Logger(logTRACE) << "config parser: add FIP offset dataref: " << action->data_ref << std::endl;
-		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_OFFSET_LUA)))
-	{
-		ScreenAction* action = new ScreenAction();
-
-		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
-		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);
-		action->lua_str = m[2];
-		action->type = m[1] == "x" ? SC_TRANSLATION_X : SC_TRANSLATION_Y;
-
-		Logger(logTRACE) << "config parser: add FIP offset lua: " << action->lua_str << std::endl;
-		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
-		return EXIT_SUCCESS;
-	}
-	
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_ROTATION_CONST)))
-	{
-		ScreenAction* action = new ScreenAction();
-
-		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
-		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);
-		action->constant_val = stoi(m[1]);
-		action->type = SC_ROTATION;
-
-		Logger(logTRACE) << "config parser: add FIP rotation const: " << action->constant_val << std::endl;
-		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
-		return EXIT_SUCCESS;
-	}
-	
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_ROTATION_DATAREF)))
-	{
-		ScreenAction* action = new ScreenAction();
-
-		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
-		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);
-		action->scale_factor = std::stod(m[2].str().c_str());
-		XPLMDataRef dataRef = XPLMFindDataRef(m[1].str().c_str());
-		if (dataRef == NULL)
-		{
-			Logger(TLogLevel::logERROR) << "parser: invalid data ref (at line: " << current_line_nr << "): " << line << std::endl;
-			return EXIT_FAILURE;
-		}
-		action->data_ref = dataRef;
-		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
-		action->type = SC_ROTATION;
-
-		Logger(logTRACE) << "config parser: add FIP rotation dataref: " << action->data_ref << std::endl;
-		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
-		return EXIT_SUCCESS;
-	}
-
-	if (std::regex_match(line.c_str(), m, std::regex(TOKEN_FIP_ROTATION_LUA)))
-	{
-		ScreenAction* action = new ScreenAction();
-
-		action->page_index = config.device_configs.back().fip_screens[section_id]->get_last_page_index();
-		action->layer_index = config.device_configs.back().fip_screens[section_id]->get_last_layer_index(action->page_index);
-		action->lua_str = m[1];
-		action->type = SC_ROTATION;
-
-		Logger(logTRACE) << "config parser: add FIP rotation lua: " << action->lua_str << std::endl;
-		config.device_configs.back().fip_screens[section_id]->add_screen_action(action);
-		return EXIT_SUCCESS;
-	}
-
-	Logger(TLogLevel::logERROR) << "parser: unknown error (at line: " << current_line_nr << "): " << line << std::endl;
-	return EXIT_FAILURE;
+	return EXIT_SUCCESS;
 }

@@ -29,6 +29,7 @@
     <ClCompile Include="src\FIPLayer.cpp" />
     <ClCompile Include="src\FIPImageLayer.cpp" />
     <ClCompile Include="src\FIPTextLayer.cpp" />
+    <ClCompile Include="src\IniFileParser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GenericDisplay.h" />
@@ -59,6 +60,7 @@
     <ClInclude Include="src\FIPImageLayer.h" />
     <ClInclude Include="src\FIPTextLayer.h" />
     <ClInclude Include="src\FIPFonts.h" />
+    <ClInclude Include="src\IniFileParser.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config\device-generic.ini" />

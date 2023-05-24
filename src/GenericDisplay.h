@@ -31,7 +31,7 @@ public:
 	void add_dataref(XPLMDataRef _data_ref, int _dataref_index);
 	void add_const(double _const_value);
 	void add_lua(std::string _lua_function);
-
+	void set_bcd(bool _use_bcd);
 protected:	
 	double	display_value;
 	double	display_value_old;
