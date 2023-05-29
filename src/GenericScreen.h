@@ -30,6 +30,7 @@ public:
         value_old = 0;
         value_str_old = "";
         data_ref = NULL;
+        data_ref_index = -1;
         data_ref_type = xplmType_Unknown;
         lua_str = "";
         constant_val = 0;
@@ -44,6 +45,7 @@ public:
         value_str_old = other.value_str_old;
         scale_factor = other.scale_factor;
         data_ref = other.data_ref;
+        data_ref_index = other.data_ref_index;
         data_ref_type = other.data_ref_type;
         lua_str = other.lua_str;
         constant_val = other.constant_val;
@@ -51,6 +53,7 @@ public:
 
     ScreenActionType type;
     XPLMDataRef data_ref;
+    int data_ref_index;
     XPLMDataTypeID data_ref_type;
     std::string lua_str;
     int constant_val;
@@ -68,6 +71,7 @@ class GenericScreen
 protected:
     std::list<ScreenAction*> screen_action_queue;
     int read_data_ref_int(XPLMDataRef data_ref, XPLMDataTypeID data_ref_type);
+    int read_data_ref_int(XPLMDataRef data_ref, XPLMDataTypeID data_ref_type, int index);
     std::string read_dataref_str(XPLMDataRef data_ref);
 public:
     GenericScreen();
