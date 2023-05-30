@@ -47,6 +47,26 @@ int GenericScreen::read_data_ref_int(XPLMDataRef data_ref, XPLMDataTypeID data_r
 	return value_int;
 }
 
+int GenericScreen::read_data_ref_int(XPLMDataRef data_ref, XPLMDataTypeID data_ref_type, int index)
+{
+	int value_int = 0;
+	float value_float = 0;
+
+	switch (data_ref_type)
+	{
+	case xplmType_IntArray:
+		XPLMGetDatavi(data_ref, &value_int, index, 1);
+		break;
+	case xplmType_FloatArray:
+		XPLMGetDatavf(data_ref, &value_float, index, 1);
+		value_int = (int)value_float;
+		break;
+	default:
+		Logger(logWARNING) << "Generic screen: Unknown dataref_type" << std::endl;
+	}
+	return value_int;
+}
+
 std::string GenericScreen::read_dataref_str(XPLMDataRef data_ref)
 {
 	char str_buffer[32];

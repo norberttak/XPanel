@@ -37,7 +37,10 @@ void FIPScreen::evaluate_and_store_screen_action()
 				action_value_str = read_dataref_str(action->data_ref);
 			else 
 			{
-				action_value = action->scale_factor * read_data_ref_int(action->data_ref, action->data_ref_type);
+				if (action->data_ref_index > -1)
+					action_value = action->scale_factor * read_data_ref_int(action->data_ref, action->data_ref_type, action->data_ref_index);
+				else
+					action_value = action->scale_factor * read_data_ref_int(action->data_ref, action->data_ref_type);
 				if (action->type == SC_SET_TEXT)
 					action_value_str = std::to_string(action_value);
 			}

@@ -787,6 +787,7 @@ int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std:
 {
 	//offset_x="const:80"
 	//offset_y = "dataref::sim/cockpit2/radios/actuators/com1_frequency_hz"
+	//offset_y = "dataref::sim/cockpit2/radios/actuators/com1_frequency_hz[0],scale:1.0"
 
 	ScreenAction* action = new ScreenAction();
 	action->page_index = config.device_configs.back().fip_screens[last_device_id]->get_last_page_index();
@@ -796,7 +797,6 @@ int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std:
 		action->type = SC_TRANSLATION_X;
 	else
 		action->type = SC_TRANSLATION_Y;
-
 
 	std::vector<std::string> m = tokenize(value);
 
@@ -812,8 +812,11 @@ int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std:
 	}
 	else if (m[0] == TOKEN_DATAREF)
 	{
+		int index=-1;
+		check_and_get_array_index(m[1], index);
+		
 		if (m.size() >= 3)
-			action->scale_factor = std::stod(m[2]);
+			action->scale_factor = std::stod(m[3]);
 
 		XPLMDataRef dataRef = XPLMFindDataRef(m[1].c_str());
 		if (dataRef == NULL)
@@ -821,6 +824,10 @@ int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std:
 			Logger(TLogLevel::logERROR) << "parser: invalid data ref (section starts at line: " << section_header.line << "): " << m[1] << std::endl;
 			return EXIT_FAILURE;
 		}
+
+		if (index >= 0)
+			action->data_ref_index = index;
+
 		action->data_ref = dataRef;
 		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
 	}
@@ -836,6 +843,7 @@ int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std:
 	}
 
 	Logger(logTRACE) << "config parser: add FIP offset const: " << action->constant_val << std::endl;
+
 	config.device_configs.back().fip_screens[last_device_id]->add_screen_action(action);
 	return EXIT_SUCCESS;
 }
@@ -856,6 +864,9 @@ int Configparser::handle_on_fip_rotation(IniFileSectionHeader section_header, st
 	}
 	else if (m[0] == TOKEN_DATAREF)
 	{
+		int index = -1;
+		check_and_get_array_index(m[1], index);
+
 		action->scale_factor = std::stod(m[3]);
 		XPLMDataRef dataRef = XPLMFindDataRef(m[1].c_str());
 		if (dataRef == NULL)
@@ -863,6 +874,10 @@ int Configparser::handle_on_fip_rotation(IniFileSectionHeader section_header, st
 			Logger(TLogLevel::logERROR) << "parser: invalid data ref (section starts at line: " << section_header.line << "): " << value << std::endl;
 			return EXIT_FAILURE;
 		}
+
+		if (index >= 0)
+			action->data_ref_index = index;
+
 		action->data_ref = dataRef;
 		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
 	}
