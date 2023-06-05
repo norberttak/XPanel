@@ -401,7 +401,7 @@ XPLMCommandRef LuaHelper::get_commandref(std::string commandref_str)
 
 XPLMDataRef LuaHelper::get_dataref(std::string dataref_str)
 {
-	if (command_refs.count(dataref_str) == 0)
+	if (data_refs.count(dataref_str) == 0)
 	{
 		XPLMDataRef datarefId = XPLMFindDataRef(dataref_str.c_str());
 		data_refs[dataref_str] = datarefId;
@@ -453,7 +453,9 @@ int LuaHelper::do_string(std::string lua_str)
 	if (luaL_dostring(lua, lua_str.c_str()) != LUA_OK)
 	{
 		Logger(TLogLevel::logERROR) << "Lua error in: " << lua_str << std::endl;
-		Logger(TLogLevel::logERROR) << "Disable LUA module. fix error in lua script and reload the plugin" << std::endl;
+		Logger(TLogLevel::logERROR) << lua_tostring(lua, -1) << std::endl;
+		lua_pop(lua, 1);
+		Logger(TLogLevel::logERROR) << "LUA module is disabled. Fix error in lua script and reload the plugin" << std::endl;
 		lua_enabled = false;
 		return EXIT_FAILURE;
 	}
