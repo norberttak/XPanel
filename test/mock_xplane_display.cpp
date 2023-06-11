@@ -11,6 +11,9 @@
 #include "XPLMUtilities.h"
 #include "XPLMMenus.h"
 #include "XPLMProcessing.h"
+#include "XPStandardWidgets.h"
+#include "XPWidgets.h"
+#include "XPWidgetDefs.h"
 
 extern void XPLMSetGraphicsState(
 	int                  inEnableFog,
@@ -90,3 +93,97 @@ extern void XPLMDestroyWindow(
 {
 
 }
+
+extern void XPLMSetWindowIsVisible(
+	XPLMWindowID         inWindowID,
+	int                  inIsVisible)
+{
+
+}
+
+extern void XPLMDrawTranslucentDarkBox(
+	int inLeft, 
+	int inTop, 
+	int inRight, 
+	int inBottom)
+{
+
+}
+
+extern void XPLMGetFontDimensions(
+	XPLMFontID           inFontID,
+	int* outCharWidth,
+	int* outCharHeight,
+	int* outDigitsOnly)
+{
+
+}
+
+extern float XPLMMeasureString(
+	XPLMFontID  inFontID,
+	const char* inChar,
+	int         inNumChars)
+{
+	return 1.0;
+}
+
+extern XPWidgetID XPCreateWidget(
+	int                  inLeft,
+	int                  inTop,
+	int                  inRight,
+	int                  inBottom,
+	int                  inVisible,
+	const char* inDescriptor,
+	int                  inIsRoot,
+	XPWidgetID           inContainer,
+	XPWidgetClass        inClass)
+{
+	return NULL;
+}
+
+extern void XPShowWidget(
+	XPWidgetID inWidget)
+{
+
+}
+
+extern void XPHideWidget(
+	XPWidgetID inWidget)
+{
+
+}
+
+extern void XPSetWidgetProperty(
+	XPWidgetID           inWidget,
+	XPWidgetPropertyID   inProperty,
+	intptr_t             inValue)
+{
+
+}
+
+extern intptr_t XPGetWidgetProperty(
+	XPWidgetID           inWidget,
+	XPWidgetPropertyID   inProperty,
+	int* inExists)
+{
+	if (inExists)
+		*inExists = 1;
+
+	return NULL;
+}
+
+extern void XPAddWidgetCallback(
+	XPWidgetID inWidget,
+	XPWidgetFunc_t inNewCallback)
+{
+
+}
+
+extern void XPDestroyWidget(
+	XPWidgetID inWidget,
+	int inDestroyChildren)
+{
+
+}
+
+
