@@ -70,6 +70,8 @@ const float ERROR_DISPLAY_TIME_PERIOD = 2.0f;
 
 int g_menu_container_idx;
 XPLMMenuID g_menu_id;
+MessageWindow* message_window = NULL;
+
 void menu_handler(void*, void*);
 
 typedef enum {
@@ -95,7 +97,7 @@ PLUGIN_API int XPluginStart(
 
 	g_menu_container_idx = XPLMAppendMenuItem(XPLMFindPluginsMenu(), "XPanel", 0, 0);
 	g_menu_id = XPLMCreateMenu("XPanel Plugin", XPLMFindPluginsMenu(), g_menu_container_idx, menu_handler, NULL);
-	XPLMAppendMenuItem(g_menu_id, "Reload Plugin", (void*)&menu_item_reload, 1);
+	XPLMAppendMenuItem(g_menu_id, "Reload Config", (void*)&menu_item_reload, 1);
 
 	XPLMRegisterFlightLoopCallback(error_display_callback, ERROR_DISPLAY_TIME_PERIOD, NULL);
 
@@ -166,7 +168,13 @@ float error_display_callback(float, float, int, void*)
 		return ERROR_DISPLAY_TIME_PERIOD;
 
 	std::list<std::string> error_msgs = Logger::get_and_clear_stored_messages();
-	new MessageWindow(std::string("Xpanel: Errors and Warnings"), error_msgs, true);
+	if (!message_window)
+	{
+		message_window = new MessageWindow("Xpanel: Errors and Warnings");
+	}
+
+	message_window->add_messages(error_msgs);
+	message_window->show();
 
 	return ERROR_DISPLAY_TIME_PERIOD;
 }
@@ -188,6 +196,13 @@ void stop_and_clear_xpanel_plugin()
 	config.clear();
 	ActionQueue::get_instance()->clear_all_actions();
 	plugin_already_initialized = false;
+
+	if (message_window)
+	{
+		message_window->hide();
+		delete message_window;
+		message_window = NULL;
+	}
 }
 
 std::filesystem::path absolute_path(std::string aircraft_path, std::string file_name)

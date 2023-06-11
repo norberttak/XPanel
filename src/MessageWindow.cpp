@@ -4,76 +4,52 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+
+#include "XPLMGraphics.h"
 #include "MessageWindow.h"
 
-int dummy_mouse_handler(
-	XPLMWindowID,
-	int,
-	int,
-	XPLMMouseStatus,
-	void*)
+int widget_handler(XPWidgetMessage inMessage, XPWidgetID inWidget, intptr_t inParam1, intptr_t inParam2)
 {
-	return 0;
-}
+	int exists=0;
+	MessageWindow* message_window = (MessageWindow*)(XPGetWidgetProperty(inWidget, xpProperty_Object, &exists));
 
-int dummy_wheel_handler(
-	XPLMWindowID,
-	int,
-	int,
-	int,
-	int,
-	void*)
-{
-	return 0;
-}
+	if (!message_window || exists == 0)
+		return 0;
 
-void dummy_key_handler(
-	XPLMWindowID,
-	char,
-	XPLMKeyFlags,
-	char,
-	void*,
-	int)
-{
-
-}
-
-XPLMCursorStatus dummy_cursor_status_handler(
-	XPLMWindowID,
-	int,
-	int,
-	void*)
-{
-	return xplm_CursorDefault;
-}
-
-void draw_message_display_window(XPLMWindowID in_window_id, void* in_refcon)
-{
-	MessageWindow* msg_window = (MessageWindow*)in_refcon;
-
-	// Mandatory: We *must* set the OpenGL state before drawing
-	// (we can't make any assumptions about it)
-	XPLMSetGraphicsState(
-		0 /* no fog */,
-		0 /* 0 texture units */,
-		0 /* no lighting */,
-		0 /* no alpha testing */,
-		1 /* do alpha blend */,
-		1 /* do depth testing */,
-		0 /* no depth writing */
-	);
-
-	int l, t, r, b;
-	XPLMGetWindowGeometry(in_window_id, &l, &t, &r, &b);
-
-	float col_white[] = { 1.0, 1.0, 1.0 }; // red, green, blue
-
-	int vertical_offset = 30;
-	for (std::string msg : msg_window->get_messages())
+	if (inMessage == xpMessage_CloseButtonPushed)
 	{
-		XPLMDrawString(col_white, l + 10, t - vertical_offset, (char*)msg.c_str(), NULL, xplmFont_Proportional);
-		vertical_offset -= 20;
+		message_window->hide();
+		return 1;
 	}
+
+	return 0;
+}
+
+void MessageWindow::draw_message_caption_widgets()
+{
+	// clear any previous captions
+	for (XPWidgetID wid : message_caption_widgets)
+	{
+		XPDestroyWidget(wid, 1);
+	}
+
+	// print log lines:
+	int vertical_offset = 50;
+	for (std::string msg : get_messages())
+	{
+		XPWidgetID widget_id = XPCreateWidget(x+10, y - vertical_offset, x + 100, y - vertical_offset - 150, 1, msg.c_str(), 0, message_window_widget, xpWidgetClass_Caption);
+		message_caption_widgets.push_back(widget_id);
+		vertical_offset += 20;
+	}
+}
+
+XPWidgetID MessageWindow::add_button(XPWidgetID home_widget, int _x, int _y, const char* title)
+{
+	// Draw button(s)
+	XPWidgetID button_id = XPCreateWidget(_x, _y, _x + 100, _y - 100, 1, title, 0, home_widget, xpWidgetClass_Button);
+	XPSetWidgetProperty(button_id, xpProperty_ButtonType, xpPushButton);
+
+	return button_id;
 }
 
 std::list<std::string>& MessageWindow::get_messages()
@@ -81,46 +57,56 @@ std::list<std::string>& MessageWindow::get_messages()
 	return messages;
 }
 
-MessageWindow::MessageWindow(std::string _title, std::list<std::string> _messages, bool show)
+void MessageWindow::clear_messages()
 {
-	messages = _messages;
+	messages.clear();
+	draw_message_caption_widgets();
+}
 
-	// code based on this example:
-	// https://developer.x-plane.com/code-sample/hello-world-sdk-3/
-	XPLMCreateWindow_t params;
-	params.structSize = sizeof(params);
-	params.visible = show ? 1 : 0;
-	params.drawWindowFunc = draw_message_display_window;
+MessageWindow::MessageWindow(std::string _title)
+{
+	x = 50;
+	y = 712;
+	width = 974;
+	height = 662;
 
-	params.handleMouseClickFunc = dummy_mouse_handler;
-	params.handleRightClickFunc = dummy_mouse_handler;
-	params.handleMouseWheelFunc = dummy_wheel_handler;
-	params.handleKeyFunc = dummy_key_handler;
-	params.handleCursorFunc = dummy_cursor_status_handler;
-	params.refcon = (void*)this;
-	params.layer = xplm_WindowLayerFloatingWindows;
+	int x2 = x + width;
+	int y2 = y - height;
 
-	params.decorateAsFloatingWindow = xplm_WindowDecorationRoundRectangle;
+	message_window_widget = XPCreateWidget(x, y, x2, y2, 0, _title.c_str(), 1, NULL, xpWidgetClass_MainWindow);
+	XPSetWidgetProperty(message_window_widget, xpProperty_Object, (intptr_t)(this));
+	XPSetWidgetProperty(message_window_widget, xpProperty_MainWindowHasCloseBoxes, 1);
 
-	int left, bottom, right, top;
-	XPLMGetScreenBoundsGlobal(&left, &top, &right, &bottom);
-	params.left = left + 50;
-	params.bottom = bottom + 150;
-	params.right = params.left + 800;
-	params.top = params.bottom + 300;
+	add_button(message_window_widget, x+10, y-15, "Clear");
+	add_button(message_window_widget, x+300, y-15, "Close");
 
-	g_window = XPLMCreateWindowEx(&params);
+	XPAddWidgetCallback(message_window_widget, widget_handler);
+}
 
-	// Position the window as a "free" floating window, which the user can drag around
-	XPLMSetWindowPositioningMode(g_window, xplm_WindowPositionFree, -1);
-	// Limit resizing our window: maintain a minimum width/height of 100 boxels and a max width/height of 300 boxels
-	XPLMSetWindowResizingLimits(g_window, 200, 200, 1200, 800);
+void MessageWindow::add_messages(std::list<std::string>& _messages)
+{
+	messages.merge(_messages);
+	draw_message_caption_widgets();
+}
 
-	XPLMSetWindowTitle(g_window, _title.c_str());
+void MessageWindow::show()
+{
+	if (!message_window_widget)
+		return;
+
+	XPShowWidget(message_window_widget);
+}
+
+void MessageWindow::hide()
+{
+	if (!message_window_widget)
+		return;
+
+	XPHideWidget(message_window_widget);
 }
 
 MessageWindow::~MessageWindow()
 {
-	XPLMDestroyWindow(g_window);
-	g_window = NULL;
+	XPDestroyWidget(message_window_widget, 1);
+	message_window_widget = NULL;
 }
