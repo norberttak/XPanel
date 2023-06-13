@@ -1,7 +1,7 @@
 add_library(xpsdk::xpsdk INTERFACE IMPORTED GLOBAL)
 
 target_include_directories(xpsdk::xpsdk INTERFACE CHeaders/XPLM CHeaders/Widgets)
-target_compile_definitions(xpsdk::xpsdk INTERFACE XPLM200=1 XPLM210=1 XPLM300=1 XPLM301=1 XPLM302=1 XPLM303=1)
+target_compile_definitions(xpsdk::xpsdk INTERFACE XPLM200=1 XPLM210=1 XPLM300=1 XPLM301=1 XPLM302=1 XPLM303=1 XPLM400=1)
 
 if (WIN32)
     target_compile_definitions(xpsdk::xpsdk INTERFACE APL=0 IBM=1 LIN=0)
