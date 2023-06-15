@@ -11,7 +11,7 @@
 #include "XPLMDisplay.h"
 
 #include "CppUnitTest.h"
-#include "ConfigParser.h"
+#include "core/ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

@@ -6,9 +6,9 @@
 
 #pragma once
 #include <vector>
-#include "Device.h"
-#include "UsbHidDevice.h"
-#include "Configuration.h"
+#include "core/Device.h"
+#include "core/UsbHidDevice.h"
+#include "core/Configuration.h"
 
 class SaitekRadioPanel : public UsbHidDevice
 {

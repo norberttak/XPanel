@@ -5,7 +5,7 @@
  */
 #include "FIPTextLayer.h"
 #include "FIPFonts.h"
-#include "Logger.h"
+#include "core/Logger.h"
 
 FIPTextLayer::FIPTextLayer() :
 	FIPImageLayer()

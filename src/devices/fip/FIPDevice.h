@@ -6,7 +6,7 @@
 #pragma once
 #include <atomic>
 #include <mutex>
-#include "Device.h"
+#include "core/Device.h"
 #include "FIPDriver.h"
 #include "FIPScreen.h"
 class FIPDevice : public Device

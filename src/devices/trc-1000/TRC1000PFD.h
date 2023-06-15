@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include "TRC1000.h"
-#include "UsbHidDevice.h"
+#include "trc-1000/TRC1000.h"
+#include "core/UsbHidDevice.h"
 
 class TRC1000PFD : public TRC1000
 {

@@ -11,9 +11,9 @@
 #include "XPLMDisplay.h"
 
 #include "CppUnitTest.h"
-#include "SaitekRadioPanel.h"
-#include "LuaHelper.h"
-#include "ConfigParser.h"
+#include "saitek-radio/SaitekRadioPanel.h"
+#include "core/LuaHelper.h"
+#include "core/ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

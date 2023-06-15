@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "UsbHidDevice.h"
+#include "core/UsbHidDevice.h"
 
 #define HID_REPORT_ID	1
 

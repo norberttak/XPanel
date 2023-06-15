@@ -9,12 +9,12 @@
 #include <sstream>
 #include <filesystem>
 #include <regex>
-#include "ConfigParser.h"
-#include "IniFileParser.h"
-#include "Trigger.h"
-#include "MultiPurposeDisplay.h"
-#include "FIPScreen.h"
-#include "Logger.h"
+#include "core/ConfigParser.h"
+#include "core/IniFileParser.h"
+#include "core/Trigger.h"
+#include "core/MultiPurposeDisplay.h"
+#include "fip/FIPScreen.h"
+#include "core/Logger.h"
 
 Configparser::Configparser()
 {

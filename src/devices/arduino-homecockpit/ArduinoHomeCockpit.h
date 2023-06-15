@@ -6,7 +6,7 @@
 
 #pragma once
 #include <cstdlib>
-#include "UsbHidDevice.h"
+#include "core/UsbHidDevice.h"
 
 class ArduinoHomeCockpit :public UsbHidDevice
 {
