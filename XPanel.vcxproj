@@ -125,7 +125,7 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WINVER=0x0601;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;_WIN32_WINDOWS=0x0601;WIN32;_DEBUG;_WINDOWS;_USRDLL;SIMDATA_EXPORTS;IBM=1;XPLM200=1;XPLM210=1;XPLM300=1;XPLM301=1;XPLM302=1;XPLM303=1;XPLM400=1;PLUGIN_SIGNATURE="xpanel";PLUGIN_VERSION="1.7";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\src;$(SolutionDir)\src\devices;$(SolutionDir)\hidapi\headers;$(SolutionDir)\LUA\include;$(SolutionDir)\SDK\CHeaders\XPLM;$(SolutionDir)\FIP-SDK\include;$(SolutionDir)\SDK\CHeaders\Widgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)src\devices;$(SolutionDir)3rdparty\hidapi\headers;$(SolutionDir)3rdparty\LUA\include;$(SolutionDir)3rdparty\SDK\CHeaders\XPLM;$(SolutionDir)3rdparty\SDK\CHeaders\Widgets;$(SolutionDir)3rdparty\FIP-SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -133,7 +133,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\hidapi\lib;$(SolutionDir)\LUA;$(SolutionDir)\SDK\Libraries\Win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\hidapi\lib;$(SolutionDir)3rdparty\LUA;$(SolutionDir)3rdparty\SDK\Libraries\Win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;XPLM_64.lib;XPWidgets_64.lib;liblua54.a;hidapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary />
     </Link>
@@ -148,7 +148,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS=1;IBM=1;XPLM200=1;XPLM210=1;XPLM300=1;XPLM301=1;XPLM302=1;XPLM303=1;XPLM400=1;PLUGIN_SIGNATURE="xpanel";PLUGIN_VERSION="1.7";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)\FIP-SDK\include;$(SolutionDir)\src;$(SolutionDir)\src\devices;$(SolutionDir)\hidapi\headers;$(SolutionDir)\LUA\include;$(SolutionDir)\SDK\CHeaders\XPLM;$(SolutionDir)\SDK\CHeaders\Widgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)src\devices;$(SolutionDir)3rdparty\FIP-SDK\include;$(SolutionDir)3rdparty\hidapi\headers;$(SolutionDir)3rdparty\LUA\include;$(SolutionDir)3rdparty\SDK\CHeaders\XPLM;$(SolutionDir)3rdparty\SDK\CHeaders\Widgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>.\Release\64\</AssemblerListingLocation>
       <ObjectFileName>.\Release\64\</ObjectFileName>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -159,7 +159,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\hidapi\lib;$(SolutionDir)\LUA;$(SolutionDir)\SDK\Libraries\Win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\hidapi\lib;$(SolutionDir)3rdparty\LUA;$(SolutionDir)3rdparty\SDK\Libraries\Win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;XPLM_64.lib;XPWidgets_64.lib;liblua54.a;hidapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
