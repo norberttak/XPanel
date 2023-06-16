@@ -56,8 +56,8 @@ jobs:
 
       - name: Copy board-config.ini
         run: |
-          cp config/board-config.ini built-plugin-windows/plugins/XPanel/64/
-          cp config/board-config.ini built-plugin-linux/plugins/XPanel/64/
+          cp sample-config/board-config.ini built-plugin-windows/plugins/XPanel/64/
+          cp sample-config/board-config.ini built-plugin-linux/plugins/XPanel/64/
 
       - name: Copy FIP Fonts BMP
         run: |
@@ -81,7 +81,7 @@ jobs:
 
       - name: Create sample configs zip
         run: |
-          cd config
+          cd sample-config
           zip -r ../${SAMPLE_CONFIG_ZIP} .
 
       - name: Create draft release
