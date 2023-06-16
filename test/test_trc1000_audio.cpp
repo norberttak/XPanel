@@ -10,10 +10,10 @@
 #include "XPLMDisplay.h"
 
 #include "CppUnitTest.h"
-#include "TRC1000.h"
-#include "TRC1000Audio.h"
-#include "LuaHelper.h"
-#include "ConfigParser.h"
+#include "trc-1000/TRC1000.h"
+#include "trc-1000/TRC1000Audio.h"
+#include "core/LuaHelper.h"
+#include "core/ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

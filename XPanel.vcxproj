@@ -125,7 +125,7 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WINVER=0x0601;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;_WIN32_WINDOWS=0x0601;WIN32;_DEBUG;_WINDOWS;_USRDLL;SIMDATA_EXPORTS;IBM=1;XPLM200=1;XPLM210=1;XPLM300=1;XPLM301=1;XPLM302=1;XPLM303=1;XPLM400=1;PLUGIN_SIGNATURE="xpanel";PLUGIN_VERSION="1.7";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\hidapi\headers;$(SolutionDir)\LUA\include;$(SolutionDir)\SDK\CHeaders\XPLM;$(SolutionDir)\FIP-SDK\include;$(SolutionDir)\SDK\CHeaders\Widgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)src\devices;$(SolutionDir)3rdparty\hidapi\headers;$(SolutionDir)3rdparty\LUA\include;$(SolutionDir)3rdparty\SDK\CHeaders\XPLM;$(SolutionDir)3rdparty\SDK\CHeaders\Widgets;$(SolutionDir)3rdparty\FIP-SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -133,7 +133,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\hidapi\lib;$(SolutionDir)\LUA;$(SolutionDir)\SDK\Libraries\Win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\hidapi\lib;$(SolutionDir)3rdparty\LUA;$(SolutionDir)3rdparty\SDK\Libraries\Win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;XPLM_64.lib;XPWidgets_64.lib;liblua54.a;hidapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary />
     </Link>
@@ -148,7 +148,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS=1;IBM=1;XPLM200=1;XPLM210=1;XPLM300=1;XPLM301=1;XPLM302=1;XPLM303=1;XPLM400=1;PLUGIN_SIGNATURE="xpanel";PLUGIN_VERSION="1.7";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)\FIP-SDK\include;$(SolutionDir)\hidapi\headers;$(SolutionDir)\LUA\include;$(SolutionDir)\SDK\CHeaders\XPLM;$(SolutionDir)\SDK\CHeaders\Widgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)src\devices;$(SolutionDir)3rdparty\FIP-SDK\include;$(SolutionDir)3rdparty\hidapi\headers;$(SolutionDir)3rdparty\LUA\include;$(SolutionDir)3rdparty\SDK\CHeaders\XPLM;$(SolutionDir)3rdparty\SDK\CHeaders\Widgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>.\Release\64\</AssemblerListingLocation>
       <ObjectFileName>.\Release\64\</ObjectFileName>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -159,76 +159,71 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\hidapi\lib;$(SolutionDir)\LUA;$(SolutionDir)\SDK\Libraries\Win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\hidapi\lib;$(SolutionDir)3rdparty\LUA;$(SolutionDir)3rdparty\SDK\Libraries\Win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;XPLM_64.lib;XPWidgets_64.lib;liblua54.a;hidapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\AgeingCounter.cpp" />
-    <ClCompile Include="src\FIPImageLayer.cpp" />
-    <ClCompile Include="src\FIPLayer.cpp" />
-    <ClCompile Include="src\FIPTextLayer.cpp" />
-    <ClCompile Include="src\GenericDisplay.cpp" />
-    <ClCompile Include="src\FIPDevice.cpp" />
-    <ClCompile Include="src\GenericScreen.cpp" />
-    <ClCompile Include="src\FIPDriver.cpp" />
-    <ClCompile Include="src\FIPPage.cpp" />
-    <ClCompile Include="src\FIPScreen.cpp" />
-    <ClCompile Include="src\IniFileParser.cpp" />
-    <ClCompile Include="src\SaitekRadioPanel.cpp" />
-    <ClCompile Include="src\LuaHelper.cpp" />
-    <ClCompile Include="src\MultiPurposeDisplay.cpp" />
-    <ClCompile Include="src\ArduinoHomeCockpit.cpp" />
-    <ClCompile Include="src\Configuration.cpp" />
-    <ClCompile Include="src\Action.cpp" />
-    <ClCompile Include="src\Device.cpp" />
-    <ClCompile Include="src\ConfigParser.cpp" />
-    <ClCompile Include="src\Logger.cpp" />
-    <ClCompile Include="src\SaitekMultiPanel.cpp" />
-    <ClCompile Include="src\MessageWindow.cpp" />
-    <ClCompile Include="src\TRC1000.cpp" />
-    <ClCompile Include="src\SaitekSwitchPanel.cpp" />
-    <ClCompile Include="src\XPanel.cpp" />
-    <ClCompile Include="src\UsbHidDevice.cpp" />
-    <ClCompile Include="src\Trigger.cpp" />
-    <ClCompile Include="src\TRC1000PFD.cpp" />
-    <ClCompile Include="src\TRC1000Audio.cpp" />
+    <ClCompile Include="src\core\AgeingCounter.cpp" />
+    <ClCompile Include="src\devices\fip\FIPImageLayer.cpp" />
+    <ClCompile Include="src\devices\fip\FIPLayer.cpp" />
+    <ClCompile Include="src\devices\fip\FIPTextLayer.cpp" />
+    <ClCompile Include="src\core\GenericDisplay.cpp" />
+    <ClCompile Include="src\devices\fip\FIPDevice.cpp" />
+    <ClCompile Include="src\core\GenericScreen.cpp" />
+    <ClCompile Include="src\devices\fip\FIPDriver.cpp" />
+    <ClCompile Include="src\devices\fip\FIPPage.cpp" />
+    <ClCompile Include="src\devices\fip\FIPScreen.cpp" />
+    <ClCompile Include="src\core\IniFileParser.cpp" />
+    <ClCompile Include="src\devices\saitek-radio\SaitekRadioPanel.cpp" />
+    <ClCompile Include="src\core\LuaHelper.cpp" />
+    <ClCompile Include="src\core\MultiPurposeDisplay.cpp" />
+    <ClCompile Include="src\devices\arduino-homecockpit\ArduinoHomeCockpit.cpp" />
+    <ClCompile Include="src\core\Configuration.cpp" />
+    <ClCompile Include="src\core\Action.cpp" />
+    <ClCompile Include="src\core\Device.cpp" />
+    <ClCompile Include="src\core\ConfigParser.cpp" />
+    <ClCompile Include="src\core\Logger.cpp" />
+    <ClCompile Include="src\devices\saitek-multi\SaitekMultiPanel.cpp" />
+    <ClCompile Include="src\config-ui\MessageWindow.cpp" />
+    <ClCompile Include="src\devices\trc-1000\TRC1000.cpp" />
+    <ClCompile Include="src\devices\saitek-switch\SaitekSwitchPanel.cpp" />
+    <ClCompile Include="src\core\XPanel.cpp" />
+    <ClCompile Include="src\core\UsbHidDevice.cpp" />
+    <ClCompile Include="src\core\Trigger.cpp" />
+    <ClCompile Include="src\devices\trc-1000\TRC1000PFD.cpp" />
+    <ClCompile Include="src\devices\trc-1000\TRC1000Audio.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="config\device-generic.ini">
-      <FileType>Text</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\AgeingCounter.h" />
-    <ClInclude Include="src\FIPFonts.h" />
-    <ClInclude Include="src\FIPImageLayer.h" />
-    <ClInclude Include="src\FIPLayer.h" />
-    <ClInclude Include="src\FIPTextLayer.h" />
-    <ClInclude Include="src\GenericDisplay.h" />
-    <ClInclude Include="src\FIPDevice.h" />
-    <ClInclude Include="src\GenericScreen.h" />
-    <ClInclude Include="src\FIPDriver.h" />
-    <ClInclude Include="src\FIPPage.h" />
-    <ClInclude Include="src\FIPScreen.h" />
-    <ClInclude Include="src\IniFileParser.h" />
-    <ClInclude Include="src\SaitekRadioPanel.h" />
-    <ClInclude Include="src\LuaHelper.h" />
-    <ClInclude Include="src\MessageWindow.h" />
-    <ClInclude Include="src\MultiPurposeDisplay.h" />
-    <ClInclude Include="src\Logger.h" />
-    <ClInclude Include="src\ArduinoHomeCockpit.h" />
-    <ClInclude Include="src\Configuration.h" />
-    <ClInclude Include="src\Action.h" />
-    <ClInclude Include="src\Device.h" />
-    <ClInclude Include="src\ConfigParser.h" />
-    <ClInclude Include="src\SaitekMultiPanel.h" />
-    <ClInclude Include="src\SaitekSwitchPanel.h" />
-    <ClInclude Include="src\UsbHidDevice.h" />
-    <ClInclude Include="src\Trigger.h" />
-    <ClInclude Include="src\TRC1000PFD.h" />
-    <ClInclude Include="src\TRC1000.h" />
-    <ClInclude Include="src\TRC1000Audio.h" />
+    <ClInclude Include="src\core\AgeingCounter.h" />
+    <ClInclude Include="src\devices\fip\FIPFonts.h" />
+    <ClInclude Include="src\devices\fip\FIPImageLayer.h" />
+    <ClInclude Include="src\devices\fip\FIPLayer.h" />
+    <ClInclude Include="src\devices\fip\FIPTextLayer.h" />
+    <ClInclude Include="src\core\GenericDisplay.h" />
+    <ClInclude Include="src\devices\fip\FIPDevice.h" />
+    <ClInclude Include="src\core\GenericScreen.h" />
+    <ClInclude Include="src\devices\fip\FIPDriver.h" />
+    <ClInclude Include="src\devices\fip\FIPPage.h" />
+    <ClInclude Include="src\devices\fip\FIPScreen.h" />
+    <ClInclude Include="src\core\IniFileParser.h" />
+    <ClInclude Include="src\devices\saitek-radio\SaitekRadioPanel.h" />
+    <ClInclude Include="src\core\LuaHelper.h" />
+    <ClInclude Include="src\config-ui\MessageWindow.h" />
+    <ClInclude Include="src\core\MultiPurposeDisplay.h" />
+    <ClInclude Include="src\core\Logger.h" />
+    <ClInclude Include="src\devices\arduino-homecockpit\ArduinoHomeCockpit.h" />
+    <ClInclude Include="src\core\Configuration.h" />
+    <ClInclude Include="src\core\Action.h" />
+    <ClInclude Include="src\core\Device.h" />
+    <ClInclude Include="src\core\ConfigParser.h" />
+    <ClInclude Include="src\devices\saitek-multi\SaitekMultiPanel.h" />
+    <ClInclude Include="src\devices\saitek-switch\SaitekSwitchPanel.h" />
+    <ClInclude Include="src\core\UsbHidDevice.h" />
+    <ClInclude Include="src\core\Trigger.h" />
+    <ClInclude Include="src\devices\trc-1000\TRC1000PFD.h" />
+    <ClInclude Include="src\devices\trc-1000\TRC1000.h" />
+    <ClInclude Include="src\devices\trc-1000\TRC1000Audio.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

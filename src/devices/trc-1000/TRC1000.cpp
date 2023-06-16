@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 #include <cstring>
-#include "TRC1000.h"
-#include "Logger.h"
+#include "trc-1000/TRC1000.h"
+#include "core/Logger.h"
 
 #define TRC1000_READ_TIMEOUT_MILLISEC 50
 

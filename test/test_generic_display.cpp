@@ -11,9 +11,9 @@
 #include "XPLMDisplay.h"
 
 #include "CppUnitTest.h"
-#include "ArduinoHomeCockpit.h"
-#include "LuaHelper.h"
-#include "ConfigParser.h"
+#include "arduino-homecockpit/ArduinoHomeCockpit.h"
+#include "core/LuaHelper.h"
+#include "core/ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

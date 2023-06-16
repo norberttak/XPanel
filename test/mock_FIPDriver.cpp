@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-#include "FIPDriver.h"
+#include "fip/FIPDriver.h"
 
 FIP_device_handle f_device;
 

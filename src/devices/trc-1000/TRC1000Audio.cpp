@@ -7,10 +7,10 @@
 #include <cstring>
 #include <cstdlib>
 #include <string>
-#include "TRC1000.h"
-#include "TRC1000Audio.h"
-#include "UsbHidDevice.h"
-#include "Logger.h"
+#include "trc-1000/TRC1000.h"
+#include "trc-1000/TRC1000Audio.h"
+#include "core/UsbHidDevice.h"
+#include "core/Logger.h"
 
 #define WRITE_BUFFER_SIZE (8+1) // +1 for the hid report id at position 0
 #define READ_BUFFER_SIZE 8

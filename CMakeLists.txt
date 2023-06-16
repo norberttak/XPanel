@@ -20,15 +20,15 @@ endif()
 
 include(CTest)
 
-add_subdirectory(hidapi)
-add_subdirectory(LUA)
-add_subdirectory(SDK)
-add_subdirectory(FIP-SDK)
+add_subdirectory(3rdparty/hidapi)
+add_subdirectory(3rdparty/LUA)
+add_subdirectory(3rdparty/SDK)
+add_subdirectory(3rdparty/FIP-SDK)
 
 add_subdirectory(src)
 add_subdirectory(test)
 
-install(DIRECTORY config/ DESTINATION sample_configs)
+install(DIRECTORY sample-config/ DESTINATION sample_configs)
 install(DIRECTORY doc/ DESTINATION doc)
-install(FILES config/board-config.ini DESTINATION ${PLUGIN_INSTALL_DIR})
-install(FILES FIP-SDK/fonts/fip-fonts.bmp DESTINATION ${PLUGIN_INSTALL_DIR})
+install(FILES sample-config/board-config.ini DESTINATION ${PLUGIN_INSTALL_DIR})
+install(FILES 3rdparty/FIP-SDK/fonts/fip-fonts.bmp DESTINATION ${PLUGIN_INSTALL_DIR})

@@ -18,9 +18,9 @@
 #include <map>
 #include <queue>
 #include <list>
-#include "Configuration.h"
-#include "FIPScreen.h"
-#include "Logger.h"
+#include "core/Configuration.h"
+#include "fip/FIPScreen.h"
+#include "core/Logger.h"
 
 std::map<std::string, int> internal_dataref;
 std::map<std::string, int> internal_command_ref;

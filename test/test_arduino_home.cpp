@@ -12,9 +12,9 @@
 #include "XPLMPlugin.h"
 
 #include "CppUnitTest.h"
-#include "ArduinoHomeCockpit.h"
-#include "ConfigParser.h"
-#include "Logger.h"
+#include "arduino-homecockpit/ArduinoHomeCockpit.h"
+#include "core/ConfigParser.h"
+#include "core/Logger.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

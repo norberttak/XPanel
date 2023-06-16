@@ -1,68 +1,210 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="src\GenericDisplay.cpp" />
-    <ClCompile Include="src\FIPDevice.cpp" />
-    <ClCompile Include="src\GenericScreen.cpp" />
-    <ClCompile Include="src\FIPDriver.cpp" />
-    <ClCompile Include="src\FIPPage.cpp" />
-    <ClCompile Include="src\FIPScreen.cpp" />
-    <ClCompile Include="src\SaitekRadioPanel.cpp" />
-    <ClCompile Include="src\LuaHelper.cpp" />
-    <ClCompile Include="src\MultiPurposeDisplay.cpp" />
-    <ClCompile Include="src\ArduinoHomeCockpit.cpp" />
-    <ClCompile Include="src\Configuration.cpp" />
-    <ClCompile Include="src\Action.cpp" />
-    <ClCompile Include="src\Device.cpp" />
-    <ClCompile Include="src\ConfigParser.cpp" />
-    <ClCompile Include="src\Logger.cpp" />
-    <ClCompile Include="src\SaitekMultiPanel.cpp" />
-    <ClCompile Include="src\MessageWindow.cpp" />
-    <ClCompile Include="src\TRC1000.cpp" />
-    <ClCompile Include="src\SaitekSwitchPanel.cpp" />
-    <ClCompile Include="src\XPanel.cpp" />
-    <ClCompile Include="src\UsbHidDevice.cpp" />
-    <ClCompile Include="src\Trigger.cpp" />
-    <ClCompile Include="src\TRC1000PFD.cpp" />
-    <ClCompile Include="src\TRC1000Audio.cpp" />
-    <ClCompile Include="src\AgeingCounter.cpp" />
-    <ClCompile Include="src\FIPLayer.cpp" />
-    <ClCompile Include="src\FIPImageLayer.cpp" />
-    <ClCompile Include="src\FIPTextLayer.cpp" />
-    <ClCompile Include="src\IniFileParser.cpp" />
+    <ClCompile Include="src\core\Action.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\AgeingCounter.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\ConfigParser.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Configuration.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Device.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\IniFileParser.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Logger.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\LuaHelper.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Trigger.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\UsbHidDevice.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\arduino-homecockpit\ArduinoHomeCockpit.cpp">
+      <Filter>devices\arduino-homecockpit</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\fip\FIPDevice.cpp">
+      <Filter>devices\fip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\fip\FIPDriver.cpp">
+      <Filter>devices\fip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\fip\FIPImageLayer.cpp">
+      <Filter>devices\fip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\fip\FIPLayer.cpp">
+      <Filter>devices\fip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\fip\FIPPage.cpp">
+      <Filter>devices\fip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\fip\FIPScreen.cpp">
+      <Filter>devices\fip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\fip\FIPTextLayer.cpp">
+      <Filter>devices\fip</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\saitek-multi\SaitekMultiPanel.cpp">
+      <Filter>devices\saitek-multi</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\saitek-radio\SaitekRadioPanel.cpp">
+      <Filter>devices\saitek-radio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\saitek-switch\SaitekSwitchPanel.cpp">
+      <Filter>devices\saitek-switch</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\trc-1000\TRC1000.cpp">
+      <Filter>devices\trc-1000</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\trc-1000\TRC1000Audio.cpp">
+      <Filter>devices\trc-1000</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devices\trc-1000\TRC1000PFD.cpp">
+      <Filter>devices\trc-1000</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\GenericDisplay.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\GenericScreen.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\MultiPurposeDisplay.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\XPanel.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config-ui\MessageWindow.cpp">
+      <Filter>config-ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\GenericDisplay.h" />
-    <ClInclude Include="src\FIPDevice.h" />
-    <ClInclude Include="src\GenericScreen.h" />
-    <ClInclude Include="src\FIPDriver.h" />
-    <ClInclude Include="src\FIPPage.h" />
-    <ClInclude Include="src\FIPScreen.h" />
-    <ClInclude Include="src\SaitekRadioPanel.h" />
-    <ClInclude Include="src\LuaHelper.h" />
-    <ClInclude Include="src\MessageWindow.h" />
-    <ClInclude Include="src\MultiPurposeDisplay.h" />
-    <ClInclude Include="src\Logger.h" />
-    <ClInclude Include="src\ArduinoHomeCockpit.h" />
-    <ClInclude Include="src\Configuration.h" />
-    <ClInclude Include="src\Action.h" />
-    <ClInclude Include="src\Device.h" />
-    <ClInclude Include="src\ConfigParser.h" />
-    <ClInclude Include="src\SaitekMultiPanel.h" />
-    <ClInclude Include="src\SaitekSwitchPanel.h" />
-    <ClInclude Include="src\UsbHidDevice.h" />
-    <ClInclude Include="src\Trigger.h" />
-    <ClInclude Include="src\TRC1000PFD.h" />
-    <ClInclude Include="src\TRC1000.h" />
-    <ClInclude Include="src\TRC1000Audio.h" />
-    <ClInclude Include="src\AgeingCounter.h" />
-    <ClInclude Include="src\FIPLayer.h" />
-    <ClInclude Include="src\FIPImageLayer.h" />
-    <ClInclude Include="src\FIPTextLayer.h" />
-    <ClInclude Include="src\FIPFonts.h" />
-    <ClInclude Include="src\IniFileParser.h" />
+    <ClInclude Include="src\core\Action.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\AgeingCounter.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\ConfigParser.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Configuration.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Device.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\IniFileParser.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Logger.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\LuaHelper.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Trigger.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\UsbHidDevice.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\arduino-homecockpit\ArduinoHomeCockpit.h">
+      <Filter>devices\arduino-homecockpit</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\fip\FIPDevice.h">
+      <Filter>devices\fip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\fip\FIPDriver.h">
+      <Filter>devices\fip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\fip\FIPFonts.h">
+      <Filter>devices\fip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\fip\FIPImageLayer.h">
+      <Filter>devices\fip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\fip\FIPLayer.h">
+      <Filter>devices\fip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\fip\FIPPage.h">
+      <Filter>devices\fip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\fip\FIPScreen.h">
+      <Filter>devices\fip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\fip\FIPTextLayer.h">
+      <Filter>devices\fip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\saitek-multi\SaitekMultiPanel.h">
+      <Filter>devices\saitek-multi</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\saitek-radio\SaitekRadioPanel.h">
+      <Filter>devices\saitek-radio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\saitek-switch\SaitekSwitchPanel.h">
+      <Filter>devices\saitek-switch</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\trc-1000\TRC1000.h">
+      <Filter>devices\trc-1000</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\trc-1000\TRC1000Audio.h">
+      <Filter>devices\trc-1000</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devices\trc-1000\TRC1000PFD.h">
+      <Filter>devices\trc-1000</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\GenericDisplay.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\GenericScreen.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\MultiPurposeDisplay.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config-ui\MessageWindow.h">
+      <Filter>config-ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="config\device-generic.ini" />
+    <Filter Include="core">
+      <UniqueIdentifier>{0ad75bff-b91b-48f1-98c4-04745871b8c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="devices">
+      <UniqueIdentifier>{b5332d58-bb9d-477a-bc3f-ddfe8a484f29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="devices\arduino-homecockpit">
+      <UniqueIdentifier>{f1268925-ede4-4f65-bfea-372e7dea872e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="devices\fip">
+      <UniqueIdentifier>{e72a8be6-bd75-4a70-8c48-81dad8973a78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="devices\saitek-multi">
+      <UniqueIdentifier>{cd04b836-e078-4ecd-910d-60242ad99b6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="devices\saitek-radio">
+      <UniqueIdentifier>{8216bd9f-b8ca-4276-b493-1409714d9a4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="devices\saitek-switch">
+      <UniqueIdentifier>{34b9ca1f-3fc5-4fbd-b447-0dde4c016bba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="devices\trc-1000">
+      <UniqueIdentifier>{5deb21eb-38bb-4548-b3e7-290e6ed372a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config-ui">
+      <UniqueIdentifier>{8b3a86f0-3f54-49eb-b6a8-bc8f47fdbfde}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

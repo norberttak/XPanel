@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <iostream>
 #include <cstring>
-#include "Logger.h"
-#include "FIPImageLayer.h"
+#include "core/Logger.h"
+#include "fip/FIPImageLayer.h"
 
 bool ImageBuffer::load_from_bmp_file(std::string file_name)
 {

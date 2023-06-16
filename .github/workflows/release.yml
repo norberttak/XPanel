@@ -50,19 +50,19 @@ jobs:
 
       - name: Copy 3rd party dlls (Windows)
         run: |
-          cp LUA/lua54.dll built-plugin-windows/plugins/XPanel/64/
-          cp hidapi/lib/hidapi.dll built-plugin-windows/plugins/XPanel/64/
-          cp FIP-SDK/lib/DirectOutput.dll built-plugin-windows/plugins/XPanel/64/
+          cp 3rdparty/LUA/lua54.dll built-plugin-windows/plugins/XPanel/64/
+          cp 3rdparty/hidapi/lib/hidapi.dll built-plugin-windows/plugins/XPanel/64/
+          cp 3rdparty/FIP-SDK/lib/DirectOutput.dll built-plugin-windows/plugins/XPanel/64/
 
       - name: Copy board-config.ini
         run: |
-          cp config/board-config.ini built-plugin-windows/plugins/XPanel/64/
-          cp config/board-config.ini built-plugin-linux/plugins/XPanel/64/
+          cp sample-config/board-config.ini built-plugin-windows/plugins/XPanel/64/
+          cp sample-config/board-config.ini built-plugin-linux/plugins/XPanel/64/
 
       - name: Copy FIP Fonts BMP
         run: |
-          cp FIP-SDK/fonts/fip-fonts.bmp built-plugin-windows/plugins/XPanel/64/
-          cp FIP-SDK/fonts/fip-fonts.bmp built-plugin-linux/plugins/XPanel/64/
+          cp 3rdparty/FIP-SDK/fonts/fip-fonts.bmp built-plugin-windows/plugins/XPanel/64/
+          cp 3rdparty/FIP-SDK/fonts/fip-fonts.bmp built-plugin-linux/plugins/XPanel/64/
 
       - name: Copy Doc PDF
         run: |
@@ -81,7 +81,7 @@ jobs:
 
       - name: Create sample configs zip
         run: |
-          cd config
+          cd sample-config
           zip -r ../${SAMPLE_CONFIG_ZIP} .
 
       - name: Create draft release

@@ -11,9 +11,9 @@
 #include <sstream>
 #include <regex>
 #include "XPLMPlugin.h"
-#include "ArduinoHomeCockpit.h"
-#include "UsbHidDevice.h"
-#include "Logger.h"
+#include "arduino-homecockpit/ArduinoHomeCockpit.h"
+#include "core/UsbHidDevice.h"
+#include "core/Logger.h"
 
 #define WRITE_BUFFER_SIZE 64
 #define READ_BUFFER_SIZE 9

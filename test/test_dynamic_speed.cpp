@@ -11,9 +11,9 @@
 #include "XPLMDisplay.h"
 
 #include "CppUnitTest.h"
-#include "SaitekMultiPanel.h"
-#include "LuaHelper.h"
-#include "ConfigParser.h"
+#include "saitek-multi/SaitekMultiPanel.h"
+#include "core/LuaHelper.h"
+#include "core/ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

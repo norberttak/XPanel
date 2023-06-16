@@ -6,9 +6,9 @@
 
 #include <cstring>
 #include <cstdlib>
-#include "UsbHidDevice.h"
-#include "SaitekSwitchPanel.h"
-#include "Logger.h"
+#include "core/UsbHidDevice.h"
+#include "saitek-switch/SaitekSwitchPanel.h"
+#include "core/Logger.h"
 
 #define WRITE_BUFFER_SIZE 2
 #define READ_BUFFER_SIZE 4

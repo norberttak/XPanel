@@ -6,8 +6,8 @@
 #pragma once
 #include <string>
 #include <map>
-#include "Configuration.h"
-#include "GenericScreen.h"
+#include "core/Configuration.h"
+#include "core/GenericScreen.h"
 #include "FIPPage.h"
 
 class FIPScreen : public GenericScreen
