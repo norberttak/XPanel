@@ -459,7 +459,6 @@ int LuaHelper::do_string(std::string lua_str)
 		lua_enabled = false;
 		return EXIT_FAILURE;
 	}
-
 	return EXIT_SUCCESS;
 }
 
@@ -469,6 +468,7 @@ int LuaHelper::do_string(std::string lua_str, double& ret_value)
 		return EXIT_FAILURE;
 	
 	ret_value = lua_tonumber(lua, -1);
+	lua_pop(lua, 1);
 	return EXIT_SUCCESS;
 }
 
@@ -479,5 +479,6 @@ int LuaHelper::do_string(std::string lua_str, std::string& ret_value)
 
 	const char* buffer = lua_tostring(lua, -1);
 	ret_value = buffer;
+	lua_pop(lua, 1);
 	return EXIT_SUCCESS;
 }
