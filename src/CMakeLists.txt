@@ -13,7 +13,7 @@ add_library(xpanel SHARED
     core/UsbHidDevice.cpp
     core/XPanel.cpp
     core/GenericScreen.cpp
-    config-ui/MessageWindow.cpp
+    log-message-window/MessageWindow.cpp
     devices/arduino-homecockpit/ArduinoHomeCockpit.cpp
     devices/saitek-multi/SaitekMultiPanel.cpp
     devices/saitek-radio/SaitekRadioPanel.cpp

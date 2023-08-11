@@ -30,7 +30,7 @@
 #include "trc-1000/TRC1000PFD.h"
 #include "trc-1000/TRC1000Audio.h"
 #include "core/LuaHelper.h"
-#include "config-ui/MessageWindow.h"
+#include "log-message-window/MessageWindow.h"
 #include "core/Logger.h"
 
 #if IBM
@@ -71,6 +71,7 @@ const float ERROR_DISPLAY_TIME_PERIOD = 2.0f;
 int g_menu_container_idx;
 XPLMMenuID g_menu_id;
 void menu_handler(void*, void*);
+MessageWindow* msg_window = NULL;
 
 typedef enum {
 	MENU_ITEM_RELOAD = 0
@@ -85,6 +86,9 @@ PLUGIN_API int XPluginStart(
 {
 	Logger::set_log_level(TLogLevel::logINFO);
 	Logger(TLogLevel::logINFO) << "plugin start" << std::endl;
+
+	//XPLMEnableFeature("XPLM_USE_NATIVE_PATHS", 1);
+	//XPLMEnableFeature("XPLM_USE_NATIVE_WIDGET_WINDOWS", 1);
 
 	snprintf(outName, 256, "XPanel ver %s", PLUGIN_VERSION);
 	snprintf(outSig, 256, "%s", PLUGIN_SIGNATURE);
@@ -166,7 +170,10 @@ float error_display_callback(float, float, int, void*)
 		return ERROR_DISPLAY_TIME_PERIOD;
 
 	std::list<std::string> error_msgs = Logger::get_and_clear_stored_messages();
-	new MessageWindow(std::string("Xpanel: Errors and Warnings"), error_msgs, true);
+	if (!msg_window)
+		msg_window = new MessageWindow(std::string("Xpanel: Errors and Warnings"));
+	msg_window->append_multi_lines(error_msgs);
+	msg_window->show();
 
 	return ERROR_DISPLAY_TIME_PERIOD;
 }
@@ -188,6 +195,10 @@ void stop_and_clear_xpanel_plugin()
 	config.clear();
 	ActionQueue::get_instance()->clear_all_actions();
 	plugin_already_initialized = false;
+
+	if (msg_window)
+		delete msg_window;
+	msg_window = NULL;
 }
 
 std::filesystem::path absolute_path(std::string aircraft_path, std::string file_name)
@@ -370,7 +381,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void*)
 	{
 		switch (inMsg) {
 		case XPLM_MSG_AIRPORT_LOADED:
-			Logger(TLogLevel::logTRACE) << "XPLM_MSG_AIRPORT_LOADED message received" << std::endl;
+			Logger(TLogLevel::logTRACE) << "XPLM_MSG_AIRPORT_LOADED: message received" << std::endl;
 			
 			if (plugin_already_initialized)
 				stop_and_clear_xpanel_plugin();

@@ -186,7 +186,6 @@ xcopy /y /d "$(SolutionDir)3rdparty\FIP-SDK\fonts\fip-fonts.bmp" "$(OutDir)"
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\config-ui\MessageWindow.cpp" />
     <ClCompile Include="..\src\core\Action.cpp" />
     <ClCompile Include="..\src\core\AgeingCounter.cpp" />
     <ClCompile Include="..\src\core\ConfigParser.cpp" />
@@ -214,6 +213,7 @@ xcopy /y /d "$(SolutionDir)3rdparty\FIP-SDK\fonts\fip-fonts.bmp" "$(OutDir)"
     <ClCompile Include="..\src\devices\trc-1000\TRC1000.cpp" />
     <ClCompile Include="..\src\devices\trc-1000\TRC1000Audio.cpp" />
     <ClCompile Include="..\src\devices\trc-1000\TRC1000PFD.cpp" />
+    <ClCompile Include="..\src\log-message-window\MessageWindow.cpp" />
     <ClCompile Include="mock_FIPDriver.cpp" />
     <ClCompile Include="mock_hid_api.cpp" />
     <ClCompile Include="mock_xplane.cpp" />
@@ -224,6 +224,7 @@ xcopy /y /d "$(SolutionDir)3rdparty\FIP-SDK\fonts\fip-fonts.bmp" "$(OutDir)"
     <ClCompile Include="test_dynamic_speed.cpp" />
     <ClCompile Include="test_FIP.cpp" />
     <ClCompile Include="test_generic_display.cpp" />
+    <ClCompile Include="test_log_window.cpp" />
     <ClCompile Include="test_lua.cpp" />
     <ClCompile Include="test_multi_panel.cpp" />
     <ClCompile Include="test_radio_panel.cpp" />

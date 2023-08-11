@@ -99,6 +99,11 @@ Set the log level of the plugin. The log lines are written to X-Plane's default 
 ```ini
 log_level="ERROR"
 ```
+
+### Error messages
+The ERROR and WARNING level messages are also routed to a window in XPlane simulator. There you can see error messages and don't need to open the XPlane log files.
+![Error Window](error-window.png)
+
 ### Aircraft ACF file
 
 The ACF file is the main file for an X-Plane aircraft. The plugin gets the ACF file name parameter from the X-Plane system. The reason to put the ACF file name into the configuration is only for safety. During parse, we can check if accidentally a wrong configuration file (created for another aircraft) has been loaded.

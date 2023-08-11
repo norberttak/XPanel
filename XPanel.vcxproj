@@ -185,7 +185,6 @@
     <ClCompile Include="src\core\ConfigParser.cpp" />
     <ClCompile Include="src\core\Logger.cpp" />
     <ClCompile Include="src\devices\saitek-multi\SaitekMultiPanel.cpp" />
-    <ClCompile Include="src\config-ui\MessageWindow.cpp" />
     <ClCompile Include="src\devices\trc-1000\TRC1000.cpp" />
     <ClCompile Include="src\devices\saitek-switch\SaitekSwitchPanel.cpp" />
     <ClCompile Include="src\core\XPanel.cpp" />
@@ -193,6 +192,7 @@
     <ClCompile Include="src\core\Trigger.cpp" />
     <ClCompile Include="src\devices\trc-1000\TRC1000PFD.cpp" />
     <ClCompile Include="src\devices\trc-1000\TRC1000Audio.cpp" />
+    <ClCompile Include="src\log-message-window\MessageWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\AgeingCounter.h" />
@@ -209,7 +209,6 @@
     <ClInclude Include="src\core\IniFileParser.h" />
     <ClInclude Include="src\devices\saitek-radio\SaitekRadioPanel.h" />
     <ClInclude Include="src\core\LuaHelper.h" />
-    <ClInclude Include="src\config-ui\MessageWindow.h" />
     <ClInclude Include="src\core\MultiPurposeDisplay.h" />
     <ClInclude Include="src\core\Logger.h" />
     <ClInclude Include="src\devices\arduino-homecockpit\ArduinoHomeCockpit.h" />
@@ -224,6 +223,7 @@
     <ClInclude Include="src\devices\trc-1000\TRC1000PFD.h" />
     <ClInclude Include="src\devices\trc-1000\TRC1000.h" />
     <ClInclude Include="src\devices\trc-1000\TRC1000Audio.h" />
+    <ClInclude Include="src\log-message-window\MessageWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -85,7 +85,7 @@
     <ClCompile Include="src\core\XPanel.cpp">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="src\config-ui\MessageWindow.cpp">
+    <ClCompile Include="src\log-message-window\MessageWindow.cpp">
       <Filter>config-ui</Filter>
     </ClCompile>
   </ItemGroup>
@@ -174,7 +174,7 @@
     <ClInclude Include="src\core\MultiPurposeDisplay.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="src\config-ui\MessageWindow.h">
+    <ClInclude Include="src\log-message-window\MessageWindow.h">
       <Filter>config-ui</Filter>
     </ClInclude>
   </ItemGroup>
