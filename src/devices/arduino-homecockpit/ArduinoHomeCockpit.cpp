@@ -16,7 +16,7 @@
 #include "core/Logger.h"
 
 #define WRITE_BUFFER_SIZE 64
-#define READ_BUFFER_SIZE 9
+#define READ_BUFFER_SIZE 64
 
 std::filesystem::path get_plugin_path();
 
@@ -33,6 +33,7 @@ ArduinoHomeCockpit::ArduinoHomeCockpit(DeviceConfiguration& config) :UsbHidDevic
 
 	register_buttons(arduino_buttons);
 	register_displays(arduino_displays);
+	register_lights(arduino_lights);
 
 	for (auto &config_display : config.generic_displays)
 	{
@@ -134,6 +135,15 @@ int ArduinoHomeCockpit::read_board_configuration(std::string file_name, unsigned
 			arduino_displays.push_back(PanelDisplay(register_index, width, m[1]));
 
 			Logger(TLogLevel::logDEBUG) << "board config: add display: " << m[1] << " [" << register_index << "," << width << "]" << std::endl;
+			continue;
+		}
+
+		if (std::regex_match(line.c_str(), m, std::regex(TOKEN_LIGHT)))
+		{
+			unsigned int bit_index = stoi(m[2]);
+			arduino_lights.push_back(PanelLight(register_index * 8 + bit_index, m[1]));
+
+			Logger(TLogLevel::logDEBUG) << "board config: add light: " << m[1] << " [" << register_index << "," << bit_index << "]" << std::endl;
 			continue;
 		}
 
