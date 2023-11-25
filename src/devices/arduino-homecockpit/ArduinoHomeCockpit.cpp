@@ -31,6 +31,7 @@ ArduinoHomeCockpit::ArduinoHomeCockpit(DeviceConfiguration& config) :UsbHidDevic
 		return;
 	}
 
+	register_selectors(arduino_buttons);
 	register_buttons(arduino_buttons);
 	register_displays(arduino_displays);
 	register_lights(arduino_lights);
@@ -152,9 +153,6 @@ int ArduinoHomeCockpit::read_board_configuration(std::string file_name, unsigned
 	}
 
 	input_file.close();
-
-	register_selectors(arduino_buttons);
-
 	return exit_status;
 }
 
