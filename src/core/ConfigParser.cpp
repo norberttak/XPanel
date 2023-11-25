@@ -303,7 +303,7 @@ int Configparser::handle_on_log_level(IniFileSectionHeader section_header, std::
 		level = TLogLevel::logINFO;
 	else if (value == "WARNING")
 		level = TLogLevel::logWARNING;
-	else if (value == "PARSER_ERROR")
+	else if (value == "ERROR")
 		level = TLogLevel::logERROR;
 	else if (value == "TRACE")
 		level = TLogLevel::logTRACE;
