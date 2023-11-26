@@ -44,6 +44,14 @@ Action::Action(XPLMDataRef dat, float d)
 	dataref_type = XPLMGetDataRefTypes(dataref);
 }
 
+Action::Action(XPLMDataRef dat, double d)
+{
+	dataref = dat;
+	data_f = (float)d;
+	index = -1; // dataref is not an array
+	dataref_type = XPLMGetDataRefTypes(dataref);
+}
+
 Action::Action(XPLMDataRef dat, int array_index, int d)
 {
 	dataref = dat;
