@@ -341,7 +341,7 @@ int Configparser::handle_on_script_file(IniFileSectionHeader section_header, std
 
 /* Find the array index [] in the string. If index found the index part will be removed
    from teh string and the parsed index is set in the index variable.
-   If no index found index will be set to -1 
+   If no index found index will be set to -1
 */
 void Configparser::check_and_get_array_index(std::string& dataref, int& index)
 {
@@ -415,10 +415,36 @@ int Configparser::handle_on_push_or_release(IniFileSectionHeader section_header,
 		}
 		else
 		{
-			if (index >= 0)
+			switch (XPLMGetDataRefTypes(dataRef)) {
+			case xplmType_IntArray:
+				if (index < 0)
+				{
+					Logger(TLogLevel::logERROR) << "parser: invalid data ref array index (section starts at line: " << section_header.line << "): " << index << std::endl;
+					return EXIT_FAILURE;
+				}
 				action = new Action(dataRef, index, stoi(m[2]));
-			else
+				break;
+			case xplmType_FloatArray:
+				if (index < 0)
+				{
+					Logger(TLogLevel::logERROR) << "parser: invalid data ref array index (section starts at line: " << section_header.line << "): " << index << std::endl;
+					return EXIT_FAILURE;
+				}
+				action = new Action(dataRef, index, stof(m[2]));
+				break;
+			case xplmType_Int:
 				action = new Action(dataRef, stoi(m[2]));
+				break;
+			case xplmType_Float:
+				action = new Action(dataRef, stof(m[2]));
+				break;
+			case xplmType_Double:
+				action = new Action(dataRef, stod(m[2]));
+				break;
+			default:
+				Logger(TLogLevel::logERROR) << "parser: invalid data ref type (section starts at line: " << section_header.line << "): " << value << std::endl;
+				return EXIT_FAILURE;
+			}
 		}
 
 		Logger(TLogLevel::logDEBUG) << "parser: button push/release dataref " << m[1] << std::endl;
@@ -601,7 +627,7 @@ int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::s
 		if (section_header.name == TOKEN_SECTION_DISPLAY)
 		{
 			if (index >= 0)
-				config.device_configs.back().generic_displays[section_header.id]->add_dataref(dataRef,index);
+				config.device_configs.back().generic_displays[section_header.id]->add_dataref(dataRef, index);
 			else
 				config.device_configs.back().generic_displays[section_header.id]->add_dataref(dataRef);
 		}
@@ -812,9 +838,9 @@ int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std:
 	}
 	else if (m[0] == TOKEN_DATAREF)
 	{
-		int index=-1;
+		int index = -1;
 		check_and_get_array_index(m[1], index);
-		
+
 		if (m.size() >= 3)
 			action->scale_factor = std::stod(m[3]);
 
