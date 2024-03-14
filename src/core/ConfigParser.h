@@ -39,6 +39,7 @@ private:
 	int handle_on_fip_mask(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_fip_text(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 
+	XPLMDataTypeID normalize_dataref_type(XPLMDataTypeID data_ref_type);
 
 	const std::string TOKEN_VID = "vid";
 	const std::string TOKEN_PID = "pid";

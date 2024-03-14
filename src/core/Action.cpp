@@ -33,7 +33,7 @@ Action::Action(XPLMDataRef dat, int d)
 	dataref = dat;
 	data = d;
 	index = -1; // dataref is not an array
-	dataref_type = XPLMGetDataRefTypes(dataref);
+	dataref_type = xplmType_Int;
 }
 
 Action::Action(XPLMDataRef dat, float d)
@@ -41,7 +41,7 @@ Action::Action(XPLMDataRef dat, float d)
 	dataref = dat;
 	data_f = d;
 	index = -1; // dataref is not an array
-	dataref_type = XPLMGetDataRefTypes(dataref);
+	dataref_type = xplmType_Float;
 }
 
 Action::Action(XPLMDataRef dat, double d)
@@ -49,7 +49,7 @@ Action::Action(XPLMDataRef dat, double d)
 	dataref = dat;
 	data_f = (float)d;
 	index = -1; // dataref is not an array
-	dataref_type = XPLMGetDataRefTypes(dataref);
+	dataref_type = xplmType_Double;
 }
 
 Action::Action(XPLMDataRef dat, int array_index, int d)
@@ -57,7 +57,7 @@ Action::Action(XPLMDataRef dat, int array_index, int d)
 	dataref = dat;
 	data = d;
 	index = array_index;
-	dataref_type = XPLMGetDataRefTypes(dataref);
+	dataref_type = xplmType_IntArray;
 }
 
 Action::Action(XPLMDataRef dat, int array_index, float d)
@@ -65,7 +65,7 @@ Action::Action(XPLMDataRef dat, int array_index, float d)
 	dataref = dat;
 	data_f = d;
 	index = array_index;
-	dataref_type = XPLMGetDataRefTypes(dataref);
+	dataref_type = xplmType_FloatArray;
 }
 
 Action::Action(XPLMDataRef dat, float _delta, float _max, float _min)

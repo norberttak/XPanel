@@ -357,6 +357,25 @@ void Configparser::check_and_get_array_index(std::string& dataref, int& index)
 	}
 }
 
+XPLMDataTypeID Configparser::normalize_dataref_type(XPLMDataTypeID data_ref_type)
+{
+	/* from xplane documenation:
+	   Data types each take a bit field; it is legal to have a single dataref 
+	   be more than one type of data. When this happens, you can pick 
+	   any matching get/set API.
+	*/
+	if (data_ref_type & xplmType_Double)
+		return xplmType_Double;
+	else if (data_ref_type & xplmType_Float)
+		return xplmType_Float;
+	else if (data_ref_type & xplmType_FloatArray)
+		return xplmType_FloatArray;
+	else if (data_ref_type & xplmType_IntArray)
+		return xplmType_IntArray;
+	else
+		return data_ref_type;
+}
+
 int Configparser::handle_on_push_or_release(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	Action* action;
@@ -415,7 +434,7 @@ int Configparser::handle_on_push_or_release(IniFileSectionHeader section_header,
 		}
 		else
 		{
-			switch (XPLMGetDataRefTypes(dataRef)) {
+			switch (normalize_dataref_type(XPLMGetDataRefTypes(dataRef))) {
 			case xplmType_IntArray:
 				if (index < 0)
 				{
@@ -855,7 +874,7 @@ int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std:
 			action->data_ref_index = index;
 
 		action->data_ref = dataRef;
-		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
+		action->data_ref_type = normalize_dataref_type(XPLMGetDataRefTypes(dataRef));
 	}
 	else if (m[0] == TOKEN_LUA)
 	{
@@ -905,7 +924,7 @@ int Configparser::handle_on_fip_rotation(IniFileSectionHeader section_header, st
 			action->data_ref_index = index;
 
 		action->data_ref = dataRef;
-		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
+		action->data_ref_type = normalize_dataref_type(XPLMGetDataRefTypes(dataRef));
 	}
 	else if (m[0] == TOKEN_LUA)
 	{
@@ -994,7 +1013,7 @@ int Configparser::handle_on_fip_text(IniFileSectionHeader section_header, std::s
 			return EXIT_FAILURE;
 		}
 		action->data_ref = dataRef;
-		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
+		action->data_ref_type = normalize_dataref_type(XPLMGetDataRefTypes(dataRef));
 		action->type = SC_SET_TEXT;
 
 		Logger(logTRACE) << "config parser: add FIP text set dataref: " << action->data_ref << std::endl;
