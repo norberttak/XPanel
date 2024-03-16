@@ -22,8 +22,16 @@ UsbHidDevice::UsbHidDevice(DeviceConfiguration& config, int _read_buffer_size, i
 	if (!hid_api_initialized)
 	{
 		Logger(TLogLevel::logDEBUG) << "UsbHidDevice: call hid_init()" << std::endl;
-		hid_init();
-		hid_api_initialized = true;
+		if (hid_init() == -1)
+		{
+			Logger(TLogLevel::logERROR) << "UsbHidDevice: error in hid_init: " << hidapi_error(NULL) << std::endl;
+			hid_api_initialized = false;
+		}
+		else
+		{
+			Logger(TLogLevel::logDEBUG) << "UsbHidDevice: successful hid_init" << std::endl;
+			hid_api_initialized = true;
+		}
 	}
 }
 
@@ -230,6 +238,7 @@ void UsbHidDevice::release()
 	{
 		Logger(TLogLevel::logDEBUG) << "All USB HID devices are closed. call hid_exit()" << std::endl;
 		hid_exit();
+		hid_api_initialized = false;
 	}
 }
 
