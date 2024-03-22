@@ -13,6 +13,8 @@ class ArduinoHomeCockpit :public UsbHidDevice
 private:
 	std::vector<PanelButton> arduino_buttons;
 	std::vector<PanelDisplay> arduino_displays;
+	std::vector<PanelLight> arduino_lights;
+
 	int read_board_configuration(std::string file_name, unsigned int expected_vid, unsigned int expected_pid);
 
 	unsigned int register_index;
@@ -22,6 +24,7 @@ private:
 	const std::string TOKEN_REGISTER = "\\[register:adr=([0-9]+)\\]";
 	const std::string TOKEN_BUTTON = "button:id=\"([a-zA-Z0-9_-]+)\",bit=([0-9]+)";
 	const std::string TOKEN_DISPLAY = "display:id=\"([a-zA-Z0-9_-]+)\",width=([0-9]+)";
+	const std::string TOKEN_LIGHT = "light:id=\"([a-zA-Z0-9_-]+)\",bit=([0-9]+)";
 public:
 	ArduinoHomeCockpit(DeviceConfiguration& config);
 	int connect();
