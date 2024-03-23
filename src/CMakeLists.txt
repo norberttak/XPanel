@@ -1,4 +1,15 @@
+
+if (WIN32)
+    list(APPEND XPANEL_SRCS ../3rdparty/hidapi/windows/hid.c)
+elseif (APPLE)
+    list(APPEND XPANEL_SRCS ../3rdparty/hidapi/mac/hid.c)
+elseif (UNIX)
+    list(APPEND XPANEL_SRCS ../3rdparty/hidapi/linux/hid.c)   
+endif()
+set_source_files_properties(${XPANEL_SRCS} PROPERTIES LANGUAGE CXX)
+
 add_library(xpanel SHARED
+    ${XPANEL_SRCS}
     core/Action.cpp
     core/AgeingCounter.cpp
     core/IniFileParser.cpp
@@ -30,8 +41,17 @@ add_library(xpanel SHARED
     devices/trc-1000/TRC1000Audio.cpp
 )
 
-target_include_directories(xpanel PRIVATE ./ core devices config-ui)
-target_link_libraries(xpanel PRIVATE xpsdk::xpsdk hidapi::hidapi Lua::Lua FIPSDK::FIPSDK)
+target_include_directories(xpanel PRIVATE ./ core devices config-ui ../3rdparty/hidapi)
+
+if (UNIX)
+    include(FindPkgConfig)
+    pkg_check_modules(libudev REQUIRED IMPORTED_TARGET libudev)
+    find_library(HIDAPI_LIBRARY NAMES udev)
+    target_link_libraries(xpanel PkgConfig::libudev)
+endif()
+
+target_link_libraries(xpanel xpsdk::xpsdk Lua::Lua FIPSDK::FIPSDK)
+
 set_target_properties(xpanel PROPERTIES CXX_VISIBILITY_PRESET hidden VISIBILITY_INLINES_HIDDEN TRUE)
 target_compile_definitions(xpanel PRIVATE PLUGIN_SIGNATURE="${PROJECT_NAME_LOWERCASE}" PLUGIN_VERSION="${PROJECT_VERSION}")
 
