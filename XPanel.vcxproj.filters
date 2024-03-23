@@ -88,6 +88,9 @@
     <ClCompile Include="src\log-message-window\MessageWindow.cpp">
       <Filter>config-ui</Filter>
     </ClCompile>
+    <ClCompile Include="3rdparty\hidapi\windows\hid.c">
+      <Filter>3rdparty</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Action.h">
@@ -205,6 +208,9 @@
     </Filter>
     <Filter Include="config-ui">
       <UniqueIdentifier>{8b3a86f0-3f54-49eb-b6a8-bc8f47fdbfde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdparty">
+      <UniqueIdentifier>{f69a815f-0429-4561-8c7d-d29c1db15b22}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
