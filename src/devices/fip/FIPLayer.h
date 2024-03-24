@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <cstdint>
 
 typedef struct {
 	uint8_t r;
