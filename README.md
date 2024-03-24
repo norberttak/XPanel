@@ -39,13 +39,35 @@ If you have any errors during the plugin load or run please check the main X-Pla
 Get the latest release from [github](https://github.com/norberttak/XPanel/releases)
 Copy the xpanel folder into your X-Plane plugin directory.
 
-If you have an Arduino based board you need to add the appropriate udev rules to grant device access permissions, for example:
+### udev rules
+You need to add the appropriate udev rules to grant access permissions for the devices
+
+For the Saitek devices you need to set udev rules like this:
+```
+/etc/udev/rules.d/99-saitek.rules
+
+KERNEL=="hidraw*", ATTRS{idProduct}=="0d67", ATTRS{idVendor}=="06a3", MODE="0666", SYMLINK+="saitekswitchpanel"
+KERNEL=="hidraw*", ATTRS{idProduct}=="0d05", ATTRS{idVendor}=="06a3", MODE="0666", SYMLINK+="saitekradiopanel"
+KERNEL=="hidraw*", ATTRS{idProduct}=="0d06", ATTRS{idVendor}=="06a3", MODE="0666", SYMLINK+="saitekmultipanel"
+BUS=="usb", ATTRS{idProduct}=="0d05", ATTRS{idVendor}=="06a3", MODE="0666"
+BUS=="usb", ATTRS{idProduct}=="0d06", ATTRS{idVendor}=="06a3", MODE="0666"
+BUS=="usb", ATTRS{idProduct}=="0d67", ATTRS{idVendor}=="06a3", MODE="0666"
+```
+
+If you have an Arduino based board, please add this rule:
 ```
 /etc/udev/rules.d/99-leonardo.rules:
 
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="2341", ATTRS{idProduct}=="8036", MODE:="0666"
+KERNEL=="hidraw*", ATTRS{idVendor}=="2341", ATTRS{idProduct}=="8036", MODE:="0666", SYMLINK+="arduinoleonardo"
+BUS=="usb", ATTRS{idVendor}=="2341", ATTRS{idProduct}=="8036", MODE="0666"
 ```
 
+After setting the above rules, please don't forget to reload them
+
+
+```
+udevadm control --reload
+```
 
 # Build
 ## Windows
@@ -67,7 +89,7 @@ Dependencies:
 - C++ toolchain
 - CMake
 - pkg-config
-- hidapi
+- libudev
 - Lua
 
 ```
