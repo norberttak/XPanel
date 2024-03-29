@@ -114,20 +114,37 @@ int UsbHidDevice::write_device(unsigned char* buf, int length)
 
 int UsbHidDevice::connect()
 {
-	device_handle = hid_open(vid, pid, NULL);
-	if (!device_handle) {
-		Logger(TLogLevel::logERROR) << "error opening hid device vid=" << vid << " pid=" << pid << " reason=" << hidapi_error(NULL) << std::endl;
-		return EXIT_FAILURE;
-	}
-	ref_count++;
+    struct hid_device_info *dev_info = hid_enumerate(vid, pid);
+    if (!dev_info) {
+        Logger(TLogLevel::logERROR) << "error enumerating hid device with vid=" << vid << " pid=" << pid << " reason=" << hidapi_error(NULL) << std::endl;
+        hid_free_enumeration(dev_info);
+        return EXIT_FAILURE;
+    }
 
-	if (hid_set_nonblocking(device_handle, 1) == -1) {
-		Logger(TLogLevel::logERROR) << "error in hid_set_nonblocking vid=" << vid << " pid=" << pid << " reason=" << hidapi_error(device_handle) << std::endl;
-		return EXIT_FAILURE;
-	}
+    device_handle = hid_open_path(dev_info->path);
+    if (!device_handle) {
+        Logger(TLogLevel::logERROR) << "error opening hid device vid=" << vid << " pid=" << pid << " reason=" << hidapi_error(NULL) << std::endl;
+        hid_free_enumeration(dev_info);
+        return EXIT_FAILURE;
+    }		
 
-	Logger(TLogLevel::logDEBUG) << "UsbHidDevice connect successful. vid=" << vid << " pid=" << pid << std::endl;
-	return EXIT_SUCCESS;
+    if (hid_set_nonblocking(device_handle, 1) == -1) {
+        Logger(TLogLevel::logERROR) << "error in hid_set_nonblocking vid=" << vid << " pid=" << pid << " reason=" << hidapi_error(device_handle) << std::endl;
+        hid_free_enumeration(dev_info);
+        return EXIT_FAILURE;
+    }
+
+    ref_count++;
+
+    if (dev_info->next) {
+        Logger(TLogLevel::logWARNING) << "found more than one device with vid=" << vid << " pid=" << pid << " Only the first device is used now. serial=" << dev_info->serial_number << std::endl; 
+    }
+
+    Logger(TLogLevel::logDEBUG) << "device opened: vid=" << vid << " pid=" << pid << " product=" << dev_info->product_string << " serial=" << dev_info->serial_number << std::endl;
+
+    hid_free_enumeration(dev_info);
+
+    return EXIT_SUCCESS;
 }
 
 void UsbHidDevice::start()
