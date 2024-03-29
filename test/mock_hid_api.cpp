@@ -5,8 +5,10 @@
  */
 
 #pragma once
-#include"hidapi.h"
+#include "hidapi.h"
 #include <map>
+#include <sstream>
+#include <iostream>
 
 int device = 123;
 int vid = 0;
@@ -17,6 +19,38 @@ extern int HID_API_EXPORT HID_API_CALL hid_init()
 {
 	hid_device_open = false;
 	return 0;
+}
+
+extern struct hid_device_info HID_API_EXPORT* HID_API_CALL hid_enumerate(unsigned short vid, unsigned short pid)
+{
+	hid_device_info* dev_info = new hid_device_info();
+	dev_info->next = NULL;
+
+	dev_info->product_id = pid;
+	dev_info->vendor_id = vid;
+	dev_info->manufacturer_string = L"NorbiTest";
+	dev_info->serial_number = L"12345ABCD";
+
+	std::stringstream ss;
+	ss << vid << ' ' << pid;
+	dev_info->path = _strdup(ss.str().c_str());
+
+	return dev_info;
+}
+
+extern HID_API_EXPORT hid_device* HID_API_CALL hid_open_path(const char* path)
+{
+	std::stringstream ss;
+	ss << path;
+	ss >> vid >> pid;
+
+	hid_device_open = true;
+	return (hid_device*)&device;
+}
+
+extern void HID_API_EXPORT HID_API_CALL hid_free_enumeration(struct hid_device_info* devs)
+{
+	free(devs);
 }
 
 extern HID_API_EXPORT hid_device* HID_API_CALL hid_open(unsigned short vendor_id, unsigned short product_id, const wchar_t* serial_number)
