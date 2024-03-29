@@ -51,7 +51,6 @@ jobs:
       - name: Copy 3rd party dlls (Windows)
         run: |
           cp 3rdparty/LUA/lua54.dll built-plugin-windows/plugins/XPanel/64/
-          cp 3rdparty/hidapi/lib/hidapi.dll built-plugin-windows/plugins/XPanel/64/
           cp 3rdparty/FIP-SDK/lib/DirectOutput.dll built-plugin-windows/plugins/XPanel/64/
 
       - name: Copy board-config.ini
