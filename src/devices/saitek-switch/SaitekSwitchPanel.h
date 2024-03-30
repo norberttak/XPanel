@@ -17,6 +17,7 @@ private:
 	std::vector<PanelLight> switch_lights;
 public:
 	SaitekSwitchPanel(DeviceConfiguration& config);
+	int connect(hid_device* _device_handle);
 	int connect();
 	void start();
 	void stop(int timeout);

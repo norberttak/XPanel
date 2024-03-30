@@ -137,14 +137,23 @@ int UsbHidDevice::connect()
     ref_count++;
 
     if (dev_info->next) {
-        Logger(TLogLevel::logWARNING) << "found more than one device with vid=" << vid << " pid=" << pid << " Only the first device is used now. serial=" << dev_info->serial_number << std::endl; 
+        Logger(TLogLevel::logWARNING) << "found more than one device with vid=" << vid << " pid=" << pid << " Only the first device is used now" << std::endl; 
     }
 
-    Logger(TLogLevel::logDEBUG) << "device opened: vid=" << vid << " pid=" << pid << " product=" << dev_info->product_string << " serial=" << dev_info->serial_number << std::endl;
+    Logger(TLogLevel::logDEBUG) << "device opened: vid=" << vid << " pid=" << pid << std::endl;
 
     hid_free_enumeration(dev_info);
 
     return EXIT_SUCCESS;
+}
+
+int UsbHidDevice::connect(hid_device* _device_handle)
+{
+	ref_count++;
+	device_handle = _device_handle;
+	Logger(TLogLevel::logDEBUG) << "device connect: vid=" << vid << " pid=" << pid << std::endl;
+
+	return EXIT_SUCCESS;
 }
 
 void UsbHidDevice::start()

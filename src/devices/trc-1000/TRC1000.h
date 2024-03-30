@@ -34,6 +34,7 @@ public:
 	TRC1000(DeviceConfiguration& config, int _read_buffer_size, int _write_buffer_size);
 	~TRC1000();
 	virtual void thread_func();
+	int connect(hid_device* _device_handle);
 	int connect();
 	void start();
 	void stop(int timeout);

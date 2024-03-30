@@ -53,6 +53,27 @@ SaitekSwitchPanel::SaitekSwitchPanel(DeviceConfiguration& config) :UsbHidDevice(
 	register_lights(switch_lights);
 }
 
+int SaitekSwitchPanel::connect(hid_device* _device_handle)
+{
+	if (_device_handle == NULL)
+	{
+		if (UsbHidDevice::connect() != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "SaitekSwitchPanel connect. Error during connect" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	else
+	{
+		if (UsbHidDevice::connect(_device_handle) != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "SaitekSwitchPanel connect. Error during connect" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+    return EXIT_SUCCESS;
+}
+
 int SaitekSwitchPanel::connect()
 {
 	unsigned char buff[WRITE_BUFFER_SIZE];

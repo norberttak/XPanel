@@ -19,6 +19,7 @@ private:
 	std::vector<PanelDisplay> multi_displays;
 public:
 	SaitekMultiPanel(DeviceConfiguration &config);
+	int connect(hid_device* _device_handle);
 	int connect();
 	void start();
 	void stop(int timeout);

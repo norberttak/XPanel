@@ -67,6 +67,27 @@ SaitekMultiPanel::SaitekMultiPanel(DeviceConfiguration& config) :UsbHidDevice(co
 	}
 }
 
+int SaitekMultiPanel::connect(hid_device* _device_handle)
+{
+	if (_device_handle == NULL)
+	{
+		if (UsbHidDevice::connect() != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "SaitekMultiPanel connect. Error during connect" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	else
+	{
+		if (UsbHidDevice::connect(_device_handle) != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "SaitekMultiPanel connect. Error during connect" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+
 int SaitekMultiPanel::connect()
 {
 	unsigned char buff[WRITE_BUFFER_SIZE];
