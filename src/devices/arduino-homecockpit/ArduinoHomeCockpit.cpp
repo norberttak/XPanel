@@ -148,6 +148,27 @@ int ArduinoHomeCockpit::read_board_configuration(std::string file_name, unsigned
 	return exit_status;
 }
 
+int ArduinoHomeCockpit::connect(hid_device* _device_handle)
+{
+	if (_device_handle == NULL)
+	{
+		if (UsbHidDevice::connect() != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "Arduin Home Cockpit connect. Error during connect" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	else
+	{
+		if (UsbHidDevice::connect(_device_handle) != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "Arduin Home Cockpit connect. Error during connect" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+
 int ArduinoHomeCockpit::connect()
 {
 	return UsbHidDevice::connect();

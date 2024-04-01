@@ -19,6 +19,7 @@ private:
 public:
 	SaitekRadioPanel(DeviceConfiguration& config);
 	int connect();
+	int connect(hid_device* _device_handle);
 	void start();
 	void stop(int timeout);
 };

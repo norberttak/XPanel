@@ -64,10 +64,26 @@ SaitekRadioPanel::SaitekRadioPanel(DeviceConfiguration& config) :UsbHidDevice(co
 
 int SaitekRadioPanel::connect()
 {
-	if (UsbHidDevice::connect() != EXIT_SUCCESS)
+	return connect(NULL);
+}
+
+int SaitekRadioPanel::connect(hid_device* _device_handle)
+{
+	if (_device_handle == NULL) 
 	{
-		Logger(TLogLevel::logERROR) << "SaitekRadioPanel connect. Error during connect" << std::endl;
-		return EXIT_FAILURE;
+		if (UsbHidDevice::connect() != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "SaitekRadioPanel connect. Error during connect" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	else
+	{
+		if (UsbHidDevice::connect(_device_handle) != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "SaitekRadioPanel connect. Error during connect" << std::endl;
+			return EXIT_FAILURE;
+		}
 	}
 
 	read_device(read_buffer, read_buffer_size);

@@ -121,6 +121,27 @@ void TRC1000::thread_func()
 	Logger(TLogLevel::logDEBUG) << "TRC1000 thread_func: exit vid=" << vid << " pid=" << pid << std::endl;
 }
 
+int TRC1000::connect(hid_device* _device_handle)
+{
+	if (_device_handle == NULL)
+	{
+		if (UsbHidDevice::connect() != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "TRC1000 connect. Error during connect" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	else
+	{
+		if (UsbHidDevice::connect(_device_handle) != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "TRC1000 connect. Error during connect" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+
 int TRC1000::connect()
 {
 	if (UsbHidDevice::connect() != EXIT_SUCCESS)

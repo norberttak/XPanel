@@ -31,6 +31,7 @@ protected:
 	unsigned short vid = 0;
 	unsigned short pid = 0;
 	int connect();
+	int connect(hid_device* _device_handle);
 	virtual void start();
 	virtual void stop(int time_out);
 	void release();
