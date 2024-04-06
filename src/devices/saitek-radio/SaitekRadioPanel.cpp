@@ -90,7 +90,7 @@ int SaitekRadioPanel::connect(hid_device* _device_handle)
 	memcpy(read_buffer_old, read_buffer, read_buffer_size);
 
 	unsigned char buff[WRITE_BUFFER_SIZE];
-	memset(buff, 0xff, sizeof(buff)); // clear all displays
+	memset(buff, 0x00, sizeof(buff)); // set all displays to 0
 	if (send_feature_report(buff, sizeof(buff)) != EXIT_SUCCESS)
 	{
 		Logger(TLogLevel::logERROR) << "SaitekRadioPanel connect. error in write_device" << std::endl;

@@ -86,6 +86,7 @@ int UsbHidDevice::send_feature_report(unsigned char* buf, int length)
 		return EXIT_FAILURE;
 	}
 
+	buf[0] = 0x00; // don't use report id
 	if (hid_send_feature_report(device_handle, buf, length) == -1)
 	{
 		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::send_feature_report" << " reason=" << hidapi_error(device_handle) << std::endl;
