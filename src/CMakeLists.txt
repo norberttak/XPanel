@@ -43,7 +43,7 @@ add_library(xpanel SHARED
 
 target_include_directories(xpanel PRIVATE ./ core devices config-ui ../3rdparty/hidapi)
 
-if (UNIX)
+if (UNIX AND NOT APPLE)
     include(FindPkgConfig)
     pkg_check_modules(libudev REQUIRED IMPORTED_TARGET libudev)
     find_library(HIDAPI_LIBRARY NAMES udev)
