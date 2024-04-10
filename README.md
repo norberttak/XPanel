@@ -98,6 +98,14 @@ $ cmake --build build
 $ cmake --install build
 ```
 
+## macOS
+
+Dependencies:
+```
+brew install lua
+brew install pkg-config
+```
+
 Copy or link the `/tmp/xpanel-install/XPanel` directory into the X-Plane plugin folder.
 
 ## Report bugs
