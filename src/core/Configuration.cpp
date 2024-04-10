@@ -44,6 +44,23 @@ DeviceConfiguration::DeviceConfiguration()
 	Logger(TLogLevel::logTRACE) << "DeviceConfiguration constructor called" << std::endl;
 }
 
+DeviceConfiguration::DeviceConfiguration(const DeviceConfiguration& other):
+	device_type(other.device_type),
+	pid(other.pid),
+	vid(other.vid),
+	serial_number(other.serial_number),
+	push_actions(other.push_actions),
+	release_actions(other.release_actions),
+	encoder_inc_actions(other.encoder_inc_actions),
+	encoder_dec_actions(other.encoder_dec_actions),
+	light_triggers(other.light_triggers),
+	multi_displays(other.multi_displays),
+	generic_displays(other.generic_displays),
+	fip_screens(other.fip_screens)
+{
+	Logger(TLogLevel::logTRACE) << "DeviceConfiguration copy constructor called" << std::endl;
+}
+
 DeviceConfiguration& DeviceConfiguration::operator=(const DeviceConfiguration& other)
 {
 	Logger(TLogLevel::logTRACE) << "DeviceConfiguration = operator called" << std::endl;

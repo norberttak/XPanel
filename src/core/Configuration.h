@@ -51,6 +51,7 @@ class DeviceConfiguration
 public:
 	~DeviceConfiguration();
 	DeviceConfiguration();
+	DeviceConfiguration(const DeviceConfiguration& other);
 	DeviceConfiguration& operator=(const DeviceConfiguration& other);
 	void clear();
 
