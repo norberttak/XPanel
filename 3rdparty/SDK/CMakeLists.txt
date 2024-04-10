@@ -12,7 +12,17 @@ if (WIN32)
     )
 elseif (APPLE)
     target_compile_definitions(xpsdk::xpsdk INTERFACE APL=1 IBM=0 LIN=0)
-    # TODO link
+    list(APPEND CMAKE_FRAMEWORK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Mac")
+    find_library(XPLM_LIBRARY NAMES XPLM XPLM.framework)
+    find_library(XPWIDGETS_LIBRARY NAMES XPWidgets XPWidgets.framework)
+    target_link_libraries(xpsdk::xpsdk
+        INTERFACE
+	    "-framework AppKit"
+            "-framework CoreFoundation"
+	    "-framework IOKit"
+	    ${XPLM_LIBRARY}
+	    ${XPWIDGETS_LIBRARY}
+    )
 elseif (UNIX)
     target_compile_definitions(xpsdk::xpsdk INTERFACE APL=0 IBM=0 LIN=1)
 endif()
