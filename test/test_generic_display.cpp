@@ -23,7 +23,7 @@ int test_hid_get_vid();
 int test_hid_get_pid();
 std::string test_get_last_command();
 void test_hid_get_write_data(unsigned char* data, size_t length);
-void test_flight_loop(std::vector<DeviceConfiguration> &config);
+void test_flight_loop(std::vector<ClassConfiguration> &config);
 
 namespace test
 {
@@ -44,7 +44,7 @@ namespace test
 			LuaHelper::get_instace()->init();
 			LuaHelper::get_instace()->load_script_file("../../test/" + config.script_file);
 
-			device = new ArduinoHomeCockpit(config.device_configs[0]);
+			device = new ArduinoHomeCockpit(config.class_configs[0]);
 			device->connect();
 			device->start();
 			t = new std::thread(&ArduinoHomeCockpit::thread_func, (ArduinoHomeCockpit*)device);
@@ -54,7 +54,7 @@ namespace test
 			XPLMDataRef dataref = XPLMFindDataRef("sim/altimeter_gauge");
 			XPLMSetDatai(dataref, 0xFABA);
 
-			test_flight_loop(config.device_configs);
+			test_flight_loop(config.class_configs);
 			std::this_thread::sleep_for(150ms);
 			
 			unsigned char write_buffer[9];
@@ -68,7 +68,7 @@ namespace test
 			XPLMDataRef dataref = XPLMFindDataRef("sim/test/variometer");
 			XPLMSetDatai(dataref, -2000); // -2000 --> 0x87D0 (MSB set to 1 as number is negative)
 
-			test_flight_loop(config.device_configs);
+			test_flight_loop(config.class_configs);
 			std::this_thread::sleep_for(150ms);
 
 			unsigned char write_buffer[9];
@@ -79,7 +79,7 @@ namespace test
 
 		TEST_METHOD(TestConstGauge)
 		{
-			test_flight_loop(config.device_configs);
+			test_flight_loop(config.class_configs);
 			std::this_thread::sleep_for(150ms);
 
 			unsigned char write_buffer[9];

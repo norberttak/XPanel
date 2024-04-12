@@ -24,7 +24,7 @@
 #define BUTTON_BUFFER_OFFSET	0
 #define ENCODER_0_BUFFER_OFFSET	5
 
-TRC1000Audio::TRC1000Audio(DeviceConfiguration& config) :TRC1000(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
+TRC1000Audio::TRC1000Audio(ClassConfiguration& config) :TRC1000(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {
 	// cmd response oxc2				0
 	trc1000audio_buttons.push_back(PanelButton(1 * 8 + 0, "COM1MIC"));

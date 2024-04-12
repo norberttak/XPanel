@@ -20,7 +20,7 @@
 
 std::filesystem::path get_plugin_path();
 
-ArduinoHomeCockpit::ArduinoHomeCockpit(DeviceConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
+ArduinoHomeCockpit::ArduinoHomeCockpit(ClassConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {
 	std::filesystem::path board_config_path = get_plugin_path();
 	board_config_path /= "board-config.ini";

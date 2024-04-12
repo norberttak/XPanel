@@ -8,7 +8,7 @@
 #include "core/Logger.h"
 #include "FIPDevice.h"
 
-FIPDevice::FIPDevice(DeviceConfiguration& _config) :Device(_config,2,1)
+FIPDevice::FIPDevice(ClassConfiguration& _config) :Device(_config,2,1)
 {
 	f_device = NULL;
 	//bit index 0 not used

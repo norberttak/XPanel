@@ -42,7 +42,7 @@ namespace test
 				p = new Configparser();
 				int result = p->parse_file("../../test/test-arduino-home.ini", config);
 				Assert::AreEqual(0, result);
-				device = new ArduinoHomeCockpit(config.device_configs[0]);
+				device = new ArduinoHomeCockpit(config.class_configs[0]);
 				device->connect();
 				device->start();
 				t = new std::thread(&ArduinoHomeCockpit::thread_func, (ArduinoHomeCockpit*)device);

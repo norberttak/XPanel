@@ -127,7 +127,7 @@ PLUGIN_API int  XPluginEnable(void)
 
 float flight_loop_callback(float, float, int, void*)
 {
-	for (const auto& it : config.device_configs)
+	for (const auto& it : config.class_configs)
 	{
 		// check and set LED states
 		for (const auto& triggers : it.light_triggers)
@@ -227,7 +227,7 @@ extern std::filesystem::path get_plugin_path()
 }
 
 template <class T>
-int enumerate_and_add_hid_devices(DeviceConfiguration& it)
+int enumerate_and_add_hid_devices(ClassConfiguration& it)
 {
 	Device* device;
 	struct hid_device_info* dev_info;
@@ -310,10 +310,10 @@ int init_and_start_xpanel_plugin(void)
 
 	Device* device;
 
-	for (auto& it : config.device_configs)
+	for (auto& it : config.class_configs)
 	{
-		switch (it.device_type) {
-		case DeviceType::SAITEK_MULTI:
+		switch (it.device_class_type) {
+		case DeviceClassType::SAITEK_MULTI:
 			// set default vid & pid if it's not set in config file
 			if (it.vid == 0)
 				it.vid = 0x06a3;
@@ -322,7 +322,7 @@ int init_and_start_xpanel_plugin(void)
 			Logger(TLogLevel::logDEBUG) << "add new saitek multi panel device" << std::endl;
 			enumerate_and_add_hid_devices<SaitekMultiPanel>(it);
 			break;
-		case DeviceType::HOME_COCKPIT:
+		case DeviceClassType::HOME_COCKPIT:
 			// set default vid & pid if it's not set in config file
 			if (it.vid == 0)
 				it.vid = 0x2341;
@@ -331,7 +331,7 @@ int init_and_start_xpanel_plugin(void)
 			Logger(TLogLevel::logDEBUG) << "add new homecockpit devices" << std::endl;
 			enumerate_and_add_hid_devices<ArduinoHomeCockpit>(it);
 			break;
-		case DeviceType::SAITEK_RADIO:
+		case DeviceClassType::SAITEK_RADIO:
 			// set default vid & pid if it's not set in config file
 			if (it.vid == 0)
 				it.vid = 0x06a3;
@@ -340,7 +340,7 @@ int init_and_start_xpanel_plugin(void)
 			Logger(TLogLevel::logDEBUG) << "add new saitek radio devices" << std::endl;
 			enumerate_and_add_hid_devices<SaitekRadioPanel>(it);
 			break;
-		case DeviceType::SAITEK_SWITCH:
+		case DeviceClassType::SAITEK_SWITCH:
 			// set default vid & pid if it's not set in config file
 			if (it.vid == 0)
 				it.vid = 0x06a3;
@@ -349,7 +349,7 @@ int init_and_start_xpanel_plugin(void)
 			Logger(TLogLevel::logDEBUG) << "add new saitek switch panel devices" << std::endl;
 			enumerate_and_add_hid_devices<SaitekSwitchPanel>(it);
 			break;
-		case DeviceType::LOGITECH_FIP:
+		case DeviceClassType::LOGITECH_FIP:
 			Logger(TLogLevel::logDEBUG) << "add new FIP device" << std::endl;
 			device = new FIPDevice(it);
 			devices.push_back(device);
@@ -357,11 +357,11 @@ int init_and_start_xpanel_plugin(void)
 			device->start();
 			device->thread_handle = new std::thread(&FIPDevice::thread_func, (FIPDevice*)device);
 			break;
-		case DeviceType::TRC1000_PFD:
+		case DeviceClassType::TRC1000_PFD:
 			Logger(TLogLevel::logDEBUG) << "add new TRC1000 PFD devices" << std::endl;
 			enumerate_and_add_hid_devices<TRC1000PFD>(it);
 			break;
-		case DeviceType::TRC1000_AUDIO:
+		case DeviceClassType::TRC1000_AUDIO:
 			Logger(TLogLevel::logDEBUG) << "add new TRC1000 Audio devices" << std::endl;
 			enumerate_and_add_hid_devices<TRC1000Audio>(it);
 			break;

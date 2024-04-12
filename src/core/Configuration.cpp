@@ -17,7 +17,7 @@ Configuration& Configuration::operator=(const Configuration& other)
 	version = other.version;
 	aircraft_path = other.aircraft_path;
 
-	device_configs = other.device_configs;
+	class_configs = other.class_configs;
 
 	return *this;
 }
@@ -29,7 +29,7 @@ void Configuration::clear()
 	version = "";
 	aircraft_path = "";
 
-	device_configs.clear();
+	class_configs.clear();
 }
 
 Configuration::~Configuration()
@@ -39,13 +39,13 @@ Configuration::~Configuration()
 }
 
 /* ----------- Device specific configuration options ------------------*/
-DeviceConfiguration::DeviceConfiguration()
+ClassConfiguration::ClassConfiguration()
 {
-	Logger(TLogLevel::logTRACE) << "DeviceConfiguration constructor called" << std::endl;
+	Logger(TLogLevel::logTRACE) << "ClassConfiguration constructor called" << std::endl;
 }
 
-DeviceConfiguration::DeviceConfiguration(const DeviceConfiguration& other):
-	device_type(other.device_type),
+ClassConfiguration::ClassConfiguration(const ClassConfiguration& other):
+	device_class_type(other.device_class_type),
 	pid(other.pid),
 	vid(other.vid),
 	serial_number(other.serial_number),
@@ -58,17 +58,17 @@ DeviceConfiguration::DeviceConfiguration(const DeviceConfiguration& other):
 	generic_displays(other.generic_displays),
 	fip_screens(other.fip_screens)
 {
-	Logger(TLogLevel::logTRACE) << "DeviceConfiguration copy constructor called" << std::endl;
+	Logger(TLogLevel::logTRACE) << "ClassConfiguration copy constructor called" << std::endl;
 }
 
-DeviceConfiguration& DeviceConfiguration::operator=(const DeviceConfiguration& other)
+ClassConfiguration& ClassConfiguration::operator=(const ClassConfiguration& other)
 {
-	Logger(TLogLevel::logTRACE) << "DeviceConfiguration = operator called" << std::endl;
+	Logger(TLogLevel::logTRACE) << "ClassConfiguration = operator called" << std::endl;
 
 	if (this == &other)
 		return *this;
 
-	device_type = other.device_type;
+	device_class_type = other.device_class_type;
 	pid = other.pid;
 	vid = other.vid;
 	serial_number = other.serial_number;
@@ -84,7 +84,7 @@ DeviceConfiguration& DeviceConfiguration::operator=(const DeviceConfiguration& o
 	return *this;
 }
 
-void DeviceConfiguration::clear()
+void ClassConfiguration::clear()
 {
 	for (auto &act : push_actions)
 		act.second.clear();
@@ -107,8 +107,8 @@ void DeviceConfiguration::clear()
 	light_triggers.clear();
 }
 
-DeviceConfiguration::~DeviceConfiguration()
+ClassConfiguration::~ClassConfiguration()
 {
-	Logger(TLogLevel::logTRACE) << "DeviceConfiguration destructor called" << std::endl;
+	Logger(TLogLevel::logTRACE) << "ClassConfiguration destructor called" << std::endl;
 	clear();
 }

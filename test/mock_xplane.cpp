@@ -296,7 +296,7 @@ void test_call_registered_flight_loop()
 		(*registered_flight_loop)(1, 1, 1, NULL);
 }
 
-void test_flight_loop(std::vector<DeviceConfiguration> &config)
+void test_flight_loop(std::vector<ClassConfiguration> &config)
 {
 	// process button light changes
 	for (auto& it : config)

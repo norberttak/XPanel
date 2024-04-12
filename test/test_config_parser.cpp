@@ -33,30 +33,30 @@ namespace test
 
 		TEST_METHOD(TestDeviceConfigParams)
 		{
-			Assert::AreEqual(1, (int)config.device_configs.size());
-			Assert::IsTrue(config.device_configs[0].device_type == DeviceType::SAITEK_MULTI);
-			Assert::AreEqual(0x12AB, (int)config.device_configs[0].vid);
-			Assert::AreEqual(0x34CD, (int)config.device_configs[0].pid);
+			Assert::AreEqual(1, (int)config.class_configs.size());
+			Assert::IsTrue(config.class_configs[0].device_class_type == DeviceClassType::SAITEK_MULTI);
+			Assert::AreEqual(0x12AB, (int)config.class_configs[0].vid);
+			Assert::AreEqual(0x34CD, (int)config.class_configs[0].pid);
 			Assert::AreEqual("test-script.lua", config.script_file.c_str());
 			Assert::AreEqual("generic.acf", config.aircraft_acf.c_str());
 		}
 
 		TEST_METHOD(TestButtonActions)
 		{
-			Assert::AreEqual(3, (int)config.device_configs[0].push_actions["AP"].size());
-			Assert::AreEqual(3, (int)config.device_configs[0].release_actions["AP"].size());
+			Assert::AreEqual(3, (int)config.class_configs[0].push_actions["AP"].size());
+			Assert::AreEqual(3, (int)config.class_configs[0].release_actions["AP"].size());
 
-			Assert::AreEqual(1, (int)config.device_configs[0].push_actions["NAV"].size());
-			Assert::AreEqual(1, (int)config.device_configs[0].release_actions["NAV"].size());
+			Assert::AreEqual(1, (int)config.class_configs[0].push_actions["NAV"].size());
+			Assert::AreEqual(1, (int)config.class_configs[0].release_actions["NAV"].size());
 
-			Assert::AreEqual(0, (int)config.device_configs[0].push_actions.count("HDG"));
-			Assert::AreEqual(1, (int)config.device_configs[0].release_actions["HDG"].size());
+			Assert::AreEqual(0, (int)config.class_configs[0].push_actions.count("HDG"));
+			Assert::AreEqual(1, (int)config.class_configs[0].release_actions["HDG"].size());
 		}
 
 		TEST_METHOD(TestDatarefArray)
 		{
-			Assert::AreEqual(1, (int)config.device_configs[0].push_actions["TEST"].size());
-			Assert::AreEqual(0, (int)config.device_configs[0].release_actions.count("TEST"));
+			Assert::AreEqual(1, (int)config.class_configs[0].push_actions["TEST"].size());
+			Assert::AreEqual(0, (int)config.class_configs[0].release_actions.count("TEST"));
 		}	
 	};
 }

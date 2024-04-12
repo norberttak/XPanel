@@ -13,7 +13,7 @@
 int UsbHidDevice::ref_count = 0;
 bool UsbHidDevice::hid_api_initialized = false;
 
-UsbHidDevice::UsbHidDevice(DeviceConfiguration& config, int _read_buffer_size, int _write_buffer_size) :Device(config, _read_buffer_size, _write_buffer_size)
+UsbHidDevice::UsbHidDevice(ClassConfiguration& config, int _read_buffer_size, int _write_buffer_size) :Device(config, _read_buffer_size, _write_buffer_size)
 {
 	_thread_run.store(false);
 	vid = config.vid;
