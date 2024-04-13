@@ -27,6 +27,7 @@ class Action
 {
 public:
 	Action();
+	Action(Action* other);
 	Action(XPLMDataRef dat, int d);
 	Action(XPLMDataRef dat, float d);
 	Action(XPLMDataRef dat, double d);
