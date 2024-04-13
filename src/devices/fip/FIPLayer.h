@@ -67,6 +67,7 @@ protected:
 	MaskWindow mask;
 public:
 	FIPLayer();
+	FIPLayer(FIPLayer* other);
 	virtual ~FIPLayer();
 //	virtual bool load_file(std::string file_name, int ref_x, int ref_y)=0;
 	void set_mask(MaskWindow& mask);

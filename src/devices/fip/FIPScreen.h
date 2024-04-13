@@ -20,6 +20,7 @@ private:
 	std::mutex guard;
 public:
 	FIPScreen();
+	FIPScreen(FIPScreen* other);
 	~FIPScreen();
 
 	void evaluate_and_store_screen_action();

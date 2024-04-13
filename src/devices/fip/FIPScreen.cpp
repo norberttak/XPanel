@@ -16,9 +16,17 @@ FIPScreen::FIPScreen() :GenericScreen()
 	pages.clear();
 }
 
+FIPScreen::FIPScreen(FIPScreen* other) : GenericScreen(other)
+{
+	for (auto fip_page : other->pages)
+	{
+		pages[fip_page.first] = new FIPPage(fip_page.second);
+	}
+}
+
 FIPScreen::~FIPScreen()
 {
-	for (const auto &it_page : pages)
+	for (const auto& it_page : pages)
 		delete it_page.second;
 
 	pages.clear();
@@ -26,8 +34,11 @@ FIPScreen::~FIPScreen()
 
 void FIPScreen::evaluate_and_store_screen_action()
 {
-	for (auto &action : screen_action_queue)
+	int i = 0;
+	for (auto& action : screen_action_queue)
 	{
+		Logger(TLogLevel::logTRACE) << "FIPScreen::evaluate_and_store_screen_action: " << i << std::endl;
+		i++;
 		int action_value = 0;
 		std::string action_value_str = "";
 
@@ -35,7 +46,7 @@ void FIPScreen::evaluate_and_store_screen_action()
 		{
 			if (action->data_ref_type == xplmType_Data)
 				action_value_str = read_dataref_str(action->data_ref);
-			else 
+			else
 			{
 				if (action->data_ref_index > -1)
 					action_value = action->scale_factor * read_data_ref_int(action->data_ref, action->data_ref_type, action->data_ref_index);
@@ -68,7 +79,7 @@ void FIPScreen::evaluate_and_store_screen_action()
 			//return;
 		}
 
-		if ((action->scale_factor == 0 || abs(action->value_old - action_value) < (1/action->scale_factor)) && (action->value_str_old == action_value_str))
+		if ((action->scale_factor == 0 || abs(action->value_old - action_value) < (1 / action->scale_factor)) && (action->value_str_old == action_value_str))
 			continue;
 
 		action->value_old = action_value;
@@ -148,7 +159,7 @@ int FIPScreen::add_layer_to_page(int page_index, std::string bmp_file_name, int 
 
 int FIPScreen::add_text_layer_to_page(int page_index, std::string font_file_name, int base_rot)
 {
-	Logger(logTRACE) << "FIP screen: add text layer to page " << page_index << "font file name:" << font_file_name <<  std::endl;
+	Logger(logTRACE) << "FIP screen: add text layer to page " << page_index << "font file name:" << font_file_name << std::endl;
 
 	if (!std::filesystem::exists(font_file_name))
 	{

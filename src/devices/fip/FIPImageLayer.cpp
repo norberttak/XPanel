@@ -24,7 +24,7 @@ bool ImageBuffer::load_from_bmp_file(std::string file_name)
 	height = bmp_header.height_px;
 	width = bmp_header.width_px;
 
-	int bytes_per_pixel = bmp_header.bits_per_pixel / 8;
+	bytes_per_pixel = bmp_header.bits_per_pixel / 8;
 	if (bytes_per_pixel != 3)
 	{
 		Logger(logERROR) << "Bad BMP file format. It should be 24 bit color depth: " << file_name << std::endl;
@@ -62,6 +62,19 @@ ImageBuffer::ImageBuffer()
 	raw_buffer = NULL;
 	width = 0;
 	height = 0;
+}
+
+ImageBuffer& ImageBuffer::operator=(const ImageBuffer &other)
+{
+	width = other.width;
+	height = other.height;
+	bytes_per_pixel = other.bytes_per_pixel;
+
+	size_t buffer_size = width * height * 3;
+	raw_buffer = (unsigned char*)calloc(buffer_size, sizeof(unsigned char));
+	memcpy(raw_buffer, other.raw_buffer, buffer_size);
+
+	return *this;
 }
 
 void ImageBuffer::set_and_allocate_buffer(int _width, int _height)
@@ -114,7 +127,14 @@ ImageBuffer::~ImageBuffer()
 FIPImageLayer::FIPImageLayer()
 	:FIPLayer()
 {
-	
+	type = FIPImageLayer::type = FIPImageLayer::IMAGE;
+}
+
+FIPImageLayer::FIPImageLayer(FIPImageLayer* other)
+	:FIPLayer(other)
+{
+	image_buffer = other->image_buffer;
+	type = other->type;
 }
 
 FIPImageLayer::~FIPImageLayer()
