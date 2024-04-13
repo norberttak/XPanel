@@ -109,6 +109,10 @@ public:
 	~Device();
 	int get_stored_button_state(std::string button_name);
 	TriggerType get_stored_light_state(std::string light_name);
+	ClassConfiguration& get_config()
+	{
+		return config;
+	}
 	bool updateLightStates();
 	void process_and_store_button_states();
 	void process_selector_switch();
