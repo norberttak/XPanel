@@ -6,6 +6,7 @@
 
 #include "Logger.h"
 #include "Configuration.h"
+#include "fip/FIPScreen.h"
 
 /*------ Plugin level configuration options ------------*/
 Configuration& Configuration::operator=(const Configuration& other)
@@ -48,17 +49,37 @@ ClassConfiguration::ClassConfiguration(const ClassConfiguration& other):
 	device_class_type(other.device_class_type),
 	pid(other.pid),
 	vid(other.vid),
-	serial_number(other.serial_number),
-	push_actions(other.push_actions),
-	release_actions(other.release_actions),
-	encoder_inc_actions(other.encoder_inc_actions),
-	encoder_dec_actions(other.encoder_dec_actions),
-	light_triggers(other.light_triggers),
-	multi_displays(other.multi_displays),
-	generic_displays(other.generic_displays),
-	fip_screens(other.fip_screens)
+	serial_number(other.serial_number)
 {
 	Logger(TLogLevel::logTRACE) << "ClassConfiguration copy constructor called" << std::endl;
+	for (auto push_act : other.push_actions)
+		for (auto act : push_act.second)
+			push_actions[push_act.first].push_back(new Action(act));
+
+	for (auto release_act : other.release_actions)
+		for (auto act : release_act.second)
+			release_actions[release_act.first].push_back(new Action(act));
+
+	for (auto enc_inc_act : other.encoder_inc_actions)
+		for (auto act : enc_inc_act.second)
+			encoder_inc_actions[enc_inc_act.first].push_back(new Action(act));
+
+	for (auto enc_dec_act : other.encoder_dec_actions)
+		for (auto act : enc_dec_act.second)
+			encoder_dec_actions[enc_dec_act.first].push_back(new Action(act));
+
+	for (auto l_trig : other.light_triggers)
+		for (auto trg : l_trig.second)
+			light_triggers[l_trig.first].push_back(new Trigger(trg));
+
+	for (auto m_disp : other.multi_displays)
+		multi_displays[m_disp.first] = new MultiPurposeDisplay(m_disp.second);
+
+	for (auto g_disp : other.generic_displays)
+		generic_displays[g_disp.first] = new GenericDisplay(g_disp.second);
+
+	for (auto fip_screen : other.fip_screens)
+		fip_screens[fip_screen.first] = new FIPScreen(fip_screen.second);
 }
 
 ClassConfiguration& ClassConfiguration::operator=(const ClassConfiguration& other)
@@ -72,14 +93,35 @@ ClassConfiguration& ClassConfiguration::operator=(const ClassConfiguration& othe
 	pid = other.pid;
 	vid = other.vid;
 	serial_number = other.serial_number;
-	push_actions = other.push_actions;
-	release_actions = other.release_actions;
-	encoder_inc_actions = other.encoder_inc_actions;
-	encoder_dec_actions = other.encoder_dec_actions;
-	light_triggers = other.light_triggers;
-	multi_displays = other.multi_displays;
-	generic_displays = other.generic_displays;
-	fip_screens = other.fip_screens;
+
+	for (auto push_act : other.push_actions)
+		for (auto act : push_act.second)
+				push_actions[push_act.first].push_back(new Action(act));
+
+	for (auto release_act : other.release_actions)
+		for (auto act : release_act.second)
+			release_actions[release_act.first].push_back(new Action(act));
+
+	for (auto enc_inc_act : other.encoder_inc_actions)
+		for (auto act : enc_inc_act.second)
+			encoder_inc_actions[enc_inc_act.first].push_back(new Action(act));
+
+	for (auto enc_dec_act : other.encoder_dec_actions)
+		for (auto act : enc_dec_act.second)
+			encoder_dec_actions[enc_dec_act.first].push_back(new Action(act));
+
+	for (auto l_trig : other.light_triggers)
+		for (auto trg : l_trig.second)
+			light_triggers[l_trig.first].push_back(new Trigger(trg));
+		
+	for (auto m_disp : other.multi_displays)
+		multi_displays[m_disp.first] = new MultiPurposeDisplay(m_disp.second);
+
+	for (auto g_disp : other.generic_displays)
+		generic_displays[g_disp.first] = new GenericDisplay(g_disp.second);
+
+	for (auto fip_screen : other.fip_screens)
+		fip_screens[fip_screen.first] = new FIPScreen(fip_screen.second);
 
 	return *this;
 }
@@ -105,6 +147,10 @@ void ClassConfiguration::clear()
 	for (auto &act : light_triggers)
 		act.second.clear();
 	light_triggers.clear();
+
+	for (auto& scr : fip_screens)
+		delete scr.second;
+	fip_screens.clear();
 }
 
 ClassConfiguration::~ClassConfiguration()
