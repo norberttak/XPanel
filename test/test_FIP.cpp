@@ -18,7 +18,7 @@ void test_set_aircraft_path_and_filename(char* file_name, char* path);
 int test_fip_get_led_state(int led_index);
 void test_fip_set_button_states(uint16_t _button_states);
 void test_fip_set_current_page(int page);
-void test_flight_loop(std::vector<ClassConfiguration> &config);
+void test_flight_loop(Device* device);
 void test_fip_get_image(unsigned char* buffer, size_t buffer_size);
 
 namespace test
@@ -67,14 +67,14 @@ namespace test
 		TEST_METHOD(TestFIPAirSpeedChange)
 		{
 			XPLMSetDatai(airspeed_dataref, 0);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(fip_device);
 			std::this_thread::sleep_for(150ms);
 			unsigned char fip_image_buffer[240 * 320 * 3];
 			test_fip_get_image(fip_image_buffer, 240 * 320 * 3);
 			Assert::AreEqual(0, (int)fip_image_buffer[0]);
 
 			XPLMSetDatai(airspeed_dataref, 150);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(fip_device);
 			std::this_thread::sleep_for(150ms);
 			test_fip_get_image(fip_image_buffer, 240 * 320 * 3);
 			Assert::AreEqual(0, (int)fip_image_buffer[0]);
@@ -88,7 +88,7 @@ namespace test
 			   byte as padding in each row. Those padding bytes shall be handled by RawBMP class.
 			   The 5x3 BMP layer will be put to 0,0 position */
 			test_fip_set_current_page(2);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(fip_device);
 			std::this_thread::sleep_for(150ms);
 
 			const int row_count = 240; //height

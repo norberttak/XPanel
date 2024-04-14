@@ -24,6 +24,7 @@ int test_hid_get_pid();
 std::string test_get_last_command();
 void test_hid_get_write_data(unsigned char* data, size_t length);
 void test_flight_loop(std::vector<ClassConfiguration> &config);
+void test_flight_loop(Device* dev);
 
 namespace test
 {
@@ -63,7 +64,7 @@ namespace test
 			unsigned char buffer[4] = { 0x80,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			Assert::AreEqual(1, test_get_dataref_value("/sim/hello/AP"));
 			// this command is called by the lua script:
 			Assert::AreEqual("/sim/test/lua/button_AP_BEGIN", test_get_last_command().c_str());
@@ -71,7 +72,7 @@ namespace test
 			buffer[0] = 0;
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			Assert::AreEqual(0, test_get_dataref_value("/sim/hello/AP"));
 			// this command is called by the lua script:
 			Assert::AreEqual("/sim/test/lua/button_AP_END", test_get_last_command().c_str());
@@ -83,14 +84,14 @@ namespace test
 			unsigned char buffer[4] = { 0,0x02,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			std::string last_cmd = test_get_last_command();
 			Assert::AreEqual("/sim/cmd/NAV_BEGIN", last_cmd.c_str());
 
 			memset(buffer, 0, sizeof(buffer));
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			last_cmd = test_get_last_command();
 			Assert::AreEqual("/sim/cmd/NAV_END", last_cmd.c_str());
 		}
@@ -101,7 +102,7 @@ namespace test
 			unsigned char buffer[4] = { 0,0,0x08,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			int val_after = test_get_dataref_value("sim/custom/switchers/console/absu_pitch_wheel");
 
 			Assert::AreEqual(1, (val_after - val_before));
@@ -116,14 +117,14 @@ namespace test
 			unsigned char buffer[4] = { 0,0x01,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			std::string last_cmd = test_get_last_command();
 			Assert::AreNotEqual("/sim/cmd/HDG_ONCE", last_cmd.c_str());
 
 			memset(buffer, 0, sizeof(buffer));
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			last_cmd = test_get_last_command();
 			Assert::AreEqual("/sim/cmd/HDG_ONCE", last_cmd.c_str());
 		}
@@ -133,7 +134,7 @@ namespace test
 			XPLMDataRef dataref = XPLMFindDataRef("sim/custom/lights/button/absu_stab_h");
 			// ALT button light set to LIT
 			XPLMSetDatai(dataref, 1);
-			test_flight_loop(config.class_configs); // evaluate triggers
+			test_flight_loop(device); // evaluate triggers
 			std::this_thread::sleep_for(150ms);
 			unsigned char write_buffer[13];
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
@@ -141,7 +142,7 @@ namespace test
 
 			// ALT button light set to UNLIT
 			XPLMSetDatai(dataref, 0);
-			test_flight_loop(config.class_configs); // evaluate triggers
+			test_flight_loop(device); // evaluate triggers
 			std::this_thread::sleep_for(150ms);
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
 			Assert::AreEqual(0x00, (int)write_buffer[11] & 0x10);
@@ -152,7 +153,7 @@ namespace test
 			XPLMDataRef dataref = XPLMFindDataRef("sim/custom/lights/button/absu_zk");
 			// HDG button light set to LIT
 			XPLMSetDatai(dataref, 1);
-			test_flight_loop(config.class_configs); // evaluate triggers
+			test_flight_loop(device); // evaluate triggers
 			std::this_thread::sleep_for(150ms);
 			unsigned char write_buffer[13];
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
@@ -160,7 +161,7 @@ namespace test
 
 			// HDG button light set to UNLIT
 			XPLMSetDatai(dataref, 0);
-			test_flight_loop(config.class_configs); // evaluate triggers
+			test_flight_loop(device); // evaluate triggers
 			std::this_thread::sleep_for(150ms);
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
 			Assert::AreEqual(0x00, (int)write_buffer[11] & 0x02);
@@ -169,7 +170,7 @@ namespace test
 		TEST_METHOD(TestApButtonLight)
 		{
 			// in the test this LED has a lua handler ('get_led_status()') which return with a constant 1 value
-			test_flight_loop(config.class_configs); // evaluate triggers
+			test_flight_loop(device); // evaluate triggers
 			std::this_thread::sleep_for(150ms);
 			unsigned char write_buffer[13];
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
@@ -191,7 +192,7 @@ namespace test
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			std::this_thread::sleep_for(150ms);
 
 			unsigned char write_buffer[13];
@@ -203,7 +204,7 @@ namespace test
 			Assert::AreEqual(5, (int)write_buffer[5]);
 
 			XPLMSetDatai(dataref, 0);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			std::this_thread::sleep_for(150ms);
 
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
@@ -226,25 +227,25 @@ namespace test
 			buffer[0] |= 0x20; // set KNOB_PLUS to 1
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			Assert::AreEqual(1, test_get_dataref_value(dataref_str.c_str()));
 
 			buffer[0] &= (~0x20); // set KNOB_PLUS to 0
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			Assert::AreEqual(1, test_get_dataref_value(dataref_str.c_str()));
 
 			buffer[0] |= 0x40; // set KNOB_MINUS to 1
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			Assert::AreEqual(0, test_get_dataref_value(dataref_str.c_str()));
 
 			buffer[0] &= (~0x40); // set KNOB_MINUS to 0
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(250ms);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			Assert::AreEqual(0, test_get_dataref_value(dataref_str.c_str()));
 		}
 
@@ -254,7 +255,7 @@ namespace test
 			unsigned char buffer[4] = { 0,0x40,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			double ret_value=0;
 			LuaHelper::get_instace()->do_string("return get_hid_input_status('REV')", ret_value);
 			Assert::AreEqual(1, (int)ret_value);
@@ -263,7 +264,7 @@ namespace test
 			buffer[1] = 0;
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.class_configs);
+			test_flight_loop(device);
 			LuaHelper::get_instace()->do_string("return get_hid_input_status('REV')", ret_value);
 			Assert::AreEqual(0, (int)ret_value);
 		}
