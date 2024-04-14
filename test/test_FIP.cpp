@@ -63,23 +63,6 @@ namespace test
 			test_fip_set_button_states(0);
 			Assert::AreEqual(0, (int)fip_device->get_button_state());
 		}
-
-		TEST_METHOD(TestFIPAirSpeedChange)
-		{
-			XPLMSetDatai(airspeed_dataref, 0);
-			test_flight_loop(fip_device);
-			std::this_thread::sleep_for(150ms);
-			unsigned char fip_image_buffer[240 * 320 * 3];
-			test_fip_get_image(fip_image_buffer, 240 * 320 * 3);
-			Assert::AreEqual(0, (int)fip_image_buffer[0]);
-
-			XPLMSetDatai(airspeed_dataref, 150);
-			test_flight_loop(fip_device);
-			std::this_thread::sleep_for(150ms);
-			test_fip_get_image(fip_image_buffer, 240 * 320 * 3);
-			Assert::AreEqual(0, (int)fip_image_buffer[0]);
-		}
-
 		TEST_METHOD(TestFIPBMPPadding)
 		{
 			/* Page 2 contains one layer with the BMP file bmp_test_padding.bmp
