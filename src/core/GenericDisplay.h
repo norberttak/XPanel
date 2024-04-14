@@ -19,6 +19,7 @@ class GenericDisplay
 public:
 	GenericDisplay();
 	GenericDisplay(bool _use_bcd); // bcd: binary encoded decimal
+	GenericDisplay(GenericDisplay* other);
 
 	void set_nr_bytes(int _nr_of_bytes);
 
