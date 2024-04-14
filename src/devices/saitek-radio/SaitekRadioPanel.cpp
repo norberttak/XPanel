@@ -56,7 +56,7 @@ SaitekRadioPanel::SaitekRadioPanel(ClassConfiguration& config) :UsbHidDevice(con
 
 	register_displays(radio_displays);
 
-	for (auto &config_display : config.multi_displays)
+	for (auto &config_display : get_config().multi_displays)
 	{
 		config_display.second->set_nr_bytes(display_width);
 	}

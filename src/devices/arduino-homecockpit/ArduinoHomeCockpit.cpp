@@ -34,7 +34,7 @@ ArduinoHomeCockpit::ArduinoHomeCockpit(ClassConfiguration& config) :UsbHidDevice
 	register_buttons(arduino_buttons);
 	register_displays(arduino_displays);
 
-	for (auto &config_display : config.generic_displays)
+	for (auto config_display : get_config().generic_displays)
 	{
 		int nr_of_bytes = 0;
 		for (auto &panel_display : arduino_displays)
