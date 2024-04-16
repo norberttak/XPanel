@@ -296,7 +296,7 @@ void test_call_registered_flight_loop()
 		(*registered_flight_loop)(1, 1, 1, NULL);
 }
 
-void test_flight_loop(std::vector<DeviceConfiguration> &config)
+void test_flight_loop(std::vector<ClassConfiguration> &config)
 {
 	// process button light changes
 	for (auto& it : config)
@@ -323,6 +323,37 @@ void test_flight_loop(std::vector<DeviceConfiguration> &config)
 		{
 			fip_screen.second->evaluate_and_store_screen_action();
 		}
+	}
+
+	// process button push/release events
+	ActionQueue::get_instance()->activate_actions_in_queue();
+}
+
+void test_flight_loop(Device* dev)
+{
+	for (const auto& triggers : dev->get_config().light_triggers)
+	{
+		for (auto& trigger : triggers.second)
+		{
+			trigger->evaluate_and_store_action();
+		}
+	}
+
+	// check and set 7 segment display states
+	for (const auto& display : dev->get_config().multi_displays)
+	{
+		display.second->evaluate_and_store_dataref_value();
+	}
+
+	for (const auto& display : dev->get_config().generic_displays)
+	{
+		display.second->evaluate_and_store_dataref_value();
+	}
+
+	// update the FIP devices
+	for (auto& screen : dev->get_config().fip_screens)
+	{
+		screen.second->evaluate_and_store_screen_action();
 	}
 
 	// process button push/release events

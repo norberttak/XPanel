@@ -13,7 +13,7 @@
 #define WRITE_BUFFER_SIZE 2
 #define READ_BUFFER_SIZE 4
 
-SaitekSwitchPanel::SaitekSwitchPanel(DeviceConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
+SaitekSwitchPanel::SaitekSwitchPanel(ClassConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {
 	// push buttons
 	switch_buttons.push_back(PanelButton((0 * 8) + 0, "BATTERY"));

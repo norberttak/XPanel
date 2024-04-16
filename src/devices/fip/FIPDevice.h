@@ -21,7 +21,7 @@ private:
 	int page_index_old;
 	void process_page_conditions(FIPScreen* screen);
 public:
-	FIPDevice(DeviceConfiguration& _config);
+	FIPDevice(ClassConfiguration& _config);
 	void stop(int time_out_msec);
 	int connect();
 	void release();

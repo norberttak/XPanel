@@ -13,7 +13,7 @@
 #define WRITE_BUFFER_SIZE 23
 #define READ_BUFFER_SIZE 5
 
-SaitekRadioPanel::SaitekRadioPanel(DeviceConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
+SaitekRadioPanel::SaitekRadioPanel(ClassConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {
 
 	// mode selector switch
@@ -56,7 +56,7 @@ SaitekRadioPanel::SaitekRadioPanel(DeviceConfiguration& config) :UsbHidDevice(co
 
 	register_displays(radio_displays);
 
-	for (auto &config_display : config.multi_displays)
+	for (auto &config_display : get_config().multi_displays)
 	{
 		config_display.second->set_nr_bytes(display_width);
 	}

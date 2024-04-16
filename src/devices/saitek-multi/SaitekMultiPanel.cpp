@@ -13,7 +13,7 @@
 #define WRITE_BUFFER_SIZE 13
 #define READ_BUFFER_SIZE 4
 
-SaitekMultiPanel::SaitekMultiPanel(DeviceConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
+SaitekMultiPanel::SaitekMultiPanel(ClassConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {
 
 	// mode selector switch
@@ -61,7 +61,7 @@ SaitekMultiPanel::SaitekMultiPanel(DeviceConfiguration& config) :UsbHidDevice(co
 
 	register_displays(multi_displays);
 
-	for (auto &config_display : config.multi_displays)
+	for (auto &config_display : get_config().multi_displays)
 	{
 		config_display.second->set_nr_bytes(display_width);
 	}

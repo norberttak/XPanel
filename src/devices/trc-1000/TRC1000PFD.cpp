@@ -26,7 +26,7 @@
 #define ENCODER_0_BUFFER_OFFSET	7
 #define ENCODER_1_BUFFER_OFFSET	15
 
-TRC1000PFD::TRC1000PFD(DeviceConfiguration& config) :TRC1000(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
+TRC1000PFD::TRC1000PFD(ClassConfiguration& config) :TRC1000(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {
 	// cmd response oxc1				0
 	trc1000pfd_buttons.push_back(PanelButton(1 * 8 + 0, "IAS"));

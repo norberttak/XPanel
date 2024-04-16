@@ -20,7 +20,7 @@
 
 std::filesystem::path get_plugin_path();
 
-ArduinoHomeCockpit::ArduinoHomeCockpit(DeviceConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
+ArduinoHomeCockpit::ArduinoHomeCockpit(ClassConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {
 	std::filesystem::path board_config_path = get_plugin_path();
 	board_config_path /= "board-config.ini";
@@ -34,7 +34,7 @@ ArduinoHomeCockpit::ArduinoHomeCockpit(DeviceConfiguration& config) :UsbHidDevic
 	register_buttons(arduino_buttons);
 	register_displays(arduino_displays);
 
-	for (auto &config_display : config.generic_displays)
+	for (auto config_display : get_config().generic_displays)
 	{
 		int nr_of_bytes = 0;
 		for (auto &panel_display : arduino_displays)

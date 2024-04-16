@@ -17,6 +17,7 @@ class MultiPurposeDisplay : public GenericDisplay
 {
 public:
 	MultiPurposeDisplay();
+	MultiPurposeDisplay(MultiPurposeDisplay* other);
 	// called during init phase
 	void add_condition(std::string selector_sw_name, XPLMDataRef data);
 	void add_condition(std::string selector_sw_name, double const_value);

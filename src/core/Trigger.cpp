@@ -16,7 +16,19 @@ Trigger::Trigger()
 	trigger_value = 0;
 	trigger_action = TriggerType::NO_CHANGE;
 	stored_action = TriggerType::NO_CHANGE;
+	lua_str = "";
 	last_value = -1;
+}
+
+Trigger::Trigger(Trigger* other)
+{
+	data_ref = other->data_ref;
+	data_ref_type = other->data_ref_type;
+	trigger_value = other->trigger_value;
+	trigger_action = other->trigger_action;
+	stored_action = other->stored_action;
+	last_value = other->last_value;
+	lua_str = other->lua_str;
 }
 
 Trigger::Trigger(XPLMDataRef data, double val, TriggerType _trigger_action)

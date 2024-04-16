@@ -15,6 +15,7 @@ private:
 	const int CHAR_SPACE = 2;
 public:
 	FIPTextLayer();
+	FIPTextLayer(FIPTextLayer* other);
 	virtual ~FIPTextLayer();
 	bool load_bmp_font_file(std::string file_name);
 	void set_text(std::string _text);

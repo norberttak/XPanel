@@ -19,6 +19,19 @@ FIPLayer::FIPLayer()
 	mask.enabled = false;
 }
 
+FIPLayer::FIPLayer(FIPLayer* other)
+{
+	width = other->width;
+	height = other->height;
+	ref_x = other->ref_x;
+	ref_y = other->ref_y;
+	pos_x = other->pos_x;
+	pos_y = other->pos_y;
+	angle = other->angle;
+	base_rot = other->base_rot;
+	mask = other->mask;
+}
+
 FIPLayer::~FIPLayer()
 {
 /*	if (raw_buffer)

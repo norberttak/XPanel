@@ -13,6 +13,14 @@ GenericScreen::GenericScreen()
 	screen_action_queue.clear();
 }
 
+GenericScreen::GenericScreen(GenericScreen* other)
+{
+	for (auto sc_act : other->screen_action_queue)
+	{
+		screen_action_queue.push_back(new ScreenAction(sc_act));
+	}
+}
+
 GenericScreen::~GenericScreen()
 {
 	for (auto &action : screen_action_queue)

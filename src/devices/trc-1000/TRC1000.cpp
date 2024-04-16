@@ -9,7 +9,7 @@
 
 #define TRC1000_READ_TIMEOUT_MILLISEC 50
 
-TRC1000::TRC1000(DeviceConfiguration& config, int _read_buffer_size, int _write_buffer_size) :UsbHidDevice(config, _read_buffer_size, _write_buffer_size)
+TRC1000::TRC1000(ClassConfiguration& config, int _read_buffer_size, int _write_buffer_size) :UsbHidDevice(config, _read_buffer_size, _write_buffer_size)
 {
 	read_buffer_size = _read_buffer_size;
 	write_buffer_size = _write_buffer_size;

@@ -19,6 +19,21 @@ MultiPurposeDisplay::MultiPurposeDisplay()
 	nr_of_bytes = 5;
 }
 
+MultiPurposeDisplay::MultiPurposeDisplay(MultiPurposeDisplay* other)
+{
+	active_condition = other->active_condition;
+	display_value = other->display_value;
+	display_value_old = other->display_value_old;
+	display_value_changed = other->display_value_changed;
+	nr_of_bytes = other->nr_of_bytes;
+	turn_off = other->turn_off;
+
+	conditions = other->conditions;
+	const_values = other->const_values;
+	lua_functions = other->lua_functions;
+	data_ref_types = other->data_ref_types;
+}
+
 void MultiPurposeDisplay::add_condition(std::string selector_sw_name, XPLMDataRef data)
 {
 	if (conditions.find(selector_sw_name) != conditions.end())

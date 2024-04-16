@@ -24,7 +24,7 @@ int test_hid_get_vid();
 int test_hid_get_pid();
 std::string test_get_last_command();
 void test_hid_get_write_data(unsigned char* data, size_t length);
-void test_flight_loop(std::vector<DeviceConfiguration> &config);
+void test_flight_loop(std::vector<ClassConfiguration> &config);
 void test_hid_mock_init();
 
 namespace test
@@ -64,7 +64,7 @@ namespace test
 
 			LuaHelper::get_instace()->init();
 
-			device = new SaitekMultiPanel(config.device_configs[0]);
+			device = new SaitekMultiPanel(config.class_configs[0]);
 			device->connect();
 			device->start();
 			t = new std::thread(&SaitekMultiPanel::thread_func, (SaitekMultiPanel*)device);
@@ -81,7 +81,7 @@ namespace test
 		{
 			rotate_knob_plus(6, 50ms);
 
-			test_flight_loop(config.device_configs);
+			test_flight_loop(config.class_configs);
 
 			// it shall run on x4 speed
 			Assert::AreEqual(6 * 4, test_get_dataref_value(dataref_str.c_str()));
@@ -91,7 +91,7 @@ namespace test
 		{
 			rotate_knob_plus(2, 200ms);
 
-			test_flight_loop(config.device_configs);
+			test_flight_loop(config.class_configs);
 
 			// it shall run on x2 speed
 			Assert::AreEqual(2*2, test_get_dataref_value(dataref_str.c_str()));
@@ -101,7 +101,7 @@ namespace test
 		{
 			rotate_knob_plus(2, 500ms); // two rotations on the knob with normal speed
 
-			test_flight_loop(config.device_configs);
+			test_flight_loop(config.class_configs);
 
 			// // it shall run on x1 speed
 			Assert::AreEqual(2, test_get_dataref_value(dataref_str.c_str()));

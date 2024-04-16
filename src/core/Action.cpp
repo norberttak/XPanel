@@ -21,6 +21,28 @@ Action::Action()
 	dataref_type = xplmType_Unknown;
 }
 
+Action::Action(Action* other)
+{
+	data = other->data;
+	data_f = other->data_f;
+	index = other->index;
+	delta = other->delta;
+	lua_str = other->lua_str;
+	condition = other->condition;
+	active_conditions = other->active_conditions;
+	dataref = other->dataref;
+	dataref_type = other->dataref_type;
+	command_type = other->command_type;
+	commandref = other->commandref;
+	tick_per_sec_mid = other->tick_per_sec_mid;
+	tick_per_sec_high = other->tick_per_sec_high;
+	multi_low = other->multi_low;
+	multi_high = other->multi_high;
+	multi = other->multi;
+	max = other->max;
+	min = other->min;
+}
+
 Action::Action(XPLMCommandRef cmd, CommandType type)
 {
 	commandref = cmd;

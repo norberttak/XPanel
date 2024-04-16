@@ -85,7 +85,7 @@ class Device
 private:
 	int compute_rotation_delta_with_overflow(unsigned char rot, unsigned char rot_old);
 protected:
-	DeviceConfiguration &config;
+	ClassConfiguration config;
 	std::vector<PanelButton> selectors;
 	std::vector<PanelButton> buttons;
 	std::vector<PanelDisplay> panel_displays;
@@ -105,10 +105,14 @@ protected:
 	virtual void register_rotary_encoders(std::vector<PanelRotaryEncoder>& _encoders);
 public:
 	std::thread* thread_handle = NULL;
-	Device(DeviceConfiguration &_config, int _read_buffer_size, int _write_buffer_size);
+	Device(ClassConfiguration &_config, int _read_buffer_size, int _write_buffer_size);
 	~Device();
 	int get_stored_button_state(std::string button_name);
 	TriggerType get_stored_light_state(std::string light_name);
+	ClassConfiguration& get_config()
+	{
+		return config;
+	}
 	bool updateLightStates();
 	void process_and_store_button_states();
 	void process_selector_switch();

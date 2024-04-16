@@ -21,6 +21,20 @@ GenericDisplay::GenericDisplay(bool _use_bcd)
 	const_value = DBL_MIN;
 }
 
+GenericDisplay::GenericDisplay(GenericDisplay* other)
+{
+	display_value = other->display_value;
+	display_value_old = other->display_value_old;
+	display_value_changed = other->display_value_changed;
+	use_bcd = other->use_bcd;
+	lua_function = other->lua_function;
+	condition = other->condition;
+	data_ref_type = other->data_ref_type;
+	const_value = other->const_value;
+	nr_of_bytes = other->nr_of_bytes;
+	dataref_index = other->dataref_index;
+}
+
 GenericDisplay::GenericDisplay():GenericDisplay(true)
 {
 	//

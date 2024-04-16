@@ -7,7 +7,7 @@
 #include "Device.h"
 #include "Logger.h"
 
-Device::Device(DeviceConfiguration& _config, int _read_buffer_size, int _write_buffer_size):
+Device::Device(ClassConfiguration& _config, int _read_buffer_size, int _write_buffer_size):
 	config(_config), read_buffer_size(_read_buffer_size), write_buffer_size(_write_buffer_size)
 {
 	read_buffer = (unsigned char*)calloc(_read_buffer_size, sizeof(unsigned char));

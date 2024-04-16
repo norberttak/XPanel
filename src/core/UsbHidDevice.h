@@ -20,7 +20,7 @@
 class UsbHidDevice : public Device
 {
 public:
-	UsbHidDevice(DeviceConfiguration& config, int _read_buffer_size, int _write_buffer_size);
+	UsbHidDevice(ClassConfiguration& config, int _read_buffer_size, int _write_buffer_size);
 	~UsbHidDevice();
 	virtual void thread_func();
 	int get_vid() { return vid; }
