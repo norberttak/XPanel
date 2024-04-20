@@ -21,10 +21,12 @@ public:
 	GenericDisplay(bool _use_bcd); // bcd: binary encoded decimal
 	GenericDisplay(GenericDisplay* other);
 
+	static const double MAX_VALUE;
 	void set_nr_bytes(int _nr_of_bytes);
 
 	// called from UsbHidDevice worker thread
-	virtual bool get_display_value(unsigned char* buffer);
+	virtual bool get_display_value(unsigned char* buffer, int _minimum_number_of_digits);
+	virtual int get_minimum_number_of_digits();
 
 	// called from XPLane flight loop
 	virtual void evaluate_and_store_dataref_value();
@@ -52,6 +54,6 @@ private:
 	const unsigned char BLANK_CHAR = 0xFF;
 	const unsigned char ZERO_CHAR = 0x00;
 	int dataref_index;
-	bool get_decimal_components(int number, unsigned char* buffer);
+	bool get_decimal_components(int number, unsigned char* buffer, int _minimum_number_of_digits);
 	bool get_binary_components(int number, unsigned char* buffer);
 };

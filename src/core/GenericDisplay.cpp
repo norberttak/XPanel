@@ -10,6 +10,8 @@
 #include "LuaHelper.h"
 #include "Logger.h"
 
+const double GenericDisplay::MAX_VALUE = 10000000;
+
 GenericDisplay::GenericDisplay(bool _use_bcd)
 {
 	use_bcd = _use_bcd;
@@ -52,16 +54,24 @@ void GenericDisplay::set_nr_bytes(int _nr_of_bytes)
 void GenericDisplay::set_minimum_number_of_digits(int _minimum_number_of_digits)
 {
 	minimum_number_of_digits = _minimum_number_of_digits;
+	Logger(TLogLevel::logDEBUG) << "GenericDisplay: set minimum number of digits: " << _minimum_number_of_digits << std::endl;
+}
+
+int GenericDisplay::get_minimum_number_of_digits()
+{
+	return minimum_number_of_digits;
 }
 
 void GenericDisplay::set_bcd(bool _use_bcd)
 {
 	use_bcd = _use_bcd;
+	Logger(TLogLevel::logDEBUG) << "GenericDisplay: set bcd: " << (_use_bcd ? "yes" : "no") << std::endl;
 }
 
 void GenericDisplay::set_blank_leading_zeros(bool _blank_leading_zeros)
 {
 	blank_leading_zeros = _blank_leading_zeros;
+	Logger(TLogLevel::logDEBUG) << "GenericDisplay: set blank leading zero: " << (_blank_leading_zeros ? "yes" : "no") << std::endl;
 }
 
 void GenericDisplay::add_dataref(XPLMDataRef _data_ref)
@@ -129,11 +139,8 @@ void GenericDisplay::evaluate_and_store_dataref_value()
 	display_value_old = display_value;
 }
 
-bool GenericDisplay::get_decimal_components(int number, unsigned char* buffer)
+bool GenericDisplay::get_decimal_components(int number, unsigned char* buffer, int _minimum_number_of_digits)
 {
-	const unsigned char BLANK_CHAR = 0xFF;
-	const unsigned char ZERO_CHAR = 0x00;
-
 	bool negative = false;
 	if (number < 0)
 	{
@@ -153,7 +160,7 @@ bool GenericDisplay::get_decimal_components(int number, unsigned char* buffer)
 
 	if (blank_leading_zeros)
 	{
-		for (int i = 0; i < nr_of_bytes - minimum_number_of_digits; i++)
+		for (int i = 0; i < nr_of_bytes - _minimum_number_of_digits; i++)
 		{
 			if (buffer[i] == ZERO_CHAR)
 				buffer[i] = BLANK_CHAR;
@@ -193,7 +200,7 @@ bool GenericDisplay::get_binary_components(int number, unsigned char* buffer)
 }
 
 // called from UsbHidDevice worker thread
-bool GenericDisplay::get_display_value(unsigned char* buffer)
+bool GenericDisplay::get_display_value(unsigned char* buffer, int _minimum_number_of_digits)
 {
 	if (!display_value_changed)
 		return false;
@@ -203,5 +210,19 @@ bool GenericDisplay::get_display_value(unsigned char* buffer)
 	display_value_changed = false;
 	guard.unlock();
 
-	return use_bcd ? get_decimal_components((int)_val, buffer) : get_binary_components(int(_val), buffer);
+	bool buffer_changed = false;
+	if (_val > MAX_VALUE) // display shall be turned off
+	{
+		for (int i = 0; i < nr_of_bytes; i++)
+		{
+			buffer[i] = BLANK_CHAR;
+		}
+		buffer_changed = true;
+	}
+	else
+	{
+		buffer_changed = use_bcd ? get_decimal_components((int)_val, buffer, _minimum_number_of_digits) : get_binary_components(int(_val), buffer);
+	}
+
+	return buffer_changed;
 }
