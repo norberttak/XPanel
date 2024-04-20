@@ -19,6 +19,8 @@ GenericDisplay::GenericDisplay(bool _use_bcd)
 	data_ref_type = xplmType_Unknown;
 	lua_function = "";
 	const_value = DBL_MIN;
+	blank_leading_zeros = true;
+	minimum_number_of_digits = 1;
 }
 
 GenericDisplay::GenericDisplay(GenericDisplay* other)
@@ -32,7 +34,9 @@ GenericDisplay::GenericDisplay(GenericDisplay* other)
 	data_ref_type = other->data_ref_type;
 	const_value = other->const_value;
 	nr_of_bytes = other->nr_of_bytes;
+	minimum_number_of_digits = other->minimum_number_of_digits;
 	dataref_index = other->dataref_index;
+	blank_leading_zeros = other->blank_leading_zeros;
 }
 
 GenericDisplay::GenericDisplay():GenericDisplay(true)
@@ -45,9 +49,19 @@ void GenericDisplay::set_nr_bytes(int _nr_of_bytes)
 	nr_of_bytes = _nr_of_bytes;
 }
 
+void GenericDisplay::set_minimum_number_of_digits(int _minimum_number_of_digits)
+{
+	minimum_number_of_digits = _minimum_number_of_digits;
+}
+
 void GenericDisplay::set_bcd(bool _use_bcd)
 {
 	use_bcd = _use_bcd;
+}
+
+void GenericDisplay::set_blank_leading_zeros(bool _blank_leading_zeros)
+{
+	blank_leading_zeros = _blank_leading_zeros;
 }
 
 void GenericDisplay::add_dataref(XPLMDataRef _data_ref)
@@ -117,6 +131,9 @@ void GenericDisplay::evaluate_and_store_dataref_value()
 
 bool GenericDisplay::get_decimal_components(int number, unsigned char* buffer)
 {
+	const unsigned char BLANK_CHAR = 0xFF;
+	const unsigned char ZERO_CHAR = 0x00;
+
 	bool negative = false;
 	if (number < 0)
 	{
@@ -132,6 +149,17 @@ bool GenericDisplay::get_decimal_components(int number, unsigned char* buffer)
 	{
 		buffer[nr_of_bytes - 1 - dec_pos] = remain / (int)pow(10, dec_pos);
 		remain = remain % (int)pow(10, dec_pos);
+	}
+
+	if (blank_leading_zeros)
+	{
+		for (int i = 0; i < nr_of_bytes - minimum_number_of_digits; i++)
+		{
+			if (buffer[i] == ZERO_CHAR)
+				buffer[i] = BLANK_CHAR;
+			else
+				break;
+		}
 	}
 
 	if (negative)
