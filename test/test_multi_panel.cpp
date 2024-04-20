@@ -208,10 +208,10 @@ namespace test
 			std::this_thread::sleep_for(150ms);
 
 			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
-			Assert::AreEqual(0, (int)write_buffer[1]);
-			Assert::AreEqual(0, (int)write_buffer[2]);
-			Assert::AreEqual(0, (int)write_buffer[3]);
-			Assert::AreEqual(0, (int)write_buffer[4]);
+			Assert::AreEqual(255, (int)write_buffer[1]);
+			Assert::AreEqual(255, (int)write_buffer[2]);
+			Assert::AreEqual(255, (int)write_buffer[3]);
+			Assert::AreEqual(255, (int)write_buffer[4]);
 			Assert::AreEqual(0, (int)write_buffer[5]);
 		}
 
