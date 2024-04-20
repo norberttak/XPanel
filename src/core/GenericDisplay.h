@@ -49,6 +49,8 @@ protected:
 	double	const_value;
 	int nr_of_bytes;
 private:
+	const unsigned char BLANK_CHAR = 0xFF;
+	const unsigned char ZERO_CHAR = 0x00;
 	int dataref_index;
 	bool get_decimal_components(int number, unsigned char* buffer);
 	bool get_binary_components(int number, unsigned char* buffer);
