@@ -58,6 +58,20 @@ std::vector<std::string> Configparser::tokenize(std::string line)
 	return tokens;
 }
 
+bool Configparser::get_and_remove_token_pair(std::vector<std::string>& tokens, std::string name, std::string& out_value)
+{
+	for (int i = 0; i < tokens.size(); i += 2)
+	{
+		if ((i+1) < tokens.size() && tokens[i] == name)
+		{
+			out_value = tokens[i + 1];
+			tokens.erase(tokens.begin() + i, tokens.begin() + i + 2);
+			return true;
+		}
+	}
+	return false;
+}
+
 int Configparser::parse_file(std::string file_name, Configuration& config)
 {
 	last_error_message = "";
@@ -145,11 +159,17 @@ int Configparser::process_ini_section(IniFileSection& section, Configuration& co
 		if (section.header.properties.count(TOKEN_BCD) > 0)
 			config.class_configs.back().generic_displays[section.header.id]->set_bcd(section.header.properties[TOKEN_BCD] == "yes" ? true : false);
 
+		if (section.header.properties.count(TOKEN_BLANK_LEADING_ZEROS) > 0)
+			config.class_configs.back().generic_displays[section.header.id]->set_blank_leading_zeros(section.header.properties[TOKEN_BLANK_LEADING_ZEROS] == "yes" ? true : false);
+
 		Logger(TLogLevel::logDEBUG) << "parser: display detected " << section.header.id << std::endl;
 	}
 	else if (section.header.name == TOKEN_SECTION_MULTI_DISPLAY)
 	{
 		config.class_configs.back().multi_displays[section.header.id] = new MultiPurposeDisplay();
+		if (section.header.properties.count(TOKEN_BLANK_LEADING_ZEROS) > 0)
+			config.class_configs.back().multi_displays[section.header.id]->set_blank_leading_zeros(section.header.properties[TOKEN_BLANK_LEADING_ZEROS] == "yes" ? true : false);
+
 		Logger(TLogLevel::logDEBUG) << "parser: multi display detected " << section.header.id << std::endl;
 	}
 	else if (section.header.name == TOKEN_SECTION_FIP_SCREEN)
@@ -606,6 +626,7 @@ int Configparser::handle_on_lit_or_unlit_or_blink(IniFileSectionHeader section_h
 int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	//line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L"
+	//line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L, minimum_digit_number: 3"
 	//line="dataref:sim/custom/gauges/compas/pkp_helper_course_L"
 	//line="dataref:sim/custom/gauges/compas/test[0] 
 	//line="const:1.5" 
@@ -620,13 +641,25 @@ int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::s
 	}
 
 	std::string condition = "";
-	if (m[0] == TOKEN_ON_SELECT)
+	get_and_remove_token_pair(m, TOKEN_ON_SELECT, condition);
+
+	std::string min_digit_number = "";
+	get_and_remove_token_pair(m, TOKEN_MIN_DIGIT_NUMBER, min_digit_number);
+	if (min_digit_number != "")
 	{
-		condition = m[1];
-		m.erase(m.begin(), m.begin() + 2);
+		if (section_header.name == TOKEN_SECTION_MULTI_DISPLAY)
+			config.class_configs.back().multi_displays[section_header.id]->set_minimum_number_of_digits(condition, stoi(min_digit_number));
+		else if(section_header.name == TOKEN_SECTION_DISPLAY)
+			config.class_configs.back().generic_displays[section_header.id]->set_minimum_number_of_digits(stoi(min_digit_number));
+		else
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid line for device type: " << section_header.name << std::endl;
+			return EXIT_FAILURE;
+		}
 	}
 
-	if (m.size() < 2)
+	// at this point only the dataref/lua/const key-value pair shall remain
+	if (m.size() != 2)
 	{
 		Logger(TLogLevel::logERROR) << "parser: invalid syntax (section starts at line: " << section_header.line << "): " << value << std::endl;
 		return EXIT_FAILURE;
