@@ -10,7 +10,8 @@
 #include "LuaHelper.h"
 #include "Logger.h"
 
-MultiPurposeDisplay::MultiPurposeDisplay()
+MultiPurposeDisplay::MultiPurposeDisplay():
+	GenericDisplay()
 {
 	active_condition = "";
 	display_value = 0;
@@ -32,6 +33,9 @@ MultiPurposeDisplay::MultiPurposeDisplay(MultiPurposeDisplay* other)
 	const_values = other->const_values;
 	lua_functions = other->lua_functions;
 	data_ref_types = other->data_ref_types;
+	minimum_number_of_digits = other->minimum_number_of_digits;
+	blank_leading_zeros = other->blank_leading_zeros;
+	minimum_number_of_digits_for_condtions = other->minimum_number_of_digits_for_condtions;
 }
 
 void MultiPurposeDisplay::add_condition(std::string selector_sw_name, XPLMDataRef data)
@@ -89,6 +93,28 @@ bool MultiPurposeDisplay::is_registered_selector(std::string selector_sw_name)
 	guard.unlock();
 	Logger(TLogLevel::logTRACE) << "MultiPurposeDisplay:is_registered_selector:" << selector_sw_name << " " << _registered << std::endl;
 	return _registered;
+}
+
+void MultiPurposeDisplay::set_minimum_number_of_digits(std::string _condition, int _minimum_number_of_digits)
+{
+	minimum_number_of_digits_for_condtions[_condition] = _minimum_number_of_digits;
+	Logger(TLogLevel::logDEBUG) << "MultiPurposeDisplay: set minimum number of digits [" + _condition + "]: " << _minimum_number_of_digits << std::endl;
+}
+
+int MultiPurposeDisplay::get_minimum_number_of_digits()
+{
+	int result = 1;
+
+	guard.lock();
+	
+	if (minimum_number_of_digits_for_condtions.count(active_condition) != 0)
+		result = minimum_number_of_digits_for_condtions[active_condition];
+	else
+		result = 1; //default 1
+
+	guard.unlock();
+
+	return result;
 }
 
 /* call this function only from XPlane flight loop */

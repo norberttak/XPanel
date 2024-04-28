@@ -14,7 +14,8 @@ class SaitekRadioPanel : public UsbHidDevice
 {
 private:
 	std::vector<PanelButton> radio_buttons;
-	std::vector<PanelButton> radio_selectors;
+	std::vector<PanelButton> radio_selectors_up;
+	std::vector<PanelButton> radio_selectors_down;
 	std::vector<PanelDisplay> radio_displays;
 public:
 	SaitekRadioPanel(ClassConfiguration& config);

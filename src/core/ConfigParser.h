@@ -17,6 +17,7 @@ private:
 
 	std::map<std::string, f_handle_on_key_value> process_functions;
 	std::vector<std::string> tokenize(std::string line);
+	bool get_and_remove_token_pair(std::vector<std::string>& tokens, std::string name, std::string& out_value);
 	void check_and_get_array_index(std::string& dataref, int& index);
 	int process_ini_section(IniFileSection& section, Configuration& config);
 
@@ -32,6 +33,7 @@ private:
 	int handle_on_script_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_line_add(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_set_bcd(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_set_blank_leading_zeros(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_encoder_inc_or_dec(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_fip_serial(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_fip_offset(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
@@ -80,6 +82,8 @@ private:
 	const std::string TOKEN_LUA = "lua";
 	const std::string TOKEN_CONST = "const";
 	const std::string TOKEN_BCD = "bcd";
+	const std::string TOKEN_BLANK_LEADING_ZEROS = "blank_leading_zeros";
+	const std::string TOKEN_MIN_DIGIT_NUMBER = "minimum_digit_number";
 	const std::string TOKEN_ON_SELECT = "on_select";
 	const std::string TOKEN_BEGIN = "begin";
 	const std::string TOKEN_END = "end";

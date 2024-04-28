@@ -488,8 +488,35 @@ Every LED has a predefined symbolic name that can be seen in this table:
 </table>
 
 ## Displays
-A display is a character based 7 segment display device or an analog gauge. It can be used to display numeric values. Please note: Saitek's FIP graphical device has specific device type and config options as it can be seen in [FIP](#ChapterFIP) chapter.
-The display value can be either from a dataref or from a LUA function. The display value can be a conditional display which means the value to display depends on the position of a switch. A display that contains conditions called multi-purpose display (multi_display).
+Display can be used to display numeric values. It could be a 7 segment LED display or any other type (analogue gauge for example) Please note: Saitek's FIP graphical device has specific device type and config options as it can be seen in [FIP](#ChapterFIP) chapter.
+The display value can be either from a dataref or from a LUA function or it can be a constant value. 
+
+### Properties of a display
+*Character encoding*: Depends on the HW device, the character encoding could be either binary or BCD (binary coded decimal). This is how the numerical value is coded into bytes. By default, all displays are set to BCD type. If you want to overwrite this behavior, please set it in the config:
+```
+[multi_display:id="MULTI_DISPLAY_UP", bcd="no"]
+```
+
+*Blank leading zeros*: This property does matter only in the case of BCD encoding and 7 digit displays. If it is enabled, then all the leading zeros are blanked. By default, it is turned on. To turn it off, please set it in the config:
+```
+[multi_display:id="MULTI_DISPLAY_UP", blank_leading_zeros="no"]
+```
+
+*Minimum character number*: In case of ```blank_leading_zeros="yes"``` is active, we can set the minimum character number for each line. It will stop removing of leading zeros when the minimum character count has been reached(set the ```min_char_count```):
+```
+[multi_display:id="MULTI_DISPLAY_UP"]
+line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L,min_char_count:2"
+```
+
+The below table contains some examples of different options. We suppose the display is a 5 character wide, BCD encoded display:
+
+| value | blank_leading_zeros="no" | blank_leading_zeros="yes"<br>min_char_count:2 | blank_leading_zeros="yes"<br>min_char_count:1 |
+| ----- | ------------------------ | --------------------------------------------- | --------------------------------------------- |
+| 100   | 00100                    | 100                                           | 100                                           |
+| 1500  | 01500                    | 1500                                          | 1500                                          |
+
+### Multipurpose displays
+The display value can be a conditional display which means the value to display depends on the position of a switch. A display that contains conditions called multi-purpose display (multi_display).
 
 The 'on_select:HW input name' part defines a condition. If the HW input is in logical 1 state
 the display will show you the dataref or lua script value in that line, Thi is somehow similar to a
@@ -506,6 +533,7 @@ call the LUA function and displays the return value of the function.
 
 The SW_ALT or SW_VS will determine which value will be displayed.
 
+### Generic displays
 If you need a display device without any condition (it means the display will show the same dataeref or lua value all the time) you can define a simple display device in the configuration like this:
 
 ```ini
@@ -956,3 +984,4 @@ end
 
 # Trouble shooting {#trouble-shooting}
 Xpanel plugin has log mechnism to put log messages into XPlane's main log. Every error detected by the plugin will be put into the main log file (c:\X-Plane12\log.txt in my setup).
+

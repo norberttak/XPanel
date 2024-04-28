@@ -59,7 +59,8 @@ void Device::register_buttons(std::vector<PanelButton>& _buttons)
 
 void Device::register_selectors(std::vector<PanelButton>& _selectors)
 {
-	selectors = _selectors;
+	for (auto& sel : _selectors)
+		selectors.push_back(sel);
 }
 
 void Device::register_lights(std::vector<PanelLight>& _lights)
