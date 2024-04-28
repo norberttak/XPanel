@@ -61,9 +61,14 @@ SaitekMultiPanel::SaitekMultiPanel(ClassConfiguration& config) :UsbHidDevice(con
 
 	register_displays(multi_displays);
 
-	for (auto &config_display : get_config().multi_displays)
+	for (auto& config_display : get_config().multi_displays)
 	{
 		config_display.second->set_nr_bytes(display_width);
+
+		// if no dataref or lua or const registered for a selector position -> turn it off
+		for (auto& selector : multi_selectors)
+			if (!config_display.second->is_registered_selector(selector.config_name))
+				config_display.second->add_condition(selector.config_name, GenericDisplay::MAX_VALUE + 1);
 	}
 }
 
@@ -122,7 +127,7 @@ void SaitekMultiPanel::stop(int timeout)
 	Logger(TLogLevel::logDEBUG) << "SaitekMultiPanel::stop called" << std::endl;
 
 	// Blank the display before exit
-	unsigned char buff[WRITE_BUFFER_SIZE] = {0,15,15,15,15,15,15,15,15,15,15,0,0};
+	unsigned char buff[WRITE_BUFFER_SIZE] = { 0,15,15,15,15,15,15,15,15,15,15,0,0 };
 	if (send_feature_report(buff, sizeof(buff)) != EXIT_SUCCESS)
 	{
 		Logger(TLogLevel::logERROR) << "SaitekMultiPanel stop. error in write_device" << std::endl;
