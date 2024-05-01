@@ -36,6 +36,7 @@ MultiPurposeDisplay::MultiPurposeDisplay(MultiPurposeDisplay* other)
 	minimum_number_of_digits = other->minimum_number_of_digits;
 	blank_leading_zeros = other->blank_leading_zeros;
 	minimum_number_of_digits_for_condtions = other->minimum_number_of_digits_for_condtions;
+	dot_positions_for_conditions = other->dot_positions_for_conditions;
 }
 
 void MultiPurposeDisplay::add_condition(std::string selector_sw_name, XPLMDataRef data)
@@ -101,6 +102,12 @@ void MultiPurposeDisplay::set_minimum_number_of_digits(std::string _condition, i
 	Logger(TLogLevel::logDEBUG) << "MultiPurposeDisplay: set minimum number of digits [" + _condition + "]: " << _minimum_number_of_digits << std::endl;
 }
 
+void MultiPurposeDisplay::set_dot_position(std::string _condition, int _dot_position)
+{
+	dot_positions_for_conditions[_condition] = _dot_position;
+	Logger(TLogLevel::logDEBUG) << "MultiPurposeDisplay: set dot position [" + _condition + "]: " << _dot_position << std::endl;
+}
+
 int MultiPurposeDisplay::get_minimum_number_of_digits()
 {
 	int result = 1;
@@ -111,6 +118,22 @@ int MultiPurposeDisplay::get_minimum_number_of_digits()
 		result = minimum_number_of_digits_for_condtions[active_condition];
 	else
 		result = 1; //default 1
+
+	guard.unlock();
+
+	return result;
+}
+
+int MultiPurposeDisplay::get_dot_position()
+{
+	int result = -1;
+
+	guard.lock();
+
+	if (dot_positions_for_conditions.count(active_condition) != 0)
+		result = dot_positions_for_conditions[active_condition];
+	else
+		result = -1; //default -1 --> no dot
 
 	guard.unlock();
 
