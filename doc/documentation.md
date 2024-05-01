@@ -515,6 +515,18 @@ The below table contains some examples of different options. We suppose the disp
 | 100   | 00100                    | 100                                           | 100                                           |
 | 1500  | 01500                    | 1500                                          | 1500                                          |
 
+*Dot positionr*: You can add dot (period) character to the display lines. It is usefull when the numerical data is not an integer number. For example navigation radio frequesncies are in this form: 118.100 Mhz To add a dot caharacter to the display please use this option on the appropriate lines:
+```
+[multi_display:id="RADIO_DISPLAY_ACTIVE_UP"]
+line="on_select:SW_UP_COM1,dataref:sim/cockpit2/radios/actuators/com1_frequency_hz, dot_position: 2"
+```
+Here the ```dot_position``` option is an index starting at the most right position with index 0
+
+| value | dot_position:0 | dot_position:1 | dot_position:2 |
+| ------| -------------- | -------------- | -------------- |
+| 12345 | 12345.         | 1234.5         | 123.45         |
+
+
 ### Multipurpose displays
 The display value can be a conditional display which means the value to display depends on the position of a switch. A display that contains conditions called multi-purpose display (multi_display).
 
