@@ -192,7 +192,8 @@ bool UsbHidDevice::updateOneDisplay(std::pair<std::string, GenericDisplay*> conf
 	if (reg_index != -1 && config_display.second != NULL)
 	{
 		int minimum_number_of_digits = config_display.second->get_minimum_number_of_digits();
-		write_buffer_changed |= config_display.second->get_display_value(&write_buffer[reg_index], minimum_number_of_digits);
+		int dot_position = config_display.second->get_dot_position();
+		write_buffer_changed |= config_display.second->get_display_value(&write_buffer[reg_index], minimum_number_of_digits, dot_position);
 	}
 
 	return write_buffer_changed;

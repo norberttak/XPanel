@@ -23,6 +23,7 @@ GenericDisplay::GenericDisplay(bool _use_bcd)
 	const_value = DBL_MIN;
 	blank_leading_zeros = true;
 	minimum_number_of_digits = 1;
+	dot_position = -1; //no dot display
 }
 
 GenericDisplay::GenericDisplay(GenericDisplay* other)
@@ -37,6 +38,7 @@ GenericDisplay::GenericDisplay(GenericDisplay* other)
 	const_value = other->const_value;
 	nr_of_bytes = other->nr_of_bytes;
 	minimum_number_of_digits = other->minimum_number_of_digits;
+	dot_position = other->dot_position;
 	dataref_index = other->dataref_index;
 	blank_leading_zeros = other->blank_leading_zeros;
 }
@@ -60,6 +62,17 @@ void GenericDisplay::set_minimum_number_of_digits(int _minimum_number_of_digits)
 int GenericDisplay::get_minimum_number_of_digits()
 {
 	return minimum_number_of_digits;
+}
+
+void GenericDisplay::set_dot_position(int _dot_position)
+{
+	dot_position = _dot_position;
+	Logger(TLogLevel::logDEBUG) << "GenericDisplay: set dot position: " << _dot_position << std::endl;
+}
+
+int GenericDisplay::get_dot_position()
+{
+	return dot_position;
 }
 
 void GenericDisplay::set_bcd(bool _use_bcd)
@@ -139,7 +152,7 @@ void GenericDisplay::evaluate_and_store_dataref_value()
 	display_value_old = display_value;
 }
 
-bool GenericDisplay::get_decimal_components(int number, unsigned char* buffer, int _minimum_number_of_digits)
+bool GenericDisplay::get_decimal_components(int number, unsigned char* buffer, int _minimum_number_of_digits, int _dot_position)
 {
 	bool negative = false;
 	if (number < 0)
@@ -155,6 +168,9 @@ bool GenericDisplay::get_decimal_components(int number, unsigned char* buffer, i
 	for (int dec_pos = nr_of_bytes - 1; dec_pos >= 0; dec_pos--)
 	{
 		buffer[nr_of_bytes - 1 - dec_pos] = remain / (int)pow(10, dec_pos);
+		if (dec_pos == _dot_position)
+			buffer[nr_of_bytes - 1 - dec_pos] += PERIOD_CHAR; // turn on period dot
+
 		remain = remain % (int)pow(10, dec_pos);
 	}
 
@@ -200,7 +216,7 @@ bool GenericDisplay::get_binary_components(int number, unsigned char* buffer)
 }
 
 // called from UsbHidDevice worker thread
-bool GenericDisplay::get_display_value(unsigned char* buffer, int _minimum_number_of_digits)
+bool GenericDisplay::get_display_value(unsigned char* buffer, int _minimum_number_of_digits, int _dot_position)
 {
 	if (!display_value_changed)
 		return false;
@@ -221,7 +237,7 @@ bool GenericDisplay::get_display_value(unsigned char* buffer, int _minimum_numbe
 	}
 	else
 	{
-		buffer_changed = use_bcd ? get_decimal_components((int)_val, buffer, _minimum_number_of_digits) : get_binary_components(int(_val), buffer);
+		buffer_changed = use_bcd ? get_decimal_components((int)_val, buffer, _minimum_number_of_digits, _dot_position) : get_binary_components(int(_val), buffer);
 	}
 
 	return buffer_changed;

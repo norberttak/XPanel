@@ -84,6 +84,7 @@ private:
 	const std::string TOKEN_BCD = "bcd";
 	const std::string TOKEN_BLANK_LEADING_ZEROS = "blank_leading_zeros";
 	const std::string TOKEN_MIN_DIGIT_NUMBER = "minimum_digit_number";
+	const std::string TOKEN_DOT_POSITION = "dot_position";
 	const std::string TOKEN_ON_SELECT = "on_select";
 	const std::string TOKEN_BEGIN = "begin";
 	const std::string TOKEN_END = "end";

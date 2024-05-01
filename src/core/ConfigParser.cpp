@@ -626,6 +626,7 @@ int Configparser::handle_on_lit_or_unlit_or_blink(IniFileSectionHeader section_h
 int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	//line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L"
+	//line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L, dot_position: 2" 
 	//line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L, minimum_digit_number: 3"
 	//line="dataref:sim/custom/gauges/compas/pkp_helper_course_L"
 	//line="dataref:sim/custom/gauges/compas/test[0] 
@@ -651,6 +652,21 @@ int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::s
 			config.class_configs.back().multi_displays[section_header.id]->set_minimum_number_of_digits(condition, stoi(min_digit_number));
 		else if(section_header.name == TOKEN_SECTION_DISPLAY)
 			config.class_configs.back().generic_displays[section_header.id]->set_minimum_number_of_digits(stoi(min_digit_number));
+		else
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid line for device type: " << section_header.name << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+
+	std::string dot_position = "";
+	get_and_remove_token_pair(m, TOKEN_DOT_POSITION, dot_position);
+	if (dot_position != "")
+	{
+		if (section_header.name == TOKEN_SECTION_MULTI_DISPLAY)
+			config.class_configs.back().multi_displays[section_header.id]->set_dot_position(condition, stoi(dot_position));
+		else if (section_header.name == TOKEN_SECTION_DISPLAY)
+			config.class_configs.back().generic_displays[section_header.id]->set_dot_position(stoi(dot_position));
 		else
 		{
 			Logger(TLogLevel::logERROR) << "parser: invalid line for device type: " << section_header.name << std::endl;
