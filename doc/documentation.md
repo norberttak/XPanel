@@ -502,15 +502,15 @@ The display value can be either from a dataref or from a LUA function or it can 
 [multi_display:id="MULTI_DISPLAY_UP", blank_leading_zeros="no"]
 ```
 
-*Minimum character number*: In case of ```blank_leading_zeros="yes"``` is active, we can set the minimum character number for each line. It will stop removing of leading zeros when the minimum character count has been reached(set the ```min_char_count```):
+*Minimum character number*: In case of ```blank_leading_zeros="yes"``` is active, we can set the minimum character number for each line. It will stop removing of leading zeros when the minimum character count has been reached(set the ```minimum_digit_number```):
 ```
 [multi_display:id="MULTI_DISPLAY_UP"]
-line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L,min_char_count:2"
+line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L,minimum_digit_number:2"
 ```
 
 The below table contains some examples of different options. We suppose the display is a 5 character wide, BCD encoded display:
 
-| value | blank_leading_zeros="no" | blank_leading_zeros="yes"<br>min_char_count:2 | blank_leading_zeros="yes"<br>min_char_count:1 |
+| value | blank_leading_zeros="no" | blank_leading_zeros="yes"<br>minimum_digit_number:2 | blank_leading_zeros="yes"<br>minimum_digit_number:1 |
 | ----- | ------------------------ | --------------------------------------------- | --------------------------------------------- |
 | 100   | 00100                    | 100                                           | 100                                           |
 | 1500  | 01500                    | 1500                                          | 1500                                          |
