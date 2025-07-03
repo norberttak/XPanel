@@ -50,7 +50,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, windows-latest]
+        os: [ubuntu-22.04, windows-latest, macos-latest]
 
     name: Build and Test (CMake, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -58,11 +58,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
+      - name: Install dependencies (Linux)
         if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt-get update -qq && sudo apt-get install -y build-essential cmake liblua5.4-dev libudev-dev libhidapi-dev
           echo 'XPANEL_INSTALL_DEPS_FLAG=-DINSTALL_DEPS=ON' >> $GITHUB_ENV
+
+      - name: Install dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install cmake lua hidapi
 
 
       - name: Build
@@ -81,6 +86,13 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: built-plugin-linux
+          path: ${{ github.workspace }}/install/XPanel/64/*
+
+      - name: Upload built plugin (macOS)
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-plugin-macos
           path: ${{ github.workspace }}/install/XPanel/64/*
 
   docs:
