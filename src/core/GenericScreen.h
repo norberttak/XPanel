@@ -76,7 +76,7 @@ protected:
 public:
     GenericScreen();
     GenericScreen(GenericScreen* other);
-    ~GenericScreen();
+    virtual ~GenericScreen();
     virtual void evaluate_and_store_screen_action()=0;
     virtual void render_page(int page_index, void** byte_buffer) = 0;
     void add_screen_action(ScreenAction* screen_action);

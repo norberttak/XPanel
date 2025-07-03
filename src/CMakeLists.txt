@@ -6,7 +6,14 @@ elseif (APPLE)
 elseif (UNIX)
     list(APPEND XPANEL_SRCS ../3rdparty/hidapi/linux/hid.c)   
 endif()
-set_source_files_properties(${XPANEL_SRCS} PROPERTIES LANGUAGE CXX)
+# Compile hid.c as C, not C++
+if (WIN32)
+    set_source_files_properties(../3rdparty/hidapi/windows/hid.c PROPERTIES LANGUAGE C)
+elseif (APPLE)
+    set_source_files_properties(../3rdparty/hidapi/mac/hid.c PROPERTIES LANGUAGE C)
+elseif (UNIX)
+    set_source_files_properties(../3rdparty/hidapi/linux/hid.c PROPERTIES LANGUAGE C)
+endif()
 
 add_library(xpanel SHARED
     ${XPANEL_SRCS}
