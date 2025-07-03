@@ -35,13 +35,13 @@ jobs:
         run: vstest.console.exe /Platform:x64 x64/Release/test.dll
 
       - name: Upload built plugin
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: built-plugin-windows
           path: Release/plugins/XPanel/64/*
 
       - name: Upload test logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test_log
           path: x64/Release/test_log.txt
@@ -50,7 +50,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, windows-latest]
+        os: [ubuntu-22.04, windows-latest, macos-latest]
 
     name: Build and Test (CMake, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -58,11 +58,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
+      - name: Install dependencies (Linux)
         if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt-get update -qq && sudo apt-get install -y build-essential cmake liblua5.4-dev libudev-dev libhidapi-dev
           echo 'XPANEL_INSTALL_DEPS_FLAG=-DINSTALL_DEPS=ON' >> $GITHUB_ENV
+
+      - name: Install dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install cmake lua hidapi
 
 
       - name: Build
@@ -78,9 +83,16 @@ jobs:
 
       - name: Upload built plugin (Linux glibc 2.35)
         if: matrix.os == 'ubuntu-22.04'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: built-plugin-linux
+          path: ${{ github.workspace }}/install/XPanel/64/*
+
+      - name: Upload built plugin (macOS)
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-plugin-macos
           path: ${{ github.workspace }}/install/XPanel/64/*
 
   docs:
@@ -94,7 +106,7 @@ jobs:
         working-directory: ./doc
         run: pandoc -f gfm -t pdf --pdf-engine weasyprint -c style.css -o documentation.pdf documentation.md
       - name: Upload docs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: docs
           path: doc/documentation.pdf

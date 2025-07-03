@@ -100,10 +100,37 @@ $ cmake --install build
 
 ## macOS
 
-Dependencies:
+### Prerequisites
+First, install Homebrew (if not already installed):
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
-brew install lua
-brew install pkg-config
+
+After installation, add Homebrew to your PATH (the installer will show you the exact commands):
+```bash
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
+
+### Build Instructions
+
+Check out the latest source file from [github](https://github.com/norberttak/XPanel)
+
+Install dependencies:
+```bash
+brew install cmake lua hidapi
+```
+
+Build using the provided script:
+```bash
+./build-macos.sh
+```
+
+Or build manually:
+```bash
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/tmp/xpanel-install -S . -B build
+cmake --build build --config Release
+cmake --build build --target install
 ```
 
 Copy or link the `/tmp/xpanel-install/XPanel` directory into the X-Plane plugin folder.
