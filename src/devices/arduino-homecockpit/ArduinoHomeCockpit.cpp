@@ -15,8 +15,8 @@
 #include "core/UsbHidDevice.h"
 #include "core/Logger.h"
 
-#define WRITE_BUFFER_SIZE 64
-#define READ_BUFFER_SIZE 9
+constexpr int WRITE_BUFFER_SIZE = 64;
+constexpr int READ_BUFFER_SIZE = 9;
 
 std::filesystem::path get_plugin_path();
 

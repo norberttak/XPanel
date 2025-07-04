@@ -21,7 +21,7 @@ public:
 	GenericDisplay(bool _use_bcd); // bcd: binary encoded decimal
 	GenericDisplay(GenericDisplay* other);
 
-	static const double MAX_VALUE;
+	static constexpr double MAX_VALUE = 10000000.0;
 	void set_nr_bytes(int _nr_of_bytes);
 
 	// called from UsbHidDevice worker thread
@@ -54,9 +54,9 @@ protected:
 	double	const_value;
 	int nr_of_bytes;
 private:
-	const unsigned char BLANK_CHAR = 0xFF;
-	const unsigned char ZERO_CHAR = 0x00;
-	const unsigned char PERIOD_CHAR = 0xD0;
+	static constexpr unsigned char BLANK_CHAR = 0xFF;
+	static constexpr unsigned char ZERO_CHAR = 0x00;
+	static constexpr unsigned char PERIOD_CHAR = 0xD0;
 
 	int dataref_index;
 	bool get_decimal_components(int number, unsigned char* buffer, int _minimum_number_of_digits, int _dot_position);

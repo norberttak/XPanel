@@ -11,20 +11,17 @@
 #include "core/UsbHidDevice.h"
 #include "core/Logger.h"
 
-#define WRITE_BUFFER_SIZE (8+1) // +1 for the hid report id at position 0
-#define READ_BUFFER_SIZE 23
-
-#define CMD_REQUEST_BUTTON_SATE 0x41
-#define CMD_REQUEST_ENCODER_0	0x42
-#define CMD_REQUEST_ENCODER_1	0x43
-
-#define RESPONSE_BUTTON_STATE	0xc1
-#define RESPONSE_ENCODER_0		0xc2
-#define RESPONSE_ENCODER_1		0xc3
-
-#define BUTTON_BUFFER_OFFSET	0
-#define ENCODER_0_BUFFER_OFFSET	7
-#define ENCODER_1_BUFFER_OFFSET	15
+constexpr int WRITE_BUFFER_SIZE = 8 + 1; // +1 for the hid report id at position 0
+constexpr int READ_BUFFER_SIZE = 23;
+constexpr uint8_t CMD_REQUEST_BUTTON_SATE = 0x41;
+constexpr uint8_t CMD_REQUEST_ENCODER_0 = 0x42;
+constexpr uint8_t CMD_REQUEST_ENCODER_1 = 0x43;
+constexpr uint8_t RESPONSE_BUTTON_STATE = 0xc1;
+constexpr uint8_t RESPONSE_ENCODER_0 = 0xc2;
+constexpr uint8_t RESPONSE_ENCODER_1 = 0xc3;
+constexpr int BUTTON_BUFFER_OFFSET = 0;
+constexpr int ENCODER_0_BUFFER_OFFSET = 7;
+constexpr int ENCODER_1_BUFFER_OFFSET = 15;
 
 TRC1000PFD::TRC1000PFD(ClassConfiguration& config) :TRC1000(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {

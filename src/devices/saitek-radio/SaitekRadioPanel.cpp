@@ -11,8 +11,8 @@
 #include "saitek-radio/SaitekRadioPanel.h"
 #include "core/Logger.h"
 
-#define WRITE_BUFFER_SIZE 23
-#define READ_BUFFER_SIZE 5
+constexpr int WRITE_BUFFER_SIZE = 23;
+constexpr int READ_BUFFER_SIZE = 5;
 
 SaitekRadioPanel::SaitekRadioPanel(ClassConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {

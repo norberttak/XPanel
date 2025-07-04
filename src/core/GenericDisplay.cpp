@@ -10,7 +10,7 @@
 #include "LuaHelper.h"
 #include "Logger.h"
 
-const double GenericDisplay::MAX_VALUE = 10000000;
+// MAX_VALUE now defined as constexpr in header
 
 GenericDisplay::GenericDisplay(bool _use_bcd)
 {
