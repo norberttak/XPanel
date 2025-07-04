@@ -60,7 +60,7 @@ std::vector<std::string> Configparser::tokenize(std::string line)
 
 bool Configparser::get_and_remove_token_pair(std::vector<std::string>& tokens, std::string name, std::string& out_value)
 {
-	for (int i = 0; i < tokens.size(); i += 2)
+	for (size_t i = 0; i < tokens.size(); i += 2)
 	{
 		if ((i+1) < tokens.size() && tokens[i] == name)
 		{
@@ -293,6 +293,8 @@ int Configparser::process_fip_layer_section(IniFileSection& section, Configurati
 
 int Configparser::handle_on_vid(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)section_header;
+	(void)key;
 	std::stringstream ss;
 	ss << std::hex << value;
 	ss >> config.class_configs.back().vid;
@@ -303,6 +305,8 @@ int Configparser::handle_on_vid(IniFileSectionHeader section_header, std::string
 
 int Configparser::handle_on_pid(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)section_header;
+	(void)key;
 	std::stringstream ss;
 	ss << std::hex << value;
 	ss >> config.class_configs.back().pid;
@@ -313,6 +317,8 @@ int Configparser::handle_on_pid(IniFileSectionHeader section_header, std::string
 
 int Configparser::handle_on_log_level(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)key;
+	(void)config;
 	if (section_header.id != "")
 		Logger(TLogLevel::logWARNING) << "Log level shall be defined in the common part of the config file!" << std::endl;
 
@@ -340,6 +346,7 @@ int Configparser::handle_on_log_level(IniFileSectionHeader section_header, std::
 
 int Configparser::handle_on_acf_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)key;
 	if (section_header.id != "")
 		Logger(TLogLevel::logWARNING) << "ACF file shall be defined in the common part of the config file!" << std::endl;
 
@@ -351,6 +358,7 @@ int Configparser::handle_on_acf_file(IniFileSectionHeader section_header, std::s
 
 int Configparser::handle_on_script_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)key;
 	if (section_header.id != "")
 		Logger(TLogLevel::logWARNING) << "Script shall be defined in the common part of the config file!" << std::endl;
 
@@ -542,6 +550,8 @@ int Configparser::handle_on_push_or_release(IniFileSectionHeader section_header,
 
 int Configparser::handle_on_dynamic_speed(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)section_header;
+	(void)config;
 	//dynamic_speed_mid="2tick/sec:2x"
 	//dynamic_speed_high = "6tick/sec:4x"
 
@@ -625,6 +635,7 @@ int Configparser::handle_on_lit_or_unlit_or_blink(IniFileSectionHeader section_h
 
 int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)key;
 	//line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L"
 	//line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L, dot_position: 2" 
 	//line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L, minimum_digit_number: 3"
@@ -764,6 +775,7 @@ int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::s
 
 int Configparser::handle_on_set_bcd(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)key;
 	if (section_header.name == TOKEN_SECTION_MULTI_DISPLAY)
 		config.class_configs.back().multi_displays[section_header.id]->set_bcd(value == "yes" ? true : false);
 	else if (section_header.name == TOKEN_SECTION_DISPLAY)
@@ -872,6 +884,8 @@ int Configparser::handle_on_encoder_inc_or_dec(IniFileSectionHeader section_head
 
 int Configparser::handle_on_fip_serial(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)section_header;
+	(void)key;
 	config.class_configs.back().serial_number = value;
 	Logger(TLogLevel::logDEBUG) << "parser: serial number: " << value << std::endl;
 	return EXIT_SUCCESS;
@@ -944,6 +958,7 @@ int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std:
 
 int Configparser::handle_on_fip_rotation(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)key;
 	ScreenAction* action = new ScreenAction();
 	action->page_index = config.class_configs.back().fip_screens[last_device_id]->get_last_page_index();
 	action->layer_index = config.class_configs.back().fip_screens[last_device_id]->get_last_layer_index(action->page_index);
@@ -992,6 +1007,8 @@ int Configparser::handle_on_fip_rotation(IniFileSectionHeader section_header, st
 
 int Configparser::handle_on_fip_mask(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)section_header;
+	(void)key;
 	int page_index = config.class_configs.back().fip_screens[last_device_id]->get_last_page_index();
 	int layer_index = config.class_configs.back().fip_screens[last_device_id]->get_last_layer_index(page_index);
 
@@ -1033,6 +1050,7 @@ int Configparser::handle_on_fip_mask(IniFileSectionHeader section_header, std::s
 
 int Configparser::handle_on_fip_text(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)key;
 	int page_index = config.class_configs.back().fip_screens[last_device_id]->get_last_page_index();
 	int layer_index = config.class_configs.back().fip_screens[last_device_id]->get_last_layer_index(page_index);
 

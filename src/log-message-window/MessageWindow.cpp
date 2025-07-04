@@ -141,6 +141,8 @@ void MessageWindow::print_log_message_lines()
 
 int	MessageWindow::on_window_event(XPWidgetMessage widget_message, XPWidgetID  widget_id, intptr_t  in_param1, intptr_t  in_param2)
 {
+	(void)in_param1;
+	(void)in_param2;
 	if (widget_id == clear_button_id && widget_message == xpMsg_PushButtonPressed)
 	{
 		messages.clear();

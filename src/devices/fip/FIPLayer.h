@@ -34,6 +34,15 @@ struct MaskWindow {
 		enabled = false;
 	}
 
+	MaskWindow(const MaskWindow& other)
+	{
+		pos_x = other.pos_x;
+		pos_y = other.pos_y;
+		width = other.width;
+		height = other.height;
+		enabled = other.enabled;
+	}
+
 	MaskWindow& operator=(const MaskWindow& other)
 	{
 		pos_x = other.pos_x;

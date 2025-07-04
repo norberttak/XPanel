@@ -30,7 +30,7 @@
 #include <sstream>
 
 IniFileParser::IniFileParser()
-	: in(nullptr), next_token(NO_TOKEN), line(0), error_count(0)
+	: in(nullptr), line(0), error_count(0), next_token(NO_TOKEN)
 {
 
 }
@@ -60,6 +60,7 @@ void IniFileParser::clean()
 
 void IniFileParser::parse(std::istream& _in, const std::string& _file, unsigned int _line)
 {
+	(void)_line;
 	in = &_in;
 	file = _file;
 	line = 1;

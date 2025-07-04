@@ -47,8 +47,8 @@ ClassConfiguration::ClassConfiguration()
 
 ClassConfiguration::ClassConfiguration(const ClassConfiguration& other):
 	device_class_type(other.device_class_type),
-	pid(other.pid),
 	vid(other.vid),
+	pid(other.pid),
 	serial_number(other.serial_number)
 {
 	Logger(TLogLevel::logTRACE) << "ClassConfiguration copy constructor called" << std::endl;

@@ -53,7 +53,7 @@ FIPPage::FIPPage(FIPPage* other)
 
 FIPPage::~FIPPage()
 {
-	for (int i = 0; i < layers.size(); i++)
+	for (size_t i = 0; i < layers.size(); i++)
 		delete(layers[i]);
 
 	layers.clear();
@@ -260,7 +260,7 @@ void FIPPage::render_page()
 {
 	memset(page_raw_buffer_ptr_act, 0, raw_buffer_size);
 
-	for (int i = 0; i < layers.size(); i++)
+	for (size_t i = 0; i < layers.size(); i++)
 		render_layer(i);
 
 	interpolate();

@@ -55,6 +55,7 @@ bool ImageBuffer::load_from_bmp_file(std::string file_name)
 	}
 
 	Logger(logTRACE) << file_name << " load BMP done. height=" << height << " width=" << width << std::endl;
+	return true;
 }
 
 ImageBuffer::ImageBuffer()
