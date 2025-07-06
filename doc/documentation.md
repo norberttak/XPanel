@@ -526,6 +526,20 @@ Here the ```dot_position``` option is an index starting at the most right positi
 | ------| -------------- | -------------- | -------------- |
 | 12345 | 12345.         | 1234.5         | 123.45         |
 
+### Display Value Truncation
+#### Overview
+When displaying values on hardware panels with limited character capacity, XPanel automatically handles cases where the data exceeds the available display space.
+
+#### Truncation Behavior
+If a display value is wider than the available characters on the hardware display, XPanel will truncate the value and append a period (`.`) character at the end to indicate that the value has been shortened.
+
+**Example:**
+- **Full value**: `120.375` (8.33kHz radio frequency)
+- **Saitek Radio Panel display** (5 characters): `12037.`
+- The period at the end indicates that the complete value cannot be displayed
+
+#### Configuration
+The truncation behavior is automatically applied and does not require any configuration. The feature ensures that users are always aware when displayed values are incomplete due to hardware limitations.
 
 ### Multipurpose displays
 The display value can be a conditional display which means the value to display depends on the position of a switch. A display that contains conditions called multi-purpose display (multi_display).

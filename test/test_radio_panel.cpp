@@ -39,11 +39,15 @@ namespace test
 		std::string nav2_freq_dataref_str = "sim/cockpit2/radios/actuators/nav2_frequency_hz";
 		std::string com1_freq_dataref_str = "sim/cockpit2/radios/actuators/com1_frequency_hz";
 		std::string com2_freq_dataref_str = "sim/cockpit/radios/com1_stdby_freq_hz";
+		std::string com1_freq_833khz_dataref_str = "sim/cockpit2/radios/actuators/com1_frequency_hz_833";
+		std::string transponder_code_str = "sim/cockpit2/radios/actuators/transponder_code";
 
 		XPLMDataRef nav1_freq_dataref;
 		XPLMDataRef nav2_freq_dataref;
 		XPLMDataRef com1_freq_dataref;
 		XPLMDataRef com2_freq_dataref;
+		XPLMDataRef com1_freq_833khz_dataref;
+		XPLMDataRef transponder_code_dataref;
 
 	public:
 		TEST_METHOD_INITIALIZE(TestMultiPanelInit)
@@ -66,11 +70,15 @@ namespace test
 			nav2_freq_dataref = XPLMFindDataRef(nav2_freq_dataref_str.c_str());
 			com1_freq_dataref = XPLMFindDataRef(com1_freq_dataref_str.c_str());
 			com2_freq_dataref = XPLMFindDataRef(com2_freq_dataref_str.c_str());
+			com1_freq_833khz_dataref = XPLMFindDataRef(com1_freq_833khz_dataref_str.c_str());
+			transponder_code_dataref = XPLMFindDataRef(transponder_code_str.c_str());
 
 			XPLMSetDatai(nav1_freq_dataref, 11111);
 			XPLMSetDatai(nav2_freq_dataref, 22222);
 			XPLMSetDatai(com1_freq_dataref, 33333);
 			XPLMSetDatai(com2_freq_dataref, 44444);
+			XPLMSetDatai(com1_freq_833khz_dataref, 120375); // 120.375 Mhz is a 8.33kHz channel
+			XPLMSetDatai(transponder_code_dataref, 7001);
 		}
 
 		TEST_METHOD(Test_VID_PID)
@@ -95,6 +103,45 @@ namespace test
 			Assert::AreEqual(1, (int)write_buffer[2]);
 			Assert::AreEqual(1, (int)write_buffer[3]);
 			Assert::AreEqual(1, (int)write_buffer[4]);
+			Assert::AreEqual(1, (int)write_buffer[5]);
+		}
+
+		TEST_METHOD(Test_Display_833kHz)
+		{
+			// set rotation switch to SW_COM_2 position
+			unsigned char buffer[4] = { 0x02,0,0,0 };
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+
+			test_flight_loop(device);
+			std::this_thread::sleep_for(150ms);
+
+			unsigned char write_buffer[23];
+			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
+			Assert::AreEqual(1, (int)write_buffer[1]);
+			Assert::AreEqual(2, (int)write_buffer[2]);
+			Assert::AreEqual(0, (int)write_buffer[3]);
+			Assert::AreEqual(3, (int)write_buffer[4]);
+			Assert::AreEqual(7, (int)write_buffer[5] & 0x0F); // the digit at last position
+			Assert::AreEqual(0xD0, (int)write_buffer[5] & 0xF0); // the period after the last digit
+		}
+
+		TEST_METHOD(Test_4_digit_display)
+		{
+			// set rotation switch to XPDR position
+			unsigned char buffer[4] = { 0x40,0,0,0 };
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			std::this_thread::sleep_for(150ms);
+
+			test_flight_loop(device);
+			std::this_thread::sleep_for(150ms);
+
+			unsigned char write_buffer[23];
+			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
+			Assert::AreEqual(255, (int)write_buffer[1]);
+			Assert::AreEqual(7, (int)write_buffer[2]);
+			Assert::AreEqual(0, (int)write_buffer[3]);
+			Assert::AreEqual(0, (int)write_buffer[4]);
 			Assert::AreEqual(1, (int)write_buffer[5]);
 		}
 
