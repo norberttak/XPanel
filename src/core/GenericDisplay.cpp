@@ -161,17 +161,29 @@ bool GenericDisplay::get_decimal_components(int number, unsigned char* buffer, i
 		negative = true;
 	}
 
-	if (number > pow(10, nr_of_bytes))
-		return false;
+	for (int i = 0; i < nr_of_bytes; i++)
+		buffer[i] = ZERO_CHAR;
 
-	int remain = number;
-	for (int dec_pos = nr_of_bytes - 1; dec_pos >= 0; dec_pos--)
+	if (number != 0)
 	{
-		buffer[nr_of_bytes - 1 - dec_pos] = remain / (int)pow(10, dec_pos);
-		if (dec_pos == _dot_position)
-			buffer[nr_of_bytes - 1 - dec_pos] += PERIOD_CHAR; // turn on period dot
+		// how many decimal positions do we need?
+		const int base_10_of_number = (int)log10(number);
 
-		remain = remain % (int)pow(10, dec_pos);
+		int remain = number;
+		int buffer_index = nr_of_bytes > (base_10_of_number + 1) ? nr_of_bytes - (base_10_of_number+1) : 0;
+
+		for (int dec_pos = base_10_of_number; dec_pos >= 0 && buffer_index < nr_of_bytes; dec_pos--)
+		{
+			buffer[buffer_index] = remain / (int)pow(10, dec_pos);
+			if (dec_pos == _dot_position)
+				buffer[buffer_index] += PERIOD_CHAR; // turn on period dot
+
+			remain = remain % (int)pow(10, dec_pos);
+			buffer_index++;
+		}
+
+		if (remain != 0)
+			buffer[nr_of_bytes - 1] += PERIOD_CHAR; // a dot at the end of display indicates the truncated line
 	}
 
 	if (blank_leading_zeros)
