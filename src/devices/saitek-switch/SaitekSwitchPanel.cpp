@@ -10,8 +10,8 @@
 #include "saitek-switch/SaitekSwitchPanel.h"
 #include "core/Logger.h"
 
-#define WRITE_BUFFER_SIZE 2
-#define READ_BUFFER_SIZE 4
+constexpr int WRITE_BUFFER_SIZE = 2;
+constexpr int READ_BUFFER_SIZE = 4;
 
 SaitekSwitchPanel::SaitekSwitchPanel(ClassConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {

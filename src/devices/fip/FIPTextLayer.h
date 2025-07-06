@@ -11,8 +11,8 @@ class FIPTextLayer : public FIPImageLayer
 private:
 	std::string text;
 	ImageBuffer font_image_buffer;
-	const int MAX_CHAR_COUNT = 32;
-	const int CHAR_SPACE = 2;
+	static constexpr int MAX_CHAR_COUNT = 32;
+	static constexpr int CHAR_SPACE = 2;
 public:
 	FIPTextLayer();
 	FIPTextLayer(FIPTextLayer* other);

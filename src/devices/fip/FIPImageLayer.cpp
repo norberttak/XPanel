@@ -16,7 +16,7 @@ bool ImageBuffer::load_from_bmp_file(std::string file_name)
 
 	file.read((char*)&bmp_header, sizeof(bmp_header));
 
-	if (bmp_header.type != 0x4d42) // the BMP magic number
+	if (bmp_header.type != BMP_MAGIC_NUMBER)
 	{
 		Logger(logERROR) << file_name << " bad magic number in BMP header: " << bmp_header.type << std::endl;
 		return false;

@@ -9,6 +9,9 @@
 #include <fstream>
 #include "FIPLayer.h"
 
+// BMP file format constants
+constexpr uint16_t BMP_MAGIC_NUMBER = 0x4d42;
+
 #pragma pack(push)
 #pragma pack(1)
 typedef struct {

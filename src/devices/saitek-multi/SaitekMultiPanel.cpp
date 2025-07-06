@@ -10,8 +10,8 @@
 #include "saitek-multi/SaitekMultiPanel.h"
 #include "core/Logger.h"
 
-#define WRITE_BUFFER_SIZE 13
-#define READ_BUFFER_SIZE 4
+constexpr int WRITE_BUFFER_SIZE = 13;
+constexpr int READ_BUFFER_SIZE = 4;
 
 SaitekMultiPanel::SaitekMultiPanel(ClassConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {
