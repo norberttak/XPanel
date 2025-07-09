@@ -31,8 +31,10 @@ ArduinoHomeCockpit::ArduinoHomeCockpit(ClassConfiguration& config) :UsbHidDevice
 		return;
 	}
 
+	register_selectors(arduino_buttons);
 	register_buttons(arduino_buttons);
 	register_displays(arduino_displays);
+	register_lights(arduino_lights);
 
 	for (auto config_display : get_config().generic_displays)
 	{
@@ -137,14 +139,20 @@ int ArduinoHomeCockpit::read_board_configuration(std::string file_name, unsigned
 			continue;
 		}
 
+		if (std::regex_match(line.c_str(), m, std::regex(TOKEN_LIGHT)))
+		{
+			unsigned int bit_index = stoi(m[2]);
+			arduino_lights.push_back(PanelLight(register_index * 8 + bit_index, m[1]));
+
+			Logger(TLogLevel::logDEBUG) << "board config: add light: " << m[1] << " [" << register_index << "," << bit_index << "]" << std::endl;
+			continue;
+		}
+
 		Logger(TLogLevel::logERROR) << "board config: invalid config line (" << current_line_nr << "): " << line << std::endl;
 		exit_status = EXIT_FAILURE;
 	}
 
 	input_file.close();
-
-	register_selectors(arduino_buttons);
-
 	return exit_status;
 }
 
