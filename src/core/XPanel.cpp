@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Norbert Takacs
+ * Copyright 2025 Norbert Takacs
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -61,6 +61,7 @@ float error_display_callback(float inElapsedSinceLastCall, float inElapsedTimeSi
 
 void stop_and_clear_xpanel_plugin();
 int init_and_start_xpanel_plugin();
+std::filesystem::path find_config_file(const std::string& aircraft_file_name, const std::string& aircraft_file_path, const std::filesystem::path& plugin_path);
 
 std::vector<Device*> devices;
 bool plugin_already_initialized = false;
@@ -224,6 +225,42 @@ extern std::filesystem::path get_plugin_path()
 	return plugin_path;
 }
 
+std::filesystem::path find_config_file(const std::string& aircraft_file_name, const std::string& aircraft_file_path, const std::filesystem::path& plugin_path)
+{
+	std::filesystem::path configs_path = plugin_path / "configs";
+
+	// First, try to find config in the common configs folder
+	if (std::filesystem::exists(configs_path))
+	{
+		for (const auto& entry : std::filesystem::directory_iterator(configs_path))
+		{
+			if (entry.is_regular_file() && entry.path().extension() == ".ini")
+			{
+				Configparser temp_parser;
+				Configuration temp_config;
+				if (temp_parser.parse_file(entry.path().string(), temp_config) == EXIT_SUCCESS)
+				{
+					if (temp_config.aircraft_acf == aircraft_file_name)
+					{
+						Logger(TLogLevel::logINFO) << "Found config by aircraft_acf match: " << entry.path().string() << std::endl;
+						return entry.path();
+					}
+				}
+			}
+		}
+	}
+
+	// Backward compatibility: Fall back to original aircraft directory location
+	std::filesystem::path legacy_config_path = absolute_path(aircraft_file_path, "xpanel.ini");
+	if (std::filesystem::exists(legacy_config_path))
+	{
+		Logger(TLogLevel::logINFO) << "Using legacy config file location: " << legacy_config_path.string() << std::endl;
+		return legacy_config_path;
+	}
+
+	return std::filesystem::path(); // Return empty path if no match found
+}
+
 template <class T>
 int enumerate_and_add_hid_devices(ClassConfiguration& it)
 {
@@ -266,38 +303,56 @@ int init_and_start_xpanel_plugin(void)
 	XPLMGetNthAircraftModel(0, aircraft_file_name, aircraft_file_path);
 	Logger(TLogLevel::logINFO) << "aircraft file name: " << aircraft_file_name << std::endl;
 
-	std::filesystem::path init_path = absolute_path(aircraft_file_path, "xpanel.ini");
-	Logger(logINFO) << "config file: " << init_path.string() << std::endl;
-
-	config.aircraft_path = std::filesystem::absolute(init_path).remove_filename().string();
-	Logger(TLogLevel::logINFO) << "aircraft path: " << config.aircraft_path << std::endl;
-
 	std::filesystem::path plugin_path = get_plugin_path();
 	config.plugin_path = plugin_path.string();
+
+	// Find appropriate config file (new common location with backward compatibility)
+	std::filesystem::path init_path = find_config_file(aircraft_file_name, aircraft_file_path, plugin_path);
+
+	if (init_path.empty())
+	{
+		Logger(TLogLevel::logERROR) << "No appropriate configuration file found for aircraft: " << aircraft_file_name << std::endl;
+		Logger(TLogLevel::logERROR) << "Searched in: " << (plugin_path / "configs").string() << " and " << std::filesystem::path(aircraft_file_path).remove_filename().string() << std::endl;
+		return EXIT_FAILURE;
+	}
+	Logger(logINFO) << "config file: " << init_path.string() << std::endl;
+
+	config.aircraft_path = aircraft_file_path;
+	Logger(TLogLevel::logINFO) << "aircraft path: " << config.aircraft_path << std::endl;
 
 	Configparser p;
 	int result = p.parse_file(init_path.string(), config);
 	if (result != EXIT_SUCCESS)
 	{
 		stop_and_clear_xpanel_plugin();
-		Logger(TLogLevel::logERROR) << "error parsing config file" << std::endl;
+		Logger(TLogLevel::logERROR) << "error parsing config file: " << init_path.string() << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	if (config.aircraft_acf.compare(aircraft_file_name))
 	{
 		Logger(TLogLevel::logWARNING) << "Config was created for another aircraft (" << config.aircraft_acf << "). Current is " << aircraft_file_name << std::endl;
-		//stop_and_clear_xpanel_plugin();
-		//return EXIT_FAILURE;
 	}
 
 	LuaHelper::get_instace()->init();
 	LuaHelper::get_instace()->push_global_string("AIRCRAFT_FILENAME", aircraft_file_name);
 	LuaHelper::get_instace()->push_global_string("AIRCRAFT_PATH", aircraft_file_path);
+	LuaHelper::get_instace()->push_global_string("PLUGIN_VERSION", PLUGIN_VERSION);
+	LuaHelper::get_instace()->push_global_string("PLUGIN_SIGNATURE", PLUGIN_SIGNATURE);
+	LuaHelper::get_instace()->push_global_string("PLUGIN_CONFIG_FILE", init_path.string());
 
 	std::filesystem::path script_path;
 	if (config.script_file != "")
-		script_path = absolute_path(aircraft_file_path, config.script_file);
+	{
+		// Look for script file in multiple locations with priority order
+		// First look in the common configs folder and then in the aircraft folder
+		std::filesystem::path config_dir = init_path.parent_path();
+		script_path = config_dir / config.script_file;
+
+		if (!std::filesystem::exists(script_path))
+			script_path = absolute_path(aircraft_file_path, config.script_file);
+	}
+
 	if (std::filesystem::exists(script_path))
 	{
 		if (LuaHelper::get_instace()->load_script_file(script_path.string()) != EXIT_SUCCESS)
@@ -306,6 +361,7 @@ int init_and_start_xpanel_plugin(void)
 			Logger(TLogLevel::logERROR) << "Error loading Lua script: " << config.script_file << std::endl;
 			return EXIT_FAILURE;
 		}
+		LuaHelper::get_instace()->push_global_string("SCRIPT_PATH", script_path.string());
 	}
 
 	Device* device;
