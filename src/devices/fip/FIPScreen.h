@@ -14,12 +14,13 @@ class FIPScreen : public GenericScreen
 {
 private:
 	std::map<int, FIPPage*> pages;
-	const int SCREEN_WIDTH = 320;
-	const int SCREEN_HEIGHT = 240;
-	const int BIT_PER_PIXEL = 24;
+	static constexpr int SCREEN_WIDTH = 320;
+	static constexpr int SCREEN_HEIGHT = 240;
+	static constexpr int BIT_PER_PIXEL = 24;
 	std::mutex guard;
 public:
 	FIPScreen();
+	FIPScreen(FIPScreen* other);
 	~FIPScreen();
 
 	void evaluate_and_store_screen_action();

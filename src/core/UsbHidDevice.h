@@ -20,7 +20,7 @@
 class UsbHidDevice : public Device
 {
 public:
-	UsbHidDevice(DeviceConfiguration& config, int _read_buffer_size, int _write_buffer_size);
+	UsbHidDevice(ClassConfiguration& config, int _read_buffer_size, int _write_buffer_size);
 	~UsbHidDevice();
 	virtual void thread_func();
 	int get_vid() { return vid; }
@@ -31,6 +31,7 @@ protected:
 	unsigned short vid = 0;
 	unsigned short pid = 0;
 	int connect();
+	int connect(hid_device* _device_handle);
 	virtual void start();
 	virtual void stop(int time_out);
 	void release();

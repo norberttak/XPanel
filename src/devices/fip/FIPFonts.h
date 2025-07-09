@@ -114,9 +114,9 @@ void init_fip_fonts(){
     fip_font_positions[125] = Font(174,34,5,16);
     fip_font_positions[126] = Font(77,17,8,16);
 }
-const int FIP_FONT_FILE_WIDTH=256;
-const int FIP_FONT_FILE_HEIGHT=256;
-const int FIP_FONT_HEIGHT=16;
-const int FIP_MAX_FONT_WIDTH=13;
-const int FIP_MAX_FONT_ASCII_ID=126;
-const int FIP_MIN_FONT_ASCII_ID=32;
+constexpr int FIP_FONT_FILE_WIDTH = 256;
+constexpr int FIP_FONT_FILE_HEIGHT = 256;
+constexpr int FIP_FONT_HEIGHT = 16;
+constexpr int FIP_MAX_FONT_WIDTH = 13;
+constexpr int FIP_MAX_FONT_ASCII_ID = 126;
+constexpr int FIP_MIN_FONT_ASCII_ID = 32;

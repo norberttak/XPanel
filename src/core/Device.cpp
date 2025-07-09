@@ -7,8 +7,8 @@
 #include "Device.h"
 #include "Logger.h"
 
-Device::Device(DeviceConfiguration& _config, int _read_buffer_size, int _write_buffer_size):
-	config(_config), read_buffer_size(_read_buffer_size), write_buffer_size(_write_buffer_size)
+Device::Device(ClassConfiguration& _config, int _read_buffer_size, int _write_buffer_size):
+	config(_config), write_buffer_size(_write_buffer_size), read_buffer_size(_read_buffer_size)
 {
 	read_buffer = (unsigned char*)calloc(_read_buffer_size, sizeof(unsigned char));
 	read_buffer_old = (unsigned char*)calloc(_read_buffer_size, sizeof(unsigned char));
@@ -59,7 +59,8 @@ void Device::register_buttons(std::vector<PanelButton>& _buttons)
 
 void Device::register_selectors(std::vector<PanelButton>& _selectors)
 {
-	selectors = _selectors;
+	for (auto& sel : _selectors)
+		selectors.push_back(sel);
 }
 
 void Device::register_lights(std::vector<PanelLight>& _lights)

@@ -23,9 +23,37 @@ FIPPage::FIPPage(int _screen_width, int _screen_height, int _bit_per_pixel, std:
 	page_raw_buffer_ptr_int = page_raw_buffer_2;
 }
 
+FIPPage::FIPPage(FIPPage* other)
+{
+	bit_per_pixel = other->bit_per_pixel;
+	screen_height = other->screen_height;
+	screen_width = other->screen_width;
+	page_name = other->page_name;
+	raw_buffer_size = other->raw_buffer_size;
+
+	page_raw_buffer_1 = (unsigned char*)calloc(raw_buffer_size, sizeof(unsigned char));
+	page_raw_buffer_2 = (unsigned char*)calloc(raw_buffer_size, sizeof(unsigned char));
+
+	memcpy(page_raw_buffer_1, other->page_raw_buffer_1, raw_buffer_size);
+	memcpy(page_raw_buffer_2, other->page_raw_buffer_2, raw_buffer_size);
+
+	page_raw_buffer_ptr_act = page_raw_buffer_1;
+	page_raw_buffer_ptr_int = page_raw_buffer_2;
+
+	for (auto lay : other->layers)
+	{
+		if (lay->type == FIPImageLayer::FIPLayerType::IMAGE)
+			layers.push_back(new FIPImageLayer(lay));
+		else if (lay->type == FIPImageLayer::FIPLayerType::TEXT)
+			layers.push_back(new FIPTextLayer((FIPTextLayer*)lay));
+		else
+			Logger(TLogLevel::logERROR) << "FIP Page: unknown layer type";
+	}
+}
+
 FIPPage::~FIPPage()
 {
-	for (int i = 0; i < layers.size(); i++)
+	for (size_t i = 0; i < layers.size(); i++)
 		delete(layers[i]);
 
 	layers.clear();
@@ -51,7 +79,7 @@ int FIPPage::add_layer_from_bmp_file(std::string filename, int ref_x, int ref_y,
 	new_layer->set_pos_y(0);
 	new_layer->set_angle(0);
 	new_layer->set_base_rot(base_rot);
-
+	new_layer->type = FIPImageLayer::FIPLayerType::IMAGE;
 	layers.push_back(new_layer);
 	return (int)layers.size() - 1;
 }
@@ -64,6 +92,7 @@ int FIPPage::add_text_layer(std::string font_filename, int base_rot)
 	new_layer->set_pos_y(0);
 	new_layer->set_angle(0);
 	new_layer->set_base_rot(base_rot);
+	new_layer->type = FIPImageLayer::FIPLayerType::TEXT;
 
 	layers.push_back(new_layer);
 	return (int)layers.size() - 1;
@@ -231,7 +260,7 @@ void FIPPage::render_page()
 {
 	memset(page_raw_buffer_ptr_act, 0, raw_buffer_size);
 
-	for (int i = 0; i < layers.size(); i++)
+	for (size_t i = 0; i < layers.size(); i++)
 		render_layer(i);
 
 	interpolate();

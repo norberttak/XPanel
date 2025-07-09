@@ -14,11 +14,13 @@ class SaitekRadioPanel : public UsbHidDevice
 {
 private:
 	std::vector<PanelButton> radio_buttons;
-	std::vector<PanelButton> radio_selectors;
+	std::vector<PanelButton> radio_selectors_up;
+	std::vector<PanelButton> radio_selectors_down;
 	std::vector<PanelDisplay> radio_displays;
 public:
-	SaitekRadioPanel(DeviceConfiguration& config);
+	SaitekRadioPanel(ClassConfiguration& config);
 	int connect();
+	int connect(hid_device* _device_handle);
 	void start();
 	void stop(int timeout);
 };

@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <cstdint>
 
 typedef struct {
 	uint8_t r;
@@ -31,6 +32,15 @@ struct MaskWindow {
 		width = 0;
 		height = 0;
 		enabled = false;
+	}
+
+	MaskWindow(const MaskWindow& other)
+	{
+		pos_x = other.pos_x;
+		pos_y = other.pos_y;
+		width = other.width;
+		height = other.height;
+		enabled = other.enabled;
 	}
 
 	MaskWindow& operator=(const MaskWindow& other)
@@ -66,6 +76,7 @@ protected:
 	MaskWindow mask;
 public:
 	FIPLayer();
+	FIPLayer(FIPLayer* other);
 	virtual ~FIPLayer();
 //	virtual bool load_file(std::string file_name, int ref_x, int ref_y)=0;
 	void set_mask(MaskWindow& mask);

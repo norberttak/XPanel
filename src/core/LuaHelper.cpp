@@ -414,7 +414,22 @@ XPLMDataTypeID LuaHelper::get_dataref_type(XPLMDataRef dataref)
 	if (data_ref_types.count(dataref) == 0)
 	{
 		XPLMDataTypeID dataref_type = XPLMGetDataRefTypes(dataref);
-		data_ref_types[dataref] = dataref_type;
+
+		/* from xplane documenation:
+		Data types each take a bit field; it is legal to have a single dataref
+		be more than one type of data. When this happens, you can pick
+		any matching get/set API.
+		*/
+		if (dataref_type & xplmType_Double)
+			data_ref_types[dataref] = xplmType_Double;
+		else if (dataref_type & xplmType_Float)
+			data_ref_types[dataref] = xplmType_Float;
+		else if (dataref_type & xplmType_FloatArray)
+			data_ref_types[dataref] = xplmType_FloatArray;
+		else if (dataref_type & xplmType_IntArray)
+			data_ref_types[dataref] = xplmType_IntArray;
+		else
+			data_ref_types[dataref] = dataref_type;
 	}
 	return data_ref_types[dataref];
 }

@@ -9,7 +9,7 @@
 
 #define TRC1000_READ_TIMEOUT_MILLISEC 50
 
-TRC1000::TRC1000(DeviceConfiguration& config, int _read_buffer_size, int _write_buffer_size) :UsbHidDevice(config, _read_buffer_size, _write_buffer_size)
+TRC1000::TRC1000(ClassConfiguration& config, int _read_buffer_size, int _write_buffer_size) :UsbHidDevice(config, _read_buffer_size, _write_buffer_size)
 {
 	read_buffer_size = _read_buffer_size;
 	write_buffer_size = _write_buffer_size;
@@ -119,6 +119,27 @@ void TRC1000::thread_func()
 	}
 	_thread_finish.store(true);
 	Logger(TLogLevel::logDEBUG) << "TRC1000 thread_func: exit vid=" << vid << " pid=" << pid << std::endl;
+}
+
+int TRC1000::connect(hid_device* _device_handle)
+{
+	if (_device_handle == NULL)
+	{
+		if (UsbHidDevice::connect() != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "TRC1000 connect. Error during connect" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	else
+	{
+		if (UsbHidDevice::connect(_device_handle) != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "TRC1000 connect. Error during connect" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	return EXIT_SUCCESS;
 }
 
 int TRC1000::connect()

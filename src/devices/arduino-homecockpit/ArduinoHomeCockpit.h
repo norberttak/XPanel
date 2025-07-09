@@ -26,7 +26,8 @@ private:
 	const std::string TOKEN_DISPLAY = "display:id=\"([a-zA-Z0-9_-]+)\",width=([0-9]+)";
 	const std::string TOKEN_LIGHT = "light:id=\"([a-zA-Z0-9_-]+)\",bit=([0-9]+)";
 public:
-	ArduinoHomeCockpit(DeviceConfiguration& config);
+	ArduinoHomeCockpit(ClassConfiguration& config);
+	int connect(hid_device* _device_handle);
 	int connect();
 	void start();
 	void stop(int timeout);

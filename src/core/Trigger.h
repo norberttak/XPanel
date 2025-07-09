@@ -24,6 +24,7 @@ class Trigger
 {
 public:
 	Trigger();
+	Trigger(Trigger* other);
 	Trigger(XPLMDataRef data, double val, TriggerType _trig_action);
 	Trigger(std::string _lua_str, double val, TriggerType _trigger_action);
 	TriggerType get_and_clear_stored_action();

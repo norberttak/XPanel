@@ -10,6 +10,7 @@
 #include <list>
 #include <mutex>
 #include <ctime>
+#include <chrono>
 #include "XPLMUtilities.h"
 
 enum TLogLevel

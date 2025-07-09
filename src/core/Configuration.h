@@ -15,7 +15,7 @@
 
 class FIPScreen;
 
-class DeviceConfiguration;
+class ClassConfiguration;
 
 /*------ Plugin level configuration options ------------*/
 class Configuration
@@ -31,10 +31,10 @@ public:
 	std::string aircraft_path = "";
 	std::string plugin_path = "";
 
-	std::vector<DeviceConfiguration> device_configs;
+	std::vector<ClassConfiguration> class_configs;
 };
 
-/* ----------- Device specific configuration options ------------------*/
+/* ----------- Class specific configuration options ------------------*/
 typedef enum {
 	UNKNOWN_DEVICE_TYPE,
 	SAITEK_MULTI,
@@ -44,17 +44,18 @@ typedef enum {
 	LOGITECH_FIP,
 	TRC1000_PFD,
 	TRC1000_AUDIO
-} DeviceType;
+} DeviceClassType;
 
-class DeviceConfiguration
+class ClassConfiguration
 {
 public:
-	~DeviceConfiguration();
-	DeviceConfiguration();
-	DeviceConfiguration& operator=(const DeviceConfiguration& other);
+	~ClassConfiguration();
+	ClassConfiguration();
+	ClassConfiguration(const ClassConfiguration& other);
+	ClassConfiguration& operator=(const ClassConfiguration& other);
 	void clear();
 
-	DeviceType device_type = UNKNOWN_DEVICE_TYPE;
+	DeviceClassType device_class_type = UNKNOWN_DEVICE_TYPE;
 	unsigned int vid = 0;
 	unsigned int pid = 0;
 	std::string serial_number = "";

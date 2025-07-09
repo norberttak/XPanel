@@ -62,7 +62,6 @@ float error_display_callback(float inElapsedSinceLastCall, float inElapsedTimeSi
 void stop_and_clear_xpanel_plugin();
 int init_and_start_xpanel_plugin();
 
-Configuration config;
 std::vector<Device*> devices;
 bool plugin_already_initialized = false;
 const float FLIGHT_LOOP_TIME_PERIOD = 0.2f;
@@ -127,29 +126,29 @@ PLUGIN_API int  XPluginEnable(void)
 
 float flight_loop_callback(float, float, int, void*)
 {
-	for (const auto &it : config.device_configs)
+	for (auto dev : devices)
 	{
-		// check and set LED states
-		for (const auto &triggers : it.light_triggers)
+		for (const auto& triggers : dev->get_config().light_triggers)
 		{
-			for (auto &trigger : triggers.second)
+			for (auto& trigger : triggers.second)
 			{
 				trigger->evaluate_and_store_action();
 			}
 		}
+
 		// check and set 7 segment display states
-		for (const auto &display : it.multi_displays)
+		for (const auto& display : dev->get_config().multi_displays)
 		{
 			display.second->evaluate_and_store_dataref_value();
 		}
 
-		for (const auto &display : it.generic_displays)
+		for (const auto& display : dev->get_config().generic_displays)
 		{
 			display.second->evaluate_and_store_dataref_value();
 		}
 
 		// update the FIP devices
-		for (auto &screen : it.fip_screens)
+		for (const auto& screen : dev->get_config().fip_screens)
 		{
 			screen.second->evaluate_and_store_screen_action();
 		}
@@ -183,7 +182,7 @@ void stop_and_clear_xpanel_plugin()
 	XPLMUnregisterFlightLoopCallback(flight_loop_callback, NULL);
 	LuaHelper::get_instace()->close();
 
-	for (auto &dev : devices)
+	for (auto& dev : devices)
 	{
 		if (dev != NULL)
 		{
@@ -192,7 +191,6 @@ void stop_and_clear_xpanel_plugin()
 		}
 	}
 	devices.clear();
-	config.clear();
 	ActionQueue::get_instance()->clear_all_actions();
 	plugin_already_initialized = false;
 
@@ -226,8 +224,43 @@ extern std::filesystem::path get_plugin_path()
 	return plugin_path;
 }
 
+template <class T>
+int enumerate_and_add_hid_devices(ClassConfiguration& it)
+{
+	Device* device;
+	struct hid_device_info* dev_info;
+	struct hid_device_info* dev_info_first;
+
+	dev_info = hid_enumerate(it.vid, it.pid);
+	if (!dev_info) {
+		Logger(TLogLevel::logERROR) << "error enumerating hid device with vid=" << it.vid << " pid=" << it.pid << std::endl;
+		hid_free_enumeration(dev_info);
+		return EXIT_FAILURE;
+	}
+	dev_info_first = dev_info;
+	do
+	{		
+		Logger(TLogLevel::logDEBUG) << "add new panel device. vid =" << it.vid << " pid = " << it.pid << std::endl;
+		device = new T(it);
+		devices.push_back(device);
+
+		hid_device* hid_dev = hid_open_path(dev_info->path);
+		hid_set_nonblocking(hid_dev, 1);
+		((T*)device)->connect(hid_dev);
+		device->start();
+		device->thread_handle = new std::thread(&T::thread_func, (T*)device);
+		LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
+		dev_info = dev_info->next;
+	} while (dev_info);
+	hid_free_enumeration(dev_info_first);
+
+	return EXIT_SUCCESS;
+}
+
 int init_and_start_xpanel_plugin(void)
 {
+	Configuration config;
+
 	char aircraft_file_name[256];
 	char aircraft_file_path[512];
 	XPLMGetNthAircraftModel(0, aircraft_file_name, aircraft_file_path);
@@ -277,66 +310,46 @@ int init_and_start_xpanel_plugin(void)
 
 	Device* device;
 
-	for (auto &it : config.device_configs)
+	for (auto& it : config.class_configs)
 	{
-		switch (it.device_type) {
-		case DeviceType::SAITEK_MULTI:
+		switch (it.device_class_type) {
+		case DeviceClassType::SAITEK_MULTI:
 			// set default vid & pid if it's not set in config file
 			if (it.vid == 0)
 				it.vid = 0x06a3;
 			if (it.pid == 0)
 				it.pid = 0x0d06;
 			Logger(TLogLevel::logDEBUG) << "add new saitek multi panel device" << std::endl;
-			device = new SaitekMultiPanel(it);
-			devices.push_back(device);
-			device->connect();
-			device->start();
-			device->thread_handle = new std::thread(&SaitekMultiPanel::thread_func, (SaitekMultiPanel*)device);
-			LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
+			enumerate_and_add_hid_devices<SaitekMultiPanel>(it);
 			break;
-		case DeviceType::HOME_COCKPIT:
+		case DeviceClassType::HOME_COCKPIT:
 			// set default vid & pid if it's not set in config file
 			if (it.vid == 0)
 				it.vid = 0x2341;
 			if (it.pid == 0)
 				it.pid = 0x8036;
-			Logger(TLogLevel::logDEBUG) << "add new homecockpit device" << std::endl;
-			device = new ArduinoHomeCockpit(it);
-			devices.push_back(device);
-			device->connect();
-			device->start();
-			device->thread_handle = new std::thread(&ArduinoHomeCockpit::thread_func, (ArduinoHomeCockpit*)device);
-			LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
+			Logger(TLogLevel::logDEBUG) << "add new homecockpit devices" << std::endl;
+			enumerate_and_add_hid_devices<ArduinoHomeCockpit>(it);
 			break;
-		case DeviceType::SAITEK_RADIO:
+		case DeviceClassType::SAITEK_RADIO:
 			// set default vid & pid if it's not set in config file
 			if (it.vid == 0)
 				it.vid = 0x06a3;
 			if (it.pid == 0)
 				it.pid = 0x0d05;
-			Logger(TLogLevel::logDEBUG) << "add new saitek radio panel device" << std::endl;
-			device = new SaitekRadioPanel(it);
-			devices.push_back(device);
-			device->connect();
-			device->start();
-			device->thread_handle = new std::thread(&SaitekRadioPanel::thread_func, (SaitekRadioPanel*)device);
-			LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
+			Logger(TLogLevel::logDEBUG) << "add new saitek radio devices" << std::endl;
+			enumerate_and_add_hid_devices<SaitekRadioPanel>(it);
 			break;
-		case DeviceType::SAITEK_SWITCH:
+		case DeviceClassType::SAITEK_SWITCH:
 			// set default vid & pid if it's not set in config file
 			if (it.vid == 0)
 				it.vid = 0x06a3;
 			if (it.pid == 0)
 				it.pid = 0x0d67;
-			Logger(TLogLevel::logDEBUG) << "add new saitek switch panel device" << std::endl;
-			device = new SaitekSwitchPanel(it);
-			devices.push_back(device);
-			device->connect();
-			device->start();
-			device->thread_handle = new std::thread(&SaitekSwitchPanel::thread_func, (SaitekSwitchPanel*)device);
-			LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
+			Logger(TLogLevel::logDEBUG) << "add new saitek switch panel devices" << std::endl;
+			enumerate_and_add_hid_devices<SaitekSwitchPanel>(it);
 			break;
-		case DeviceType::LOGITECH_FIP:
+		case DeviceClassType::LOGITECH_FIP:
 			Logger(TLogLevel::logDEBUG) << "add new FIP device" << std::endl;
 			device = new FIPDevice(it);
 			devices.push_back(device);
@@ -344,23 +357,13 @@ int init_and_start_xpanel_plugin(void)
 			device->start();
 			device->thread_handle = new std::thread(&FIPDevice::thread_func, (FIPDevice*)device);
 			break;
-		case DeviceType::TRC1000_PFD:
-			Logger(TLogLevel::logDEBUG) << "add new TRC1000 PFD device" << std::endl;
-			device = new TRC1000PFD(it);
-			devices.push_back(device);
-			device->connect();
-			device->start();
-			device->thread_handle = new std::thread(&TRC1000PFD::thread_func, (TRC1000PFD*)device);
-			LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
+		case DeviceClassType::TRC1000_PFD:
+			Logger(TLogLevel::logDEBUG) << "add new TRC1000 PFD devices" << std::endl;
+			enumerate_and_add_hid_devices<TRC1000PFD>(it);
 			break;
-		case DeviceType::TRC1000_AUDIO:
-			Logger(TLogLevel::logDEBUG) << "add new TRC1000 Audio device" << std::endl;
-			device = new TRC1000Audio(it);
-			devices.push_back(device);
-			device->connect();
-			device->start();
-			device->thread_handle = new std::thread(&TRC1000Audio::thread_func, (TRC1000Audio*)device);
-			LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
+		case DeviceClassType::TRC1000_AUDIO:
+			Logger(TLogLevel::logDEBUG) << "add new TRC1000 Audio devices" << std::endl;
+			enumerate_and_add_hid_devices<TRC1000Audio>(it);
 			break;
 		default:
 			Logger(TLogLevel::logERROR) << "unknown device type" << std::endl;
@@ -382,7 +385,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void*)
 		switch (inMsg) {
 		case XPLM_MSG_AIRPORT_LOADED:
 			Logger(TLogLevel::logTRACE) << "XPLM_MSG_AIRPORT_LOADED: message received" << std::endl;
-			
+
 			if (plugin_already_initialized)
 				stop_and_clear_xpanel_plugin();
 

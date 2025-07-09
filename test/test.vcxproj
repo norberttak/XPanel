@@ -95,8 +95,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)src\devices;$(SolutionDir)3rdparty\hidapi\headers;$(SolutionDir)3rdparty\LUA\include;$(SolutionDir)3rdparty\SDK\CHeaders\XPLM;$(SolutionDir)3rdparty\SDK\CHeaders\Widgets;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WINVER=0x0601;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;_WIN32_WINDOWS=0x0601;WIN32;_DEBUG;_WINDOWS;_USRDLL;SIMDATA_EXPORTS;IBM=1;XPLM200=1;XPLM210=1;XPLM300=1;XPLM301=1;XPLM302=1;XPLM303=1;XPLM400=1;PLUGIN_SIGNATURE="xpanel";PLUGIN_VERSION="1.7";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)src\devices;$(SolutionDir)3rdparty\hidapi;$(SolutionDir)3rdparty\LUA\include;$(SolutionDir)3rdparty\SDK\CHeaders\XPLM;$(SolutionDir)3rdparty\SDK\CHeaders\Widgets;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WINVER=0x0601;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;_WIN32_WINDOWS=0x0601;WIN32;_DEBUG;_WINDOWS;_USRDLL;SIMDATA_EXPORTS;IBM=1;XPLM200=1;XPLM210=1;XPLM300=1;XPLM301=1;XPLM302=1;XPLM303=1;XPLM400=1;PLUGIN_SIGNATURE="xpanel";PLUGIN_VERSION="1.9";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -158,8 +158,8 @@ xcopy /y /d "$(SolutionDir)3rdparty\FIP-SDK\fonts\fip-fonts.bmp" "$(OutDir)"
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)src\devices;$(SolutionDir)3rdparty\hidapi\headers;$(SolutionDir)3rdparty\LUA\include;$(SolutionDir)3rdparty\SDK\CHeaders\XPLM;$(SolutionDir)3rdparty\SDK\CHeaders\Widgets;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WINVER=0x0601;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;_WIN32_WINDOWS=0x0601;WIN32;_WINDOWS;_USRDLL;SIMDATA_EXPORTS;IBM=1;XPLM200=1;XPLM210=1;XPLM300=1;XPLM301=1;XPLM302=1;XPLM303=1;XPLM400=1;NDEBUG;PLUGIN_SIGNATURE="xpanel";PLUGIN_VERSION="1.7";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)src\devices;$(SolutionDir)3rdparty\hidapi;$(SolutionDir)3rdparty\LUA\include;$(SolutionDir)3rdparty\SDK\CHeaders\XPLM;$(SolutionDir)3rdparty\SDK\CHeaders\Widgets;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WINVER=0x0601;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;_WIN32_WINDOWS=0x0601;WIN32;_WINDOWS;_USRDLL;SIMDATA_EXPORTS;IBM=1;XPLM200=1;XPLM210=1;XPLM300=1;XPLM301=1;XPLM302=1;XPLM303=1;XPLM400=1;NDEBUG;PLUGIN_SIGNATURE="xpanel";PLUGIN_VERSION="1.9";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>

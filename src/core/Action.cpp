@@ -9,20 +9,70 @@
 #include "XPLMUtilities.h"
 #include "XPLMProcessing.h"
 #include "Logger.h"
+#include <cmath>
+#include <functional>
 
 Action::Action()
 {
 	data = 0;
+	data_f = 0.0f;
+	index = -1;
 	delta = 0;
+	tick_per_sec_mid = 0.0f;
+	tick_per_sec_high = 0.0f;
+	multi_low = 1;
+	multi_high = 1;
+	multi = 1;
+	max = 0.0f;
+	min = 0.0f;
 	lua_str = "";
 	condition = "";
 	active_conditions.clear();
 	dataref = NULL;
 	dataref_type = xplmType_Unknown;
+	command_type = CommandType::NONE;
+	commandref = NULL;
+}
+
+Action::Action(Action* other)
+{
+	data = other->data;
+	data_f = other->data_f;
+	index = other->index;
+	delta = other->delta;
+	lua_str = other->lua_str;
+	condition = other->condition;
+	active_conditions = other->active_conditions;
+	dataref = other->dataref;
+	dataref_type = other->dataref_type;
+	command_type = other->command_type;
+	commandref = other->commandref;
+	tick_per_sec_mid = other->tick_per_sec_mid;
+	tick_per_sec_high = other->tick_per_sec_high;
+	multi_low = other->multi_low;
+	multi_high = other->multi_high;
+	multi = other->multi;
+	max = other->max;
+	min = other->min;
 }
 
 Action::Action(XPLMCommandRef cmd, CommandType type)
 {
+	data = 0;
+	data_f = 0.0f;
+	index = -1;
+	delta = 0;
+	tick_per_sec_mid = 0.0f;
+	tick_per_sec_high = 0.0f;
+	multi_low = 1;
+	multi_high = 1;
+	multi = 1;
+	max = 0.0f;
+	min = 0.0f;
+	lua_str = "";
+	condition = "";
+	active_conditions.clear();
+	dataref = NULL;
 	commandref = cmd;
 	command_type = type;
 	dataref_type = xplmType_Unknown;
@@ -30,26 +80,90 @@ Action::Action(XPLMCommandRef cmd, CommandType type)
 
 Action::Action(XPLMDataRef dat, int d)
 {
-	dataref = dat;
 	data = d;
+	data_f = 0.0f;
 	index = -1; // dataref is not an array
-	dataref_type = XPLMGetDataRefTypes(dataref);
+	delta = 0;
+	tick_per_sec_mid = 0.0f;
+	tick_per_sec_high = 0.0f;
+	multi_low = 1;
+	multi_high = 1;
+	multi = 1;
+	max = 0.0f;
+	min = 0.0f;
+	lua_str = "";
+	condition = "";
+	active_conditions.clear();
+	dataref = dat;
+	dataref_type = xplmType_Int;
+	command_type = CommandType::NONE;
+	commandref = NULL;
 }
 
 Action::Action(XPLMDataRef dat, float d)
 {
-	dataref = dat;
+	data = 0;
 	data_f = d;
 	index = -1; // dataref is not an array
-	dataref_type = XPLMGetDataRefTypes(dataref);
+	delta = 0;
+	tick_per_sec_mid = 0.0f;
+	tick_per_sec_high = 0.0f;
+	multi_low = 1;
+	multi_high = 1;
+	multi = 1;
+	max = 0.0f;
+	min = 0.0f;
+	lua_str = "";
+	condition = "";
+	active_conditions.clear();
+	dataref = dat;
+	dataref_type = xplmType_Float;
+	command_type = CommandType::NONE;
+	commandref = NULL;
+}
+
+Action::Action(XPLMDataRef dat, double d)
+{
+	data = 0;
+	data_f = (float)d;
+	index = -1; // dataref is not an array
+	delta = 0;
+	tick_per_sec_mid = 0.0f;
+	tick_per_sec_high = 0.0f;
+	multi_low = 1;
+	multi_high = 1;
+	multi = 1;
+	max = 0.0f;
+	min = 0.0f;
+	lua_str = "";
+	condition = "";
+	active_conditions.clear();
+	dataref = dat;
+	dataref_type = xplmType_Double;
+	command_type = CommandType::NONE;
+	commandref = NULL;
 }
 
 Action::Action(XPLMDataRef dat, int array_index, int d)
 {
-	dataref = dat;
 	data = d;
+	data_f = 0.0f;
 	index = array_index;
-	dataref_type = XPLMGetDataRefTypes(dataref);
+	delta = 0;
+	tick_per_sec_mid = 0.0f;
+	tick_per_sec_high = 0.0f;
+	multi_low = 1;
+	multi_high = 1;
+	multi = 1;
+	max = 0.0f;
+	min = 0.0f;
+	lua_str = "";
+	condition = "";
+	active_conditions.clear();
+	dataref = dat;
+	dataref_type = xplmType_IntArray;
+	command_type = CommandType::NONE;
+	commandref = NULL;
 }
 
 Action::Action(XPLMDataRef dat, int array_index, float d)
@@ -57,7 +171,7 @@ Action::Action(XPLMDataRef dat, int array_index, float d)
 	dataref = dat;
 	data_f = d;
 	index = array_index;
-	dataref_type = XPLMGetDataRefTypes(dataref);
+	dataref_type = xplmType_FloatArray;
 }
 
 Action::Action(XPLMDataRef dat, float _delta, float _max, float _min)
@@ -152,7 +266,7 @@ void Action::activate()
 	{
 		if (abs(delta) > 0.0001)
 		{
-			double val;
+			double val = 0.0;
 
 			switch (dataref_type) {
 			case xplmType_Int:

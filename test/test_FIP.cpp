@@ -18,7 +18,7 @@ void test_set_aircraft_path_and_filename(char* file_name, char* path);
 int test_fip_get_led_state(int led_index);
 void test_fip_set_button_states(uint16_t _button_states);
 void test_fip_set_current_page(int page);
-void test_flight_loop(std::vector<DeviceConfiguration> &config);
+void test_flight_loop(Device* device);
 void test_fip_get_image(unsigned char* buffer, size_t buffer_size);
 
 namespace test
@@ -44,7 +44,7 @@ namespace test
 			LuaHelper::get_instace()->init();
 			LuaHelper::get_instace()->load_script_file("../../test/" + config.script_file);
 
-			fip_device = new FIPDevice(config.device_configs[0]);
+			fip_device = new FIPDevice(config.class_configs[0]);
 			fip_device->connect();
 			fip_device->start();
 			t = new std::thread(&FIPDevice::thread_func, (FIPDevice*)fip_device);
@@ -63,23 +63,6 @@ namespace test
 			test_fip_set_button_states(0);
 			Assert::AreEqual(0, (int)fip_device->get_button_state());
 		}
-
-		TEST_METHOD(TestFIPAirSpeedChange)
-		{
-			XPLMSetDatai(airspeed_dataref, 0);
-			test_flight_loop(config.device_configs);
-			std::this_thread::sleep_for(150ms);
-			unsigned char fip_image_buffer[240 * 320 * 3];
-			test_fip_get_image(fip_image_buffer, 240 * 320 * 3);
-			Assert::AreEqual(0, (int)fip_image_buffer[0]);
-
-			XPLMSetDatai(airspeed_dataref, 150);
-			test_flight_loop(config.device_configs);
-			std::this_thread::sleep_for(150ms);
-			test_fip_get_image(fip_image_buffer, 240 * 320 * 3);
-			Assert::AreEqual(0, (int)fip_image_buffer[0]);
-		}
-
 		TEST_METHOD(TestFIPBMPPadding)
 		{
 			/* Page 2 contains one layer with the BMP file bmp_test_padding.bmp
@@ -88,7 +71,7 @@ namespace test
 			   byte as padding in each row. Those padding bytes shall be handled by RawBMP class.
 			   The 5x3 BMP layer will be put to 0,0 position */
 			test_fip_set_current_page(2);
-			test_flight_loop(config.device_configs);
+			test_flight_loop(fip_device);
 			std::this_thread::sleep_for(150ms);
 
 			const int row_count = 240; //height

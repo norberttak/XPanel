@@ -36,19 +36,19 @@ public:
         constant_val = 0;
     }
 
-    ScreenAction(const ScreenAction& other)
+    ScreenAction(ScreenAction* other)
     {
-        type = other.type;
-        page_index = other.page_index;
-        layer_index = other.layer_index;
-        value_old = other.value_old;
-        value_str_old = other.value_str_old;
-        scale_factor = other.scale_factor;
-        data_ref = other.data_ref;
-        data_ref_index = other.data_ref_index;
-        data_ref_type = other.data_ref_type;
-        lua_str = other.lua_str;
-        constant_val = other.constant_val;
+        type = other->type;
+        page_index = other->page_index;
+        layer_index = other->layer_index;
+        value_old = other->value_old;
+        value_str_old = other->value_str_old;
+        scale_factor = other->scale_factor;
+        data_ref = other->data_ref;
+        data_ref_index = other->data_ref_index;
+        data_ref_type = other->data_ref_type;
+        lua_str = other->lua_str;
+        constant_val = other->constant_val;
     }
 
     ScreenActionType type;
@@ -75,7 +75,8 @@ protected:
     std::string read_dataref_str(XPLMDataRef data_ref);
 public:
     GenericScreen();
-    ~GenericScreen();
+    GenericScreen(GenericScreen* other);
+    virtual ~GenericScreen();
     virtual void evaluate_and_store_screen_action()=0;
     virtual void render_page(int page_index, void** byte_buffer) = 0;
     void add_screen_action(ScreenAction* screen_action);

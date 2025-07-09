@@ -488,8 +488,61 @@ Every LED has a predefined symbolic name that can be seen in this table:
 </table>
 
 ## Displays
-A display is a character based 7 segment display device or an analog gauge. It can be used to display numeric values. Please note: Saitek's FIP graphical device has specific device type and config options as it can be seen in [FIP](#ChapterFIP) chapter.
-The display value can be either from a dataref or from a LUA function. The display value can be a conditional display which means the value to display depends on the position of a switch. A display that contains conditions called multi-purpose display (multi_display).
+Display can be used to display numeric values. It could be a 7 segment LED display or any other type (analogue gauge for example) Please note: Saitek's FIP graphical device has specific device type and config options as it can be seen in [FIP](#ChapterFIP) chapter.
+The display value can be either from a dataref or from a LUA function or it can be a constant value. 
+
+### Properties of a display
+*Character encoding*: Depends on the HW device, the character encoding could be either binary or BCD (binary coded decimal). This is how the numerical value is coded into bytes. By default, all displays are set to BCD type. If you want to overwrite this behavior, please set it in the config:
+```
+[multi_display:id="MULTI_DISPLAY_UP", bcd="no"]
+```
+
+*Blank leading zeros*: This property does matter only in the case of BCD encoding and 7 digit displays. If it is enabled, then all the leading zeros are blanked. By default, it is turned on. To turn it off, please set it in the config:
+```
+[multi_display:id="MULTI_DISPLAY_UP", blank_leading_zeros="no"]
+```
+
+*Minimum character number*: In case of ```blank_leading_zeros="yes"``` is active, we can set the minimum character number for each line. It will stop removing of leading zeros when the minimum character count has been reached(set the ```minimum_digit_number```):
+```
+[multi_display:id="MULTI_DISPLAY_UP"]
+line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L,minimum_digit_number:2"
+```
+
+The below table contains some examples of different options. We suppose the display is a 5 character wide, BCD encoded display:
+
+| value | blank_leading_zeros="no" | blank_leading_zeros="yes"<br>minimum_digit_number:2 | blank_leading_zeros="yes"<br>minimum_digit_number:1 |
+| ----- | ------------------------ | --------------------------------------------- | --------------------------------------------- |
+| 100   | 00100                    | 100                                           | 100                                           |
+| 1500  | 01500                    | 1500                                          | 1500                                          |
+
+*Dot positionr*: You can add dot (period) character to the display lines. It is usefull when the numerical data is not an integer number. For example navigation radio frequesncies are in this form: 118.100 Mhz To add a dot caharacter to the display please use this option on the appropriate lines:
+```
+[multi_display:id="RADIO_DISPLAY_ACTIVE_UP"]
+line="on_select:SW_UP_COM1,dataref:sim/cockpit2/radios/actuators/com1_frequency_hz, dot_position: 2"
+```
+Here the ```dot_position``` option is an index starting at the most right position with index 0
+
+| value | dot_position:0 | dot_position:1 | dot_position:2 |
+| ------| -------------- | -------------- | -------------- |
+| 12345 | 12345.         | 1234.5         | 123.45         |
+
+### Display Value Truncation
+#### Overview
+When displaying values on hardware panels with limited character capacity, XPanel automatically handles cases where the data exceeds the available display space.
+
+#### Truncation Behavior
+If a display value is wider than the available characters on the hardware display, XPanel will truncate the value and append a period (`.`) character at the end to indicate that the value has been shortened.
+
+**Example:**
+- **Full value**: `120.375` (8.33kHz radio frequency)
+- **Saitek Radio Panel display** (5 characters): `12037.`
+- The period at the end indicates that the complete value cannot be displayed
+
+#### Configuration
+The truncation behavior is automatically applied and does not require any configuration. The feature ensures that users are always aware when displayed values are incomplete due to hardware limitations.
+
+### Multipurpose displays
+The display value can be a conditional display which means the value to display depends on the position of a switch. A display that contains conditions called multi-purpose display (multi_display).
 
 The 'on_select:HW input name' part defines a condition. If the HW input is in logical 1 state
 the display will show you the dataref or lua script value in that line, Thi is somehow similar to a
@@ -506,6 +559,7 @@ call the LUA function and displays the return value of the function.
 
 The SW_ALT or SW_VS will determine which value will be displayed.
 
+### Generic displays
 If you need a display device without any condition (it means the display will show the same dataeref or lua value all the time) you can define a simple display device in the configuration like this:
 
 ```ini
@@ -956,3 +1010,4 @@ end
 
 # Trouble shooting {#trouble-shooting}
 Xpanel plugin has log mechnism to put log messages into XPlane's main log. Every error detected by the plugin will be put into the main log file (c:\X-Plane12\log.txt in my setup).
+

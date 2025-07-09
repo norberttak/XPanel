@@ -15,11 +15,20 @@ FIPTextLayer::FIPTextLayer() :
 	image_buffer.set_and_allocate_buffer(MAX_CHAR_COUNT* (FIP_MAX_FONT_WIDTH + CHAR_SPACE), FIP_FONT_HEIGHT);
 	width = image_buffer.width;
 	height = image_buffer.height;
+	type = FIPImageLayer::type = FIPImageLayer::TEXT;
+}
+
+FIPTextLayer::FIPTextLayer(FIPTextLayer* other) :
+	FIPImageLayer(other)
+{
+	text = other->text;
+	font_image_buffer = other->font_image_buffer;
 }
 
 FIPTextLayer::~FIPTextLayer()
 {
 	fip_font_positions.clear();
+	Logger(TLogLevel::logDEBUG) << "FIPTextLayer: destructor called" << std::endl;
 }
 
 bool FIPTextLayer::load_bmp_font_file(std::string file_name)

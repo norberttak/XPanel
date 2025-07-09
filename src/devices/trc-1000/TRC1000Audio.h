@@ -8,7 +8,7 @@ private:
 	std::vector<PanelRotaryEncoder> trc1000audio_encoders;
 	std::vector<PanelLight> trc1000audio_lights;
 public:
-	TRC1000Audio(DeviceConfiguration& config);
+	TRC1000Audio(ClassConfiguration& config);
 	~TRC1000Audio();
 };
 

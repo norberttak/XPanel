@@ -58,6 +58,20 @@ std::vector<std::string> Configparser::tokenize(std::string line)
 	return tokens;
 }
 
+bool Configparser::get_and_remove_token_pair(std::vector<std::string>& tokens, std::string name, std::string& out_value)
+{
+	for (size_t i = 0; i < tokens.size(); i += 2)
+	{
+		if ((i+1) < tokens.size() && tokens[i] == name)
+		{
+			out_value = tokens[i + 1];
+			tokens.erase(tokens.begin() + i, tokens.begin() + i + 2);
+			return true;
+		}
+	}
+	return false;
+}
+
 int Configparser::parse_file(std::string file_name, Configuration& config)
 {
 	last_error_message = "";
@@ -98,23 +112,23 @@ int Configparser::process_ini_section(IniFileSection& section, Configuration& co
 {
 	if (section.header.name == TOKEN_SECTION_DEVICE)
 	{
-		DeviceConfiguration* c = new DeviceConfiguration();
-		config.device_configs.push_back(*c);
+		ClassConfiguration* c = new ClassConfiguration();
+		config.class_configs.push_back(*c);
 
 		if (section.header.id == DEVICE_TYPE_SAITEK_MULTI)
-			config.device_configs.back().device_type = SAITEK_MULTI;
+			config.class_configs.back().device_class_type = SAITEK_MULTI;
 		else if (section.header.id == DEVICE_TYPE_SAITEK_RADIO)
-			config.device_configs.back().device_type = SAITEK_RADIO;
+			config.class_configs.back().device_class_type = SAITEK_RADIO;
 		else if (section.header.id == DEVICE_TYPE_SAITEK_SWITCH)
-			config.device_configs.back().device_type = SAITEK_SWITCH;
+			config.class_configs.back().device_class_type = SAITEK_SWITCH;
 		else if (section.header.id == DEVICE_TYPE_ARDUINO_HOME_COCKPIT)
-			config.device_configs.back().device_type = HOME_COCKPIT;
+			config.class_configs.back().device_class_type = HOME_COCKPIT;
 		else if (section.header.id == DEVICE_TYPE_SAITEK_FIP_SCREEN)
-			config.device_configs.back().device_type = LOGITECH_FIP;
+			config.class_configs.back().device_class_type = LOGITECH_FIP;
 		else if (section.header.id == DEVICE_TYPE_TRC1000PFD)
-			config.device_configs.back().device_type = TRC1000_PFD;
+			config.class_configs.back().device_class_type = TRC1000_PFD;
 		else if (section.header.id == DEVICE_TYPE_TRC1000AUDIO)
-			config.device_configs.back().device_type = TRC1000_AUDIO;
+			config.class_configs.back().device_class_type = TRC1000_AUDIO;
 		else
 		{
 			last_device_id = "";
@@ -141,26 +155,32 @@ int Configparser::process_ini_section(IniFileSection& section, Configuration& co
 	}
 	else if (section.header.name == TOKEN_SECTION_DISPLAY)
 	{
-		config.device_configs.back().generic_displays[section.header.id] = new GenericDisplay(false);
+		config.class_configs.back().generic_displays[section.header.id] = new GenericDisplay(false);
 		if (section.header.properties.count(TOKEN_BCD) > 0)
-			config.device_configs.back().generic_displays[section.header.id]->set_bcd(section.header.properties[TOKEN_BCD] == "yes" ? true : false);
+			config.class_configs.back().generic_displays[section.header.id]->set_bcd(section.header.properties[TOKEN_BCD] == "yes" ? true : false);
+
+		if (section.header.properties.count(TOKEN_BLANK_LEADING_ZEROS) > 0)
+			config.class_configs.back().generic_displays[section.header.id]->set_blank_leading_zeros(section.header.properties[TOKEN_BLANK_LEADING_ZEROS] == "yes" ? true : false);
 
 		Logger(TLogLevel::logDEBUG) << "parser: display detected " << section.header.id << std::endl;
 	}
 	else if (section.header.name == TOKEN_SECTION_MULTI_DISPLAY)
 	{
-		config.device_configs.back().multi_displays[section.header.id] = new MultiPurposeDisplay();
+		config.class_configs.back().multi_displays[section.header.id] = new MultiPurposeDisplay();
+		if (section.header.properties.count(TOKEN_BLANK_LEADING_ZEROS) > 0)
+			config.class_configs.back().multi_displays[section.header.id]->set_blank_leading_zeros(section.header.properties[TOKEN_BLANK_LEADING_ZEROS] == "yes" ? true : false);
+
 		Logger(TLogLevel::logDEBUG) << "parser: multi display detected " << section.header.id << std::endl;
 	}
 	else if (section.header.name == TOKEN_SECTION_FIP_SCREEN)
 	{
 		FIPScreen* screen = new FIPScreen();
-		config.device_configs.back().fip_screens[last_device_id] = screen;
+		config.class_configs.back().fip_screens[last_device_id] = screen;
 		Logger(TLogLevel::logDEBUG) << "parser: fip screen added: " << section.header.id << std::endl;
 	}
 	else if (section.header.name == TOKEN_FIP_PAGE)
 	{
-		config.device_configs.back().fip_screens[last_device_id]->add_page(section.header.id, false);
+		config.class_configs.back().fip_screens[last_device_id]->add_page(section.header.id, false);
 		Logger(TLogLevel::logDEBUG) << "parser: FIP page added " << section.header.id << std::endl;
 	}
 	else if (section.header.name == TOKEN_FIP_LAYER)
@@ -204,7 +224,7 @@ int Configparser::process_fip_layer_section(IniFileSection& section, Configurati
 {
 	if (section.header.properties.count(TOKEN_IMAGE) > 0)
 	{
-		int page_index = config.device_configs.back().fip_screens[last_device_id]->get_last_page_index();
+		int page_index = config.class_configs.back().fip_screens[last_device_id]->get_last_page_index();
 		if (page_index < 0)
 		{
 			Logger(logERROR) << "Parser: invalid FIP page index. section starts at " << section.header.line << std::endl;
@@ -235,7 +255,7 @@ int Configparser::process_fip_layer_section(IniFileSection& section, Configurati
 				}
 			}
 
-			if (config.device_configs.back().fip_screens[last_device_id]->add_layer_to_page(page_index, bmp_file_absolute_path.string(), ref_x, ref_y, base_rot) < 0)
+			if (config.class_configs.back().fip_screens[last_device_id]->add_layer_to_page(page_index, bmp_file_absolute_path.string(), ref_x, ref_y, base_rot) < 0)
 				return EXIT_FAILURE;
 		}
 		else
@@ -247,13 +267,13 @@ int Configparser::process_fip_layer_section(IniFileSection& section, Configurati
 	}
 	else if (section.header.properties.count(TOKEN_TYPE) > 0 && section.header.properties[TOKEN_TYPE] == TOKEN_TEXT)
 	{
-		int page_index = config.device_configs.back().fip_screens[last_device_id]->get_last_page_index();
+		int page_index = config.class_configs.back().fip_screens[last_device_id]->get_last_page_index();
 		if (page_index >= 0)
 		{
 			std::filesystem::path fip_fonts_bmp = config.plugin_path;
 			fip_fonts_bmp /= "fip-fonts.bmp";
 
-			if (config.device_configs.back().fip_screens[last_device_id]->add_text_layer_to_page(page_index, fip_fonts_bmp.string(), 0) < 0)
+			if (config.class_configs.back().fip_screens[last_device_id]->add_text_layer_to_page(page_index, fip_fonts_bmp.string(), 0) < 0)
 				return EXIT_FAILURE;
 		}
 		else
@@ -273,26 +293,32 @@ int Configparser::process_fip_layer_section(IniFileSection& section, Configurati
 
 int Configparser::handle_on_vid(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)section_header;
+	(void)key;
 	std::stringstream ss;
 	ss << std::hex << value;
-	ss >> config.device_configs.back().vid;
-	Logger(TLogLevel::logDEBUG) << "parser: vid=" << config.device_configs.back().vid << std::endl;
+	ss >> config.class_configs.back().vid;
+	Logger(TLogLevel::logDEBUG) << "parser: vid=" << config.class_configs.back().vid << std::endl;
 
 	return EXIT_SUCCESS;
 }
 
 int Configparser::handle_on_pid(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)section_header;
+	(void)key;
 	std::stringstream ss;
 	ss << std::hex << value;
-	ss >> config.device_configs.back().pid;
-	Logger(TLogLevel::logDEBUG) << "parser: pid=" << config.device_configs.back().pid << std::endl;
+	ss >> config.class_configs.back().pid;
+	Logger(TLogLevel::logDEBUG) << "parser: pid=" << config.class_configs.back().pid << std::endl;
 
 	return EXIT_SUCCESS;
 }
 
 int Configparser::handle_on_log_level(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)key;
+	(void)config;
 	if (section_header.id != "")
 		Logger(TLogLevel::logWARNING) << "Log level shall be defined in the common part of the config file!" << std::endl;
 
@@ -303,7 +329,7 @@ int Configparser::handle_on_log_level(IniFileSectionHeader section_header, std::
 		level = TLogLevel::logINFO;
 	else if (value == "WARNING")
 		level = TLogLevel::logWARNING;
-	else if (value == "PARSER_ERROR")
+	else if (value == "ERROR")
 		level = TLogLevel::logERROR;
 	else if (value == "TRACE")
 		level = TLogLevel::logTRACE;
@@ -320,6 +346,7 @@ int Configparser::handle_on_log_level(IniFileSectionHeader section_header, std::
 
 int Configparser::handle_on_acf_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)key;
 	if (section_header.id != "")
 		Logger(TLogLevel::logWARNING) << "ACF file shall be defined in the common part of the config file!" << std::endl;
 
@@ -331,6 +358,7 @@ int Configparser::handle_on_acf_file(IniFileSectionHeader section_header, std::s
 
 int Configparser::handle_on_script_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)key;
 	if (section_header.id != "")
 		Logger(TLogLevel::logWARNING) << "Script shall be defined in the common part of the config file!" << std::endl;
 
@@ -341,7 +369,7 @@ int Configparser::handle_on_script_file(IniFileSectionHeader section_header, std
 
 /* Find the array index [] in the string. If index found the index part will be removed
    from teh string and the parsed index is set in the index variable.
-   If no index found index will be set to -1 
+   If no index found index will be set to -1
 */
 void Configparser::check_and_get_array_index(std::string& dataref, int& index)
 {
@@ -355,6 +383,25 @@ void Configparser::check_and_get_array_index(std::string& dataref, int& index)
 	{
 		index = -1;
 	}
+}
+
+XPLMDataTypeID Configparser::normalize_dataref_type(XPLMDataTypeID data_ref_type)
+{
+	/* from xplane documenation:
+	   Data types each take a bit field; it is legal to have a single dataref 
+	   be more than one type of data. When this happens, you can pick 
+	   any matching get/set API.
+	*/
+	if (data_ref_type & xplmType_Double)
+		return xplmType_Double;
+	else if (data_ref_type & xplmType_Float)
+		return xplmType_Float;
+	else if (data_ref_type & xplmType_FloatArray)
+		return xplmType_FloatArray;
+	else if (data_ref_type & xplmType_IntArray)
+		return xplmType_IntArray;
+	else
+		return data_ref_type;
 }
 
 int Configparser::handle_on_push_or_release(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
@@ -415,10 +462,36 @@ int Configparser::handle_on_push_or_release(IniFileSectionHeader section_header,
 		}
 		else
 		{
-			if (index >= 0)
+			switch (normalize_dataref_type(XPLMGetDataRefTypes(dataRef))) {
+			case xplmType_IntArray:
+				if (index < 0)
+				{
+					Logger(TLogLevel::logERROR) << "parser: invalid data ref array index (section starts at line: " << section_header.line << "): " << index << std::endl;
+					return EXIT_FAILURE;
+				}
 				action = new Action(dataRef, index, stoi(m[2]));
-			else
+				break;
+			case xplmType_FloatArray:
+				if (index < 0)
+				{
+					Logger(TLogLevel::logERROR) << "parser: invalid data ref array index (section starts at line: " << section_header.line << "): " << index << std::endl;
+					return EXIT_FAILURE;
+				}
+				action = new Action(dataRef, index, stof(m[2]));
+				break;
+			case xplmType_Int:
 				action = new Action(dataRef, stoi(m[2]));
+				break;
+			case xplmType_Float:
+				action = new Action(dataRef, stof(m[2]));
+				break;
+			case xplmType_Double:
+				action = new Action(dataRef, stod(m[2]));
+				break;
+			default:
+				Logger(TLogLevel::logERROR) << "parser: invalid data ref type (section starts at line: " << section_header.line << "): " << value << std::endl;
+				return EXIT_FAILURE;
+			}
 		}
 
 		Logger(TLogLevel::logDEBUG) << "parser: button push/release dataref " << m[1] << std::endl;
@@ -463,9 +536,9 @@ int Configparser::handle_on_push_or_release(IniFileSectionHeader section_header,
 	action->set_dynamic_speed_params(speed_mid, multi_mid, speed_high, multi_high);
 
 	if (key == TOKEN_ON_PUSH)
-		config.device_configs.back().push_actions[section_header.id].push_back(action);
+		config.class_configs.back().push_actions[section_header.id].push_back(action);
 	else if (key == TOKEN_ON_RELEASE)
-		config.device_configs.back().release_actions[section_header.id].push_back(action);
+		config.class_configs.back().release_actions[section_header.id].push_back(action);
 	else
 	{
 		Logger(TLogLevel::logERROR) << "parser: invalid key (section starts at line: " << section_header.line << "): " << key << std::endl;
@@ -477,6 +550,8 @@ int Configparser::handle_on_push_or_release(IniFileSectionHeader section_header,
 
 int Configparser::handle_on_dynamic_speed(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)section_header;
+	(void)config;
 	//dynamic_speed_mid="2tick/sec:2x"
 	//dynamic_speed_high = "6tick/sec:4x"
 
@@ -554,13 +629,16 @@ int Configparser::handle_on_lit_or_unlit_or_blink(IniFileSectionHeader section_h
 		return EXIT_FAILURE;
 	}
 
-	config.device_configs.back().light_triggers[section_header.id].push_back(trigger);
+	config.class_configs.back().light_triggers[section_header.id].push_back(trigger);
 	return EXIT_SUCCESS;
 }
 
 int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)key;
 	//line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L"
+	//line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L, dot_position: 2" 
+	//line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L, minimum_digit_number: 3"
 	//line="dataref:sim/custom/gauges/compas/pkp_helper_course_L"
 	//line="dataref:sim/custom/gauges/compas/test[0] 
 	//line="const:1.5" 
@@ -575,13 +653,40 @@ int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::s
 	}
 
 	std::string condition = "";
-	if (m[0] == TOKEN_ON_SELECT)
+	get_and_remove_token_pair(m, TOKEN_ON_SELECT, condition);
+
+	std::string min_digit_number = "";
+	get_and_remove_token_pair(m, TOKEN_MIN_DIGIT_NUMBER, min_digit_number);
+	if (min_digit_number != "")
 	{
-		condition = m[1];
-		m.erase(m.begin(), m.begin() + 2);
+		if (section_header.name == TOKEN_SECTION_MULTI_DISPLAY)
+			config.class_configs.back().multi_displays[section_header.id]->set_minimum_number_of_digits(condition, stoi(min_digit_number));
+		else if(section_header.name == TOKEN_SECTION_DISPLAY)
+			config.class_configs.back().generic_displays[section_header.id]->set_minimum_number_of_digits(stoi(min_digit_number));
+		else
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid line for device type: " << section_header.name << std::endl;
+			return EXIT_FAILURE;
+		}
 	}
 
-	if (m.size() < 2)
+	std::string dot_position = "";
+	get_and_remove_token_pair(m, TOKEN_DOT_POSITION, dot_position);
+	if (dot_position != "")
+	{
+		if (section_header.name == TOKEN_SECTION_MULTI_DISPLAY)
+			config.class_configs.back().multi_displays[section_header.id]->set_dot_position(condition, stoi(dot_position));
+		else if (section_header.name == TOKEN_SECTION_DISPLAY)
+			config.class_configs.back().generic_displays[section_header.id]->set_dot_position(stoi(dot_position));
+		else
+		{
+			Logger(TLogLevel::logERROR) << "parser: invalid line for device type: " << section_header.name << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+
+	// at this point only the dataref/lua/const key-value pair shall remain
+	if (m.size() != 2)
 	{
 		Logger(TLogLevel::logERROR) << "parser: invalid syntax (section starts at line: " << section_header.line << "): " << value << std::endl;
 		return EXIT_FAILURE;
@@ -601,16 +706,16 @@ int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::s
 		if (section_header.name == TOKEN_SECTION_DISPLAY)
 		{
 			if (index >= 0)
-				config.device_configs.back().generic_displays[section_header.id]->add_dataref(dataRef,index);
+				config.class_configs.back().generic_displays[section_header.id]->add_dataref(dataRef, index);
 			else
-				config.device_configs.back().generic_displays[section_header.id]->add_dataref(dataRef);
+				config.class_configs.back().generic_displays[section_header.id]->add_dataref(dataRef);
 		}
 		else if (section_header.name == TOKEN_SECTION_MULTI_DISPLAY)
 		{
 			if (condition != "")
-				config.device_configs.back().multi_displays[section_header.id]->add_condition(condition, dataRef);
+				config.class_configs.back().multi_displays[section_header.id]->add_condition(condition, dataRef);
 			else
-				config.device_configs.back().multi_displays[section_header.id]->add_dataref(dataRef);
+				config.class_configs.back().multi_displays[section_header.id]->add_dataref(dataRef);
 		}
 		else
 		{
@@ -625,14 +730,14 @@ int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::s
 	{
 		if (section_header.name == TOKEN_SECTION_DISPLAY)
 		{
-			config.device_configs.back().generic_displays[section_header.id]->add_lua(m[1]);
+			config.class_configs.back().generic_displays[section_header.id]->add_lua(m[1]);
 		}
 		else if (section_header.name == TOKEN_SECTION_MULTI_DISPLAY)
 		{
 			if (condition != "")
-				config.device_configs.back().multi_displays[section_header.id]->add_condition(condition, m[1]);
+				config.class_configs.back().multi_displays[section_header.id]->add_condition(condition, m[1]);
 			else
-				config.device_configs.back().multi_displays[section_header.id]->add_lua(m[1]);
+				config.class_configs.back().multi_displays[section_header.id]->add_lua(m[1]);
 		}
 		else
 		{
@@ -646,14 +751,14 @@ int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::s
 	{
 		if (section_header.name == TOKEN_SECTION_DISPLAY)
 		{
-			config.device_configs.back().generic_displays[section_header.id]->add_const(stod(m[1]));
+			config.class_configs.back().generic_displays[section_header.id]->add_const(stod(m[1]));
 		}
 		else if (section_header.name == TOKEN_SECTION_MULTI_DISPLAY)
 		{
 			if (condition != "")
-				config.device_configs.back().multi_displays[section_header.id]->add_condition(condition, stod(m[1]));
+				config.class_configs.back().multi_displays[section_header.id]->add_condition(condition, stod(m[1]));
 			else
-				config.device_configs.back().multi_displays[section_header.id]->add_const(stod(m[1]));
+				config.class_configs.back().multi_displays[section_header.id]->add_const(stod(m[1]));
 		}
 		else
 		{
@@ -670,10 +775,11 @@ int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::s
 
 int Configparser::handle_on_set_bcd(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)key;
 	if (section_header.name == TOKEN_SECTION_MULTI_DISPLAY)
-		config.device_configs.back().multi_displays[section_header.id]->set_bcd(value == "yes" ? true : false);
+		config.class_configs.back().multi_displays[section_header.id]->set_bcd(value == "yes" ? true : false);
 	else if (section_header.name == TOKEN_SECTION_DISPLAY)
-		config.device_configs.back().generic_displays[section_header.id]->set_bcd(value == "yes" ? true : false);
+		config.class_configs.back().generic_displays[section_header.id]->set_bcd(value == "yes" ? true : false);
 	else
 	{
 		Logger(TLogLevel::logERROR) << "parser: bcd option can be set for generic- or multidisplay items";
@@ -769,16 +875,18 @@ int Configparser::handle_on_encoder_inc_or_dec(IniFileSectionHeader section_head
 		action->add_condition(condition);
 
 	if (key == TOKEN_ENCODER_INC)
-		config.device_configs.back().encoder_inc_actions[section_header.id].push_back(action);
+		config.class_configs.back().encoder_inc_actions[section_header.id].push_back(action);
 	else
-		config.device_configs.back().encoder_dec_actions[section_header.id].push_back(action);
+		config.class_configs.back().encoder_dec_actions[section_header.id].push_back(action);
 
 	return EXIT_SUCCESS;
 }
 
 int Configparser::handle_on_fip_serial(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
-	config.device_configs.back().serial_number = value;
+	(void)section_header;
+	(void)key;
+	config.class_configs.back().serial_number = value;
 	Logger(TLogLevel::logDEBUG) << "parser: serial number: " << value << std::endl;
 	return EXIT_SUCCESS;
 }
@@ -790,8 +898,8 @@ int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std:
 	//offset_y = "dataref::sim/cockpit2/radios/actuators/com1_frequency_hz[0],scale:1.0"
 
 	ScreenAction* action = new ScreenAction();
-	action->page_index = config.device_configs.back().fip_screens[last_device_id]->get_last_page_index();
-	action->layer_index = config.device_configs.back().fip_screens[last_device_id]->get_last_layer_index(action->page_index);
+	action->page_index = config.class_configs.back().fip_screens[last_device_id]->get_last_page_index();
+	action->layer_index = config.class_configs.back().fip_screens[last_device_id]->get_last_layer_index(action->page_index);
 
 	if (key == TOKEN_FIP_OFFSET_X)
 		action->type = SC_TRANSLATION_X;
@@ -812,9 +920,9 @@ int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std:
 	}
 	else if (m[0] == TOKEN_DATAREF)
 	{
-		int index=-1;
+		int index = -1;
 		check_and_get_array_index(m[1], index);
-		
+
 		if (m.size() >= 3)
 			action->scale_factor = std::stod(m[3]);
 
@@ -829,7 +937,7 @@ int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std:
 			action->data_ref_index = index;
 
 		action->data_ref = dataRef;
-		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
+		action->data_ref_type = normalize_dataref_type(XPLMGetDataRefTypes(dataRef));
 	}
 	else if (m[0] == TOKEN_LUA)
 	{
@@ -844,15 +952,16 @@ int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std:
 
 	Logger(logTRACE) << "config parser: add FIP offset const: " << action->constant_val << std::endl;
 
-	config.device_configs.back().fip_screens[last_device_id]->add_screen_action(action);
+	config.class_configs.back().fip_screens[last_device_id]->add_screen_action(action);
 	return EXIT_SUCCESS;
 }
 
 int Configparser::handle_on_fip_rotation(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
+	(void)key;
 	ScreenAction* action = new ScreenAction();
-	action->page_index = config.device_configs.back().fip_screens[last_device_id]->get_last_page_index();
-	action->layer_index = config.device_configs.back().fip_screens[last_device_id]->get_last_layer_index(action->page_index);
+	action->page_index = config.class_configs.back().fip_screens[last_device_id]->get_last_page_index();
+	action->layer_index = config.class_configs.back().fip_screens[last_device_id]->get_last_layer_index(action->page_index);
 	action->type = SC_ROTATION;
 
 	std::vector<std::string> m = tokenize(value);
@@ -879,7 +988,7 @@ int Configparser::handle_on_fip_rotation(IniFileSectionHeader section_header, st
 			action->data_ref_index = index;
 
 		action->data_ref = dataRef;
-		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
+		action->data_ref_type = normalize_dataref_type(XPLMGetDataRefTypes(dataRef));
 	}
 	else if (m[0] == TOKEN_LUA)
 	{
@@ -892,14 +1001,16 @@ int Configparser::handle_on_fip_rotation(IniFileSectionHeader section_header, st
 		return EXIT_FAILURE;
 	}
 
-	config.device_configs.back().fip_screens[last_device_id]->add_screen_action(action);
+	config.class_configs.back().fip_screens[last_device_id]->add_screen_action(action);
 	return EXIT_SUCCESS;
 }
 
 int Configparser::handle_on_fip_mask(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
-	int page_index = config.device_configs.back().fip_screens[last_device_id]->get_last_page_index();
-	int layer_index = config.device_configs.back().fip_screens[last_device_id]->get_last_layer_index(page_index);
+	(void)section_header;
+	(void)key;
+	int page_index = config.class_configs.back().fip_screens[last_device_id]->get_last_page_index();
+	int layer_index = config.class_configs.back().fip_screens[last_device_id]->get_last_layer_index(page_index);
 
 	std::vector<std::string> m = tokenize(value);
 
@@ -925,7 +1036,7 @@ int Configparser::handle_on_fip_mask(IniFileSectionHeader section_header, std::s
 		}
 
 		MaskWindow mask(screen_x, screen_y, width, height);
-		config.device_configs.back().fip_screens[last_device_id]->set_mask(page_index, layer_index, mask);
+		config.class_configs.back().fip_screens[last_device_id]->set_mask(page_index, layer_index, mask);
 		Logger(logTRACE) << "Parser: set mask for page " << page_index << " / layer " << layer_index << std::endl;
 	}
 	else
@@ -939,8 +1050,9 @@ int Configparser::handle_on_fip_mask(IniFileSectionHeader section_header, std::s
 
 int Configparser::handle_on_fip_text(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
-	int page_index = config.device_configs.back().fip_screens[last_device_id]->get_last_page_index();
-	int layer_index = config.device_configs.back().fip_screens[last_device_id]->get_last_layer_index(page_index);
+	(void)key;
+	int page_index = config.class_configs.back().fip_screens[last_device_id]->get_last_page_index();
+	int layer_index = config.class_configs.back().fip_screens[last_device_id]->get_last_layer_index(page_index);
 
 	if (page_index < 0 || layer_index < 0)
 	{
@@ -952,7 +1064,7 @@ int Configparser::handle_on_fip_text(IniFileSectionHeader section_header, std::s
 
 	if (m[0] == TOKEN_CONST)
 	{
-		config.device_configs.back().fip_screens[last_device_id]->set_text(page_index, layer_index, m[1]);
+		config.class_configs.back().fip_screens[last_device_id]->set_text(page_index, layer_index, m[1]);
 	}
 	else if (m[0] == TOKEN_DATAREF)
 	{
@@ -968,11 +1080,11 @@ int Configparser::handle_on_fip_text(IniFileSectionHeader section_header, std::s
 			return EXIT_FAILURE;
 		}
 		action->data_ref = dataRef;
-		action->data_ref_type = XPLMGetDataRefTypes(dataRef);
+		action->data_ref_type = normalize_dataref_type(XPLMGetDataRefTypes(dataRef));
 		action->type = SC_SET_TEXT;
 
 		Logger(logTRACE) << "config parser: add FIP text set dataref: " << action->data_ref << std::endl;
-		config.device_configs.back().fip_screens[last_device_id]->add_screen_action(action);
+		config.class_configs.back().fip_screens[last_device_id]->add_screen_action(action);
 	}
 	else if (m[0] == TOKEN_LUA)
 	{
@@ -984,7 +1096,7 @@ int Configparser::handle_on_fip_text(IniFileSectionHeader section_header, std::s
 		action->type = SC_SET_TEXT;
 
 		Logger(logTRACE) << "config parser: add FIP set text lua: " << action->lua_str << std::endl;
-		config.device_configs.back().fip_screens[last_device_id]->add_screen_action(action);
+		config.class_configs.back().fip_screens[last_device_id]->add_screen_action(action);
 	}
 	else
 	{

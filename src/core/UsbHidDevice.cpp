@@ -13,7 +13,7 @@
 int UsbHidDevice::ref_count = 0;
 bool UsbHidDevice::hid_api_initialized = false;
 
-UsbHidDevice::UsbHidDevice(DeviceConfiguration& config, int _read_buffer_size, int _write_buffer_size) :Device(config, _read_buffer_size, _write_buffer_size)
+UsbHidDevice::UsbHidDevice(ClassConfiguration& config, int _read_buffer_size, int _write_buffer_size) :Device(config, _read_buffer_size, _write_buffer_size)
 {
 	_thread_run.store(false);
 	vid = config.vid;
@@ -22,8 +22,16 @@ UsbHidDevice::UsbHidDevice(DeviceConfiguration& config, int _read_buffer_size, i
 	if (!hid_api_initialized)
 	{
 		Logger(TLogLevel::logDEBUG) << "UsbHidDevice: call hid_init()" << std::endl;
-		hid_init();
-		hid_api_initialized = true;
+		if (hid_init() == -1)
+		{
+			Logger(TLogLevel::logERROR) << "UsbHidDevice: error in hid_init: " << hidapi_error(NULL) << std::endl;
+			hid_api_initialized = false;
+		}
+		else
+		{
+			Logger(TLogLevel::logDEBUG) << "UsbHidDevice: successful hid_init" << std::endl;
+			hid_api_initialized = true;
+		}
 	}
 }
 
@@ -78,6 +86,7 @@ int UsbHidDevice::send_feature_report(unsigned char* buf, int length)
 		return EXIT_FAILURE;
 	}
 
+	buf[0] = 0x00; // don't use report id
 	if (hid_send_feature_report(device_handle, buf, length) == -1)
 	{
 		Logger(TLogLevel::logERROR) << "error in UsbHidDevice::send_feature_report" << " reason=" << hidapi_error(device_handle) << std::endl;
@@ -106,19 +115,45 @@ int UsbHidDevice::write_device(unsigned char* buf, int length)
 
 int UsbHidDevice::connect()
 {
-	device_handle = hid_open(vid, pid, NULL);
-	if (!device_handle) {
-		Logger(TLogLevel::logERROR) << "error opening hid device vid=" << vid << " pid=" << pid << " reason=" << hidapi_error(NULL) << std::endl;
-		return EXIT_FAILURE;
-	}
+    struct hid_device_info *dev_info = hid_enumerate(vid, pid);
+    if (!dev_info) {
+        Logger(TLogLevel::logERROR) << "error enumerating hid device with vid=" << vid << " pid=" << pid << " reason=" << hidapi_error(NULL) << std::endl;
+        hid_free_enumeration(dev_info);
+        return EXIT_FAILURE;
+    }
+
+    device_handle = hid_open_path(dev_info->path);
+    if (!device_handle) {
+        Logger(TLogLevel::logERROR) << "error opening hid device vid=" << vid << " pid=" << pid << " reason=" << hidapi_error(NULL) << std::endl;
+        hid_free_enumeration(dev_info);
+        return EXIT_FAILURE;
+    }		
+
+    if (hid_set_nonblocking(device_handle, 1) == -1) {
+        Logger(TLogLevel::logERROR) << "error in hid_set_nonblocking vid=" << vid << " pid=" << pid << " reason=" << hidapi_error(device_handle) << std::endl;
+        hid_free_enumeration(dev_info);
+        return EXIT_FAILURE;
+    }
+
+    ref_count++;
+
+    if (dev_info->next) {
+        Logger(TLogLevel::logWARNING) << "found more than one device with vid=" << vid << " pid=" << pid << " Only the first device is used now" << std::endl; 
+    }
+
+    Logger(TLogLevel::logDEBUG) << "device opened: vid=" << vid << " pid=" << pid << std::endl;
+
+    hid_free_enumeration(dev_info);
+
+    return EXIT_SUCCESS;
+}
+
+int UsbHidDevice::connect(hid_device* _device_handle)
+{
 	ref_count++;
+	device_handle = _device_handle;
+	Logger(TLogLevel::logDEBUG) << "device connect: vid=" << vid << " pid=" << pid << std::endl;
 
-	if (hid_set_nonblocking(device_handle, 1) == -1) {
-		Logger(TLogLevel::logERROR) << "error in hid_set_nonblocking vid=" << vid << " pid=" << pid << " reason=" << hidapi_error(device_handle) << std::endl;
-		return EXIT_FAILURE;
-	}
-
-	Logger(TLogLevel::logDEBUG) << "UsbHidDevice connect successful. vid=" << vid << " pid=" << pid << std::endl;
 	return EXIT_SUCCESS;
 }
 
@@ -156,7 +191,9 @@ bool UsbHidDevice::updateOneDisplay(std::pair<std::string, GenericDisplay*> conf
 	}
 	if (reg_index != -1 && config_display.second != NULL)
 	{
-		write_buffer_changed |= config_display.second->get_display_value(&write_buffer[reg_index]);
+		int minimum_number_of_digits = config_display.second->get_minimum_number_of_digits();
+		int dot_position = config_display.second->get_dot_position();
+		write_buffer_changed |= config_display.second->get_display_value(&write_buffer[reg_index], minimum_number_of_digits, dot_position);
 	}
 
 	return write_buffer_changed;
@@ -230,6 +267,7 @@ void UsbHidDevice::release()
 	{
 		Logger(TLogLevel::logDEBUG) << "All USB HID devices are closed. call hid_exit()" << std::endl;
 		hid_exit();
+		hid_api_initialized = false;
 	}
 }
 

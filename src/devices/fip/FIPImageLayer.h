@@ -9,6 +9,9 @@
 #include <fstream>
 #include "FIPLayer.h"
 
+// BMP file format constants
+constexpr uint16_t BMP_MAGIC_NUMBER = 0x4d42;
+
 #pragma pack(push)
 #pragma pack(1)
 typedef struct {
@@ -35,8 +38,10 @@ class ImageBuffer {
 private:
 	BMPHeader bmp_header;
 	unsigned char* raw_buffer;
+	int bytes_per_pixel;
 public:
 	ImageBuffer();
+	ImageBuffer& operator=(const ImageBuffer& other);
 	void set_and_allocate_buffer(int _width, int _height);
 	virtual ~ImageBuffer();
 	int width;
@@ -55,8 +60,15 @@ protected:
 	ImageBuffer image_buffer;
 public:
 	FIPImageLayer();
+	FIPImageLayer(FIPImageLayer* other);
 	virtual ~FIPImageLayer();
 	bool load_file(std::string file_name, int ref_x, int ref_y);
 	virtual void get_pixel_at_pos(Pixel* pixel, int row, int col);
 	virtual unsigned char* get_raw_buffer();
+	typedef enum {
+		IMAGE,
+		TEXT
+	} FIPLayerType;
+	FIPLayerType type;
+
 };

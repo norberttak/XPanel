@@ -27,8 +27,10 @@ class Action
 {
 public:
 	Action();
+	Action(Action* other);
 	Action(XPLMDataRef dat, int d);
 	Action(XPLMDataRef dat, float d);
+	Action(XPLMDataRef dat, double d);
 	Action(XPLMDataRef dat, int array_index, int d);
 	Action(XPLMDataRef dat, int array_index, float d);
 	Action(XPLMDataRef dat, float _delta, float _max, float _min);

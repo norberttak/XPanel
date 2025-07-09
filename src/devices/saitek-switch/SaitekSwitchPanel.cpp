@@ -10,10 +10,10 @@
 #include "saitek-switch/SaitekSwitchPanel.h"
 #include "core/Logger.h"
 
-#define WRITE_BUFFER_SIZE 2
-#define READ_BUFFER_SIZE 4
+constexpr int WRITE_BUFFER_SIZE = 2;
+constexpr int READ_BUFFER_SIZE = 4;
 
-SaitekSwitchPanel::SaitekSwitchPanel(DeviceConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
+SaitekSwitchPanel::SaitekSwitchPanel(ClassConfiguration& config) :UsbHidDevice(config, READ_BUFFER_SIZE, WRITE_BUFFER_SIZE)
 {
 	// push buttons
 	switch_buttons.push_back(PanelButton((0 * 8) + 0, "BATTERY"));
@@ -51,6 +51,27 @@ SaitekSwitchPanel::SaitekSwitchPanel(DeviceConfiguration& config) :UsbHidDevice(
 	/* Yellow color lights can be turned on by issuing green + red */
 
 	register_lights(switch_lights);
+}
+
+int SaitekSwitchPanel::connect(hid_device* _device_handle)
+{
+	if (_device_handle == NULL)
+	{
+		if (UsbHidDevice::connect() != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "SaitekSwitchPanel connect. Error during connect" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	else
+	{
+		if (UsbHidDevice::connect(_device_handle) != EXIT_SUCCESS)
+		{
+			Logger(TLogLevel::logERROR) << "SaitekSwitchPanel connect. Error during connect" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+    return EXIT_SUCCESS;
 }
 
 int SaitekSwitchPanel::connect()

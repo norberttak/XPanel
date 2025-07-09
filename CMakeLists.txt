@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(XPanel VERSION 1.8 LANGUAGES CXX)
+project(XPanel VERSION 1.9 LANGUAGES C CXX)
 
 string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWERCASE)
 set(PLUGIN_INSTALL_DIR ${PROJECT_NAME}/64)
@@ -20,7 +20,6 @@ endif()
 
 include(CTest)
 
-add_subdirectory(3rdparty/hidapi)
 add_subdirectory(3rdparty/LUA)
 add_subdirectory(3rdparty/SDK)
 add_subdirectory(3rdparty/FIP-SDK)

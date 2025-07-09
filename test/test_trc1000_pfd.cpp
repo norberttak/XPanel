@@ -27,7 +27,7 @@ bool test_is_command_in_queue(std::string cmd_str);
 int test_get_command_queue_size();
 void test_clear_command_queue();
 void test_hid_get_write_data(unsigned char* data, size_t length);
-void test_flight_loop(std::vector<DeviceConfiguration> &config);
+void test_flight_loop(std::vector<ClassConfiguration> &config);
 
 
 namespace test
@@ -49,7 +49,7 @@ namespace test
 			LuaHelper::get_instace()->init();
 			LuaHelper::get_instace()->load_script_file("../../test/" + config.script_file);
 
-			device = new TRC1000PFD(config.device_configs[0]);
+			device = new TRC1000PFD(config.class_configs[0]);
 			device->connect();
 			device->start();
 			t = new std::thread(&TRC1000PFD::thread_func, (TRC1000PFD*)device);
@@ -72,7 +72,7 @@ namespace test
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 
-			test_flight_loop(config.device_configs);
+			test_flight_loop(config.class_configs);
 			Assert::IsTrue(test_is_command_in_queue("sim/GPS/g1000n1_nav_ONCE"));
 		}
 
@@ -86,7 +86,7 @@ namespace test
 			test_hid_set_read_data(buffer, sizeof(buffer));
 
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.device_configs);
+			test_flight_loop(config.class_configs);
 			Assert::IsTrue(test_is_command_in_queue("sim/GPS/g1000n1_nav_inner_up_ONCE"));
 		}
 
@@ -100,7 +100,7 @@ namespace test
 			test_hid_set_read_data(buffer, sizeof(buffer));
 
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.device_configs);
+			test_flight_loop(config.class_configs);
 			Assert::IsTrue(test_is_command_in_queue("sim/GPS/g1000n1_nav_inner_up_ONCE"));
 		}
 
@@ -115,7 +115,7 @@ namespace test
 			test_hid_set_read_data(buffer, sizeof(buffer));
 
 			std::this_thread::sleep_for(150ms);
-			test_flight_loop(config.device_configs);
+			test_flight_loop(config.class_configs);
 			std::this_thread::sleep_for(150ms);
 			Assert::IsFalse(test_is_command_in_queue("sim/GPS/g1000n1_nav_inner_up_ONCE"));
 		}
@@ -130,7 +130,7 @@ namespace test
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 
-			test_flight_loop(config.device_configs);
+			test_flight_loop(config.class_configs);
 			Assert::IsTrue(test_is_command_in_queue("sim/GPS/g1000n1_nav_inner_down_ONCE"));
 		}
 
@@ -145,7 +145,7 @@ namespace test
 			std::this_thread::sleep_for(150ms);
 
 			test_clear_command_queue();
-			test_flight_loop(config.device_configs);
+			test_flight_loop(config.class_configs);
 
 			Assert::AreEqual(1, test_get_command_queue_size());
 		}
@@ -160,7 +160,7 @@ namespace test
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 
-			test_flight_loop(config.device_configs);
+			test_flight_loop(config.class_configs);
 
 			Assert::AreEqual(1, test_get_command_queue_size());
 		}
