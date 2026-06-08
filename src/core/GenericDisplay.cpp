@@ -116,7 +116,7 @@ void GenericDisplay::add_lua(std::string _lua_function)
 /* call this function only from XPlane flight loop */
 void GenericDisplay::evaluate_and_store_dataref_value()
 {
-	guard.lock();
+	std::lock_guard<std::mutex> lock(guard);
 	switch (data_ref_type) {
 	case xplmType_Int:
 		display_value = (double)XPLMGetDatai(condition);
@@ -144,8 +144,6 @@ void GenericDisplay::evaluate_and_store_dataref_value()
 			LuaHelper::get_instace()->do_string("return " + lua_function, display_value);
 		break;
 	}
-	guard.unlock();
-
 	if (abs(display_value - display_value_old) >= 0.001)
 		display_value_changed = true;
 

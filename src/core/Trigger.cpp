@@ -68,21 +68,17 @@ void Trigger::evaluate_and_store_action()
 		LuaHelper::get_instace()->do_string("return " + lua_str,act_value);
 	}
 
-	guard.lock();
-
+	std::lock_guard<std::mutex> lock(guard);
 	if (abs(act_value - trigger_value) <= 0.001 && abs(last_value - act_value) >= 0.01)
 		stored_action = trigger_action;
-
-	guard.unlock();
 
 	last_value = act_value;
 }
 
 TriggerType Trigger::get_and_clear_stored_action()
 {
-	guard.lock();
+	std::lock_guard<std::mutex> lock(guard);
 	TriggerType _stored = stored_action;
 	stored_action = TriggerType::NO_CHANGE;
-	guard.unlock();
 	return _stored;
 }

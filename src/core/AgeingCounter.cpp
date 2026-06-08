@@ -22,9 +22,8 @@ void AgeingCounter::event_happend(int nr_of_event)
 	event.time_of_event = get_current_time();
 	event.number_of_event = nr_of_event;
 
-	guard.lock();
+	std::lock_guard<std::mutex> lock(guard);
 	list.push_back(event);
-	guard.unlock();
 }
 
 int AgeingCounter::get_nr_of_events_not_older_than(uint64_t max_age)
@@ -32,15 +31,13 @@ int AgeingCounter::get_nr_of_events_not_older_than(uint64_t max_age)
 	int count = 0;
 	uint64_t current_time = get_current_time();
 
-	guard.lock();
+	std::lock_guard<std::mutex> lock(guard);
 	for (auto& ev : list)
 	{
 		if (ev.time_of_event + max_age >= current_time) {
 			count += ev.number_of_event;
 		}
 	}
-	guard.unlock();
-
 	return count;
 }
 
@@ -48,7 +45,7 @@ void AgeingCounter::clear_old_events(uint64_t max_age)
 {
 	uint64_t current_time = get_current_time();
 
-	guard.lock();
+	std::lock_guard<std::mutex> lock(guard);
 	auto it = list.cbegin();
 	while (it != list.cend())
 	{
@@ -57,5 +54,4 @@ void AgeingCounter::clear_old_events(uint64_t max_age)
 		else
 			++it;
 	}
-	guard.unlock();
 }
