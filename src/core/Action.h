@@ -47,6 +47,7 @@ public:
 	int get_hash();
 	void activate();
 private:
+	void init_all_fields();
 	int data = 0;
 	float data_f = 0;
 	int index = -1;
