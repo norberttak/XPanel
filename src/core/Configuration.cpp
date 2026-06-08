@@ -89,6 +89,8 @@ ClassConfiguration& ClassConfiguration::operator=(const ClassConfiguration& othe
 	if (this == &other)
 		return *this;
 
+	clear();
+
 	device_class_type = other.device_class_type;
 	pid = other.pid;
 	vid = other.vid;
