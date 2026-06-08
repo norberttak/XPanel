@@ -239,7 +239,10 @@ int Configparser::process_fip_layer_section(IniFileSection& section, Configurati
 			std::filesystem::path bmp_file_absolute_path = std::filesystem::path(config.aircraft_path);
 			bmp_file_absolute_path /= std::string(m[0]);
 
-			int ref_x, ref_y, base_rot;
+			int ref_x = 0; 
+			int ref_y = 0;
+			int base_rot = 0;
+
 			for (int i = 1; i <= 6; i += 2)
 			{
 				if (m[i] == "ref_x")
