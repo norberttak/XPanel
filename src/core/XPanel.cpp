@@ -278,11 +278,21 @@ int enumerate_and_add_hid_devices(ClassConfiguration& it)
 	do
 	{		
 		Logger(TLogLevel::logDEBUG) << "add new panel device. vid =" << it.vid << " pid = " << it.pid << std::endl;
+		hid_device* hid_dev = hid_open_path(dev_info->path);
+		if (hid_dev == NULL)
+		{
+			Logger(TLogLevel::logERROR) << "error opening hid device with vid=" << it.vid << " pid=" << it.pid << std::endl;
+			continue;
+		}
+
+		if (hid_set_nonblocking(hid_dev, 1) != 0)
+		{
+			Logger(TLogLevel::logERROR) << "error hid_set_nonblocking with vid=" << it.vid << " pid=" << it.pid << std::endl;
+			continue;
+		}
+
 		device = new T(it);
 		devices.push_back(device);
-
-		hid_device* hid_dev = hid_open_path(dev_info->path);
-		hid_set_nonblocking(hid_dev, 1);
 		((T*)device)->connect(hid_dev);
 		device->start();
 		device->thread_handle = new std::thread(&T::thread_func, (T*)device);
