@@ -43,8 +43,8 @@ namespace test
 			int result = p->parse_file("../../test/test-fip-screen-config.ini", config);
 			Assert::AreEqual(0, result);
 
-			LuaHelper::get_instace()->init();
-			LuaHelper::get_instace()->load_script_file("../../test/" + config.script_file);
+			LuaHelper::get_instance()->init();
+			LuaHelper::get_instance()->load_script_file("../../test/" + config.script_file);
 
 			fip_device = new FIPDevice(config.class_configs[0]);
 			fip_device->connect();

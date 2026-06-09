@@ -43,14 +43,14 @@ namespace test
 			int result = p->parse_file("../../test/test-valid-config.ini", config);
 			Assert::AreEqual(0, result);
 
-			LuaHelper::get_instace()->init();			
-			LuaHelper::get_instace()->load_script_file("../../test/" + config.script_file);
+			LuaHelper::get_instance()->init();			
+			LuaHelper::get_instance()->load_script_file("../../test/" + config.script_file);
 			
 			device = new SaitekMultiPanel(config.class_configs[0]);
 			device->connect();
 			device->start();
 			t = new std::thread(&SaitekMultiPanel::thread_func, (SaitekMultiPanel*)device);
-			LuaHelper::get_instace()->register_hid_device(device);
+			LuaHelper::get_instance()->register_hid_device(device);
 		}
 
 		TEST_METHOD(Test_VID_PID)
@@ -258,7 +258,7 @@ namespace test
 			std::this_thread::sleep_for(150ms);
 			test_flight_loop(device);
 			double ret_value=0;
-			LuaHelper::get_instace()->do_string("return get_hid_input_status('REV')", ret_value);
+			LuaHelper::get_instance()->do_string("return get_hid_input_status('REV')", ret_value);
 			Assert::AreEqual(1, (int)ret_value);
 			
 			// Release REV button
@@ -266,7 +266,7 @@ namespace test
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 			test_flight_loop(device);
-			LuaHelper::get_instace()->do_string("return get_hid_input_status('REV')", ret_value);
+			LuaHelper::get_instance()->do_string("return get_hid_input_status('REV')", ret_value);
 			Assert::AreEqual(0, (int)ret_value);
 		}
 

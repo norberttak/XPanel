@@ -59,8 +59,8 @@ namespace test
 			int result = p->parse_file("../../test/test-radio-panel-config.ini", config);
 			Assert::AreEqual(0, result);
 
-			LuaHelper::get_instace()->init();
-			LuaHelper::get_instace()->load_script_file("../../test/" + config.script_file);
+			LuaHelper::get_instance()->init();
+			LuaHelper::get_instance()->load_script_file("../../test/" + config.script_file);
 
 			device = new SaitekRadioPanel(config.class_configs[0]);
 			device->connect();

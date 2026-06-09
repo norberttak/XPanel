@@ -19,7 +19,7 @@
 class LuaHelper
 {
 public:
-	static LuaHelper* get_instace();
+	static LuaHelper* get_instance();
 	int init();
 	void close();
 	void push_global_string(std::string name, std::string value);

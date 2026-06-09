@@ -156,7 +156,7 @@ float flight_loop_callback(float, float, int, void*)
 	}
 
 	// execute lua scrip defined flight_loop function
-	LuaHelper::get_instace()->do_flight_loop();
+	LuaHelper::get_instance()->do_flight_loop();
 
 	// process button push/release events
 	ActionQueue::get_instance()->activate_actions_in_queue();
@@ -181,7 +181,7 @@ float error_display_callback(float, float, int, void*)
 void stop_and_clear_xpanel_plugin()
 {
 	XPLMUnregisterFlightLoopCallback(flight_loop_callback, NULL);
-	LuaHelper::get_instace()->close();
+	LuaHelper::get_instance()->close();
 
 	for (auto& dev : devices)
 	{
@@ -286,7 +286,7 @@ int enumerate_and_add_hid_devices(ClassConfiguration& it)
 		((T*)device)->connect(hid_dev);
 		device->start();
 		device->thread_handle = new std::thread(&T::thread_func, (T*)device);
-		LuaHelper::get_instace()->register_hid_device((UsbHidDevice*)device);
+		LuaHelper::get_instance()->register_hid_device((UsbHidDevice*)device);
 		dev_info = dev_info->next;
 	} while (dev_info);
 	hid_free_enumeration(dev_info_first);
@@ -334,12 +334,12 @@ int init_and_start_xpanel_plugin(void)
 		Logger(TLogLevel::logWARNING) << "Config was created for another aircraft (" << config.aircraft_acf << "). Current is " << aircraft_file_name << std::endl;
 	}
 
-	LuaHelper::get_instace()->init();
-	LuaHelper::get_instace()->push_global_string("AIRCRAFT_FILENAME", aircraft_file_name);
-	LuaHelper::get_instace()->push_global_string("AIRCRAFT_PATH", aircraft_file_path);
-	LuaHelper::get_instace()->push_global_string("PLUGIN_VERSION", PLUGIN_VERSION);
-	LuaHelper::get_instace()->push_global_string("PLUGIN_SIGNATURE", PLUGIN_SIGNATURE);
-	LuaHelper::get_instace()->push_global_string("PLUGIN_CONFIG_FILE", init_path.string());
+	LuaHelper::get_instance()->init();
+	LuaHelper::get_instance()->push_global_string("AIRCRAFT_FILENAME", aircraft_file_name);
+	LuaHelper::get_instance()->push_global_string("AIRCRAFT_PATH", aircraft_file_path);
+	LuaHelper::get_instance()->push_global_string("PLUGIN_VERSION", PLUGIN_VERSION);
+	LuaHelper::get_instance()->push_global_string("PLUGIN_SIGNATURE", PLUGIN_SIGNATURE);
+	LuaHelper::get_instance()->push_global_string("PLUGIN_CONFIG_FILE", init_path.string());
 
 	std::filesystem::path script_path;
 	if (config.script_file != "")
@@ -355,13 +355,13 @@ int init_and_start_xpanel_plugin(void)
 
 	if (std::filesystem::exists(script_path))
 	{
-		if (LuaHelper::get_instace()->load_script_file(script_path.string()) != EXIT_SUCCESS)
+		if (LuaHelper::get_instance()->load_script_file(script_path.string()) != EXIT_SUCCESS)
 		{
 			stop_and_clear_xpanel_plugin();
 			Logger(TLogLevel::logERROR) << "Error loading Lua script: " << config.script_file << std::endl;
 			return EXIT_FAILURE;
 		}
-		LuaHelper::get_instace()->push_global_string("SCRIPT_PATH", script_path.string());
+		LuaHelper::get_instance()->push_global_string("SCRIPT_PATH", script_path.string());
 	}
 
 	Device* device;

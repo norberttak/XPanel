@@ -46,14 +46,14 @@ namespace test
 			int result = p->parse_file("../../test/test-trc1000-pfd.ini", config);
 			Assert::AreEqual(0, result);
 
-			LuaHelper::get_instace()->init();
-			LuaHelper::get_instace()->load_script_file("../../test/" + config.script_file);
+			LuaHelper::get_instance()->init();
+			LuaHelper::get_instance()->load_script_file("../../test/" + config.script_file);
 
 			device = new TRC1000PFD(config.class_configs[0]);
 			device->connect();
 			device->start();
 			t = new std::thread(&TRC1000PFD::thread_func, (TRC1000PFD*)device);
-			LuaHelper::get_instace()->register_hid_device(device);
+			LuaHelper::get_instance()->register_hid_device(device);
 		}
 
 		TEST_METHOD(Test_VID_PID)

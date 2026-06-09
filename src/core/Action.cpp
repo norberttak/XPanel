@@ -310,7 +310,7 @@ void Action::activate()
 	if (!lua_str.empty())
 	{
 		Logger(TLogLevel::logTRACE) << "activate lua action: " << lua_str << std::endl;;
-		LuaHelper::get_instace()->do_string(lua_str);
+		LuaHelper::get_instance()->do_string(lua_str);
 	}
 }
 

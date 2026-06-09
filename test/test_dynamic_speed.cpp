@@ -63,7 +63,7 @@ namespace test
 			int result = p->parse_file("../../test/test-dynamic-speed.ini", config);
 			Assert::AreEqual(0, result);
 
-			LuaHelper::get_instace()->init();
+			LuaHelper::get_instance()->init();
 
 			device = new SaitekMultiPanel(config.class_configs[0]);
 			device->connect();

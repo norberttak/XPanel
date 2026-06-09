@@ -60,12 +60,12 @@ void FIPScreen::evaluate_and_store_screen_action()
 		{
 			if (action->type == SC_SET_TEXT)
 			{
-				LuaHelper::get_instace()->do_string("return " + action->lua_str, action_value_str);
+				LuaHelper::get_instance()->do_string("return " + action->lua_str, action_value_str);
 			}
 			else
 			{
 				double ret_value = 0;
-				LuaHelper::get_instace()->do_string("return " + action->lua_str, ret_value);
+				LuaHelper::get_instance()->do_string("return " + action->lua_str, ret_value);
 				action_value = (int)ret_value;
 			}
 		}

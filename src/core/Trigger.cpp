@@ -65,7 +65,7 @@ void Trigger::evaluate_and_store_action()
 	}
 	else
 	{
-		LuaHelper::get_instace()->do_string("return " + lua_str,act_value);
+		LuaHelper::get_instance()->do_string("return " + lua_str,act_value);
 	}
 
 	std::lock_guard<std::mutex> lock(guard);
