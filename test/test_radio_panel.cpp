@@ -16,6 +16,7 @@
 #include "core/ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std::literals;
 
 void test_hid_set_read_data(unsigned char* data, size_t length);
 int test_get_dataref_value(const char* datarefstr);

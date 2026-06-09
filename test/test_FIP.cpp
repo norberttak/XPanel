@@ -11,9 +11,11 @@
 #include "core/LuaHelper.h"
 #include "CppUnitTest.h"
 #include "fip/FIPDevice.h"
-#include "core/Configparser.h"
+#include "core/ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std::literals;
+
 void test_set_aircraft_path_and_filename(char* file_name, char* path);
 int test_fip_get_led_state(int led_index);
 void test_fip_set_button_states(uint16_t _button_states);

@@ -8,6 +8,8 @@
 #include "core/Logger.h"
 #include "FIPDevice.h"
 
+using namespace std::literals;
+
 FIPDevice::FIPDevice(ClassConfiguration& _config) :Device(_config,2,1)
 {
 	f_device = NULL;
