@@ -22,11 +22,11 @@ namespace test
 	{
 	private:
 		Configuration config;
-		Configparser* p;
+		ConfigParser* p;
 	public:
 		TEST_METHOD_INITIALIZE(TestConfigParserInit)
 		{
-			p = new Configparser();
+			p = new ConfigParser();
 			int result = p->parse_file("../../test/test-valid-config.ini", config);
 			Assert::AreEqual(0, result);
 		}

@@ -31,14 +31,14 @@ namespace test
 	TEST_CLASS(test_generic_display)
 	{
 	private:		
-		Configparser* p;
+		ConfigParser* p;
 		ArduinoHomeCockpit* device;
 		std::thread* t;
 	public:
 		TEST_METHOD_INITIALIZE(TestGenericDisplayInit)
 		{
 			Configuration config;
-			p = new Configparser();
+			p = new ConfigParser();
 			int result = p->parse_file("../../test/test-arduino-home.ini", config);
 			Assert::AreEqual(0, result);
 

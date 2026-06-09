@@ -10,10 +10,10 @@
 #include "Configuration.h"
 #include "IniFileParser.h"
 
-class Configparser
+class ConfigParser
 {
 private:
-	typedef int (Configparser::* f_handle_on_key_value)(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	typedef int (ConfigParser::* f_handle_on_key_value)(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 
 	std::map<std::string, f_handle_on_key_value> process_functions;
 	std::vector<std::string> tokenize(std::string line);
@@ -107,7 +107,7 @@ private:
 	float speed_high = 0;
 	int multi_high = 1;
 public:
-	Configparser();
-	~Configparser();
+	ConfigParser();
+	~ConfigParser();
 	int parse_file(std::string file_name, Configuration& config);
 };

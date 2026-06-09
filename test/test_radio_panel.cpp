@@ -33,7 +33,7 @@ namespace test
 	{
 	private:
 		Configuration config;
-		Configparser* p;
+		ConfigParser* p;
 		SaitekRadioPanel* device;
 		std::thread* t;
 		std::string nav1_freq_dataref_str = "sim/cockpit2/radios/actuators/nav1_frequency_hz";
@@ -55,7 +55,7 @@ namespace test
 		{
 			test_hid_mock_init();
 			
-			p = new Configparser();
+			p = new ConfigParser();
 			int result = p->parse_file("../../test/test-radio-panel-config.ini", config);
 			Assert::AreEqual(0, result);
 

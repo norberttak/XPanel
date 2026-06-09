@@ -29,7 +29,7 @@ namespace test
 	{
 	private:
 		Configuration config;
-		Configparser* p;
+		ConfigParser* p;
 		FIPDevice* fip_device;
 		std::thread* t;
 		std::string airspeed_dataref_str = "sim/cockpit2/gauges/indicators/airspeed_kts_pilot";
@@ -39,7 +39,7 @@ namespace test
 		{
 			test_set_aircraft_path_and_filename("test.acf", "./");
 
-			p = new Configparser();
+			p = new ConfigParser();
 			int result = p->parse_file("../../test/test-fip-screen-config.ini", config);
 			Assert::AreEqual(0, result);
 

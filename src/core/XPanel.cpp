@@ -236,7 +236,7 @@ std::filesystem::path find_config_file(const std::string& aircraft_file_name, co
 		{
 			if (entry.is_regular_file() && entry.path().extension() == ".ini")
 			{
-				Configparser temp_parser;
+				ConfigParser temp_parser;
 				Configuration temp_config;
 				if (temp_parser.parse_file(entry.path().string(), temp_config) == EXIT_SUCCESS)
 				{
@@ -320,7 +320,7 @@ int init_and_start_xpanel_plugin(void)
 	config.aircraft_path = aircraft_file_path;
 	Logger(TLogLevel::logINFO) << "aircraft path: " << config.aircraft_path << std::endl;
 
-	Configparser p;
+	ConfigParser p;
 	int result = p.parse_file(init_path.string(), config);
 	if (result != EXIT_SUCCESS)
 	{

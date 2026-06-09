@@ -32,7 +32,7 @@ namespace test
 	{
 	private:
 		Configuration config;
-		Configparser* p;
+		ConfigParser* p;
 		ArduinoHomeCockpit* device;
 		std::thread* t;
 	public:
@@ -40,7 +40,7 @@ namespace test
 		{
 			if (p == NULL) 
 			{
-				p = new Configparser();
+				p = new ConfigParser();
 				int result = p->parse_file("../../test/test-arduino-home.ini", config);
 				Assert::AreEqual(0, result);
 				device = new ArduinoHomeCockpit(config.class_configs[0]);

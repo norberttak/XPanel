@@ -16,6 +16,7 @@
 #include "core/ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std::literals;
 
 void test_hid_set_read_data(unsigned char* data, size_t length);
 void test_hid_get_write_data(unsigned char* data, size_t length);
@@ -34,13 +35,13 @@ namespace test
 	{
 	private:
 		Configuration config;
-		Configparser* p;
+		ConfigParser* p;
 		TRC1000Audio* device;
 		std::thread* t;
 	public:
 		TEST_METHOD_INITIALIZE(TestTrc1000AudioPanelInit)
 		{
-			p = new Configparser();
+			p = new ConfigParser();
 			int result = p->parse_file("../../test/test-trc1000-audio.ini", config);
 			Assert::AreEqual(0, result);
 

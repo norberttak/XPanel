@@ -17,6 +17,7 @@
 #include "core/ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std::literals;
 
 void test_hid_set_read_data(unsigned char* data, size_t length);
 int test_get_dataref_value(const char* datarefstr);
@@ -36,13 +37,13 @@ namespace test
 	{
 	private:
 		Configuration config;
-		Configparser* p;
+		ConfigParser* p;
 		TRC1000PFD* device;
 		std::thread* t;
 	public:
 		TEST_METHOD_INITIALIZE(TestTrc1000PFDPanelInit)
 		{
-			p = new Configparser();
+			p = new ConfigParser();
 			int result = p->parse_file("../../test/test-trc1000-pfd.ini", config);
 			Assert::AreEqual(0, result);
 

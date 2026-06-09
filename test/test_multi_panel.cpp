@@ -33,13 +33,13 @@ namespace test
 	{
 	private:
 		Configuration config;
-		Configparser* p;
+		ConfigParser* p;
 		SaitekMultiPanel* device;
 		std::thread* t;
 	public:
 		TEST_METHOD_INITIALIZE(TestMultiPanelInit)
 		{
-			p = new Configparser();
+			p = new ConfigParser();
 			int result = p->parse_file("../../test/test-valid-config.ini", config);
 			Assert::AreEqual(0, result);
 

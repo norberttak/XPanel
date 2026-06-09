@@ -16,38 +16,38 @@
 #include "fip/FIPScreen.h"
 #include "core/Logger.h"
 
-Configparser::Configparser()
+ConfigParser::ConfigParser()
 {
-	process_functions[TOKEN_ON_PUSH] = &Configparser::handle_on_push_or_release;
-	process_functions[TOKEN_ON_RELEASE] = &Configparser::handle_on_push_or_release;
-	process_functions[TOKEN_VID] = &Configparser::handle_on_vid;
-	process_functions[TOKEN_PID] = &Configparser::handle_on_pid;
-	process_functions[TOKEN_LOG_LEVEL] = &Configparser::handle_on_log_level;
-	process_functions[TOKEN_ACF] = &Configparser::handle_on_acf_file;
-	process_functions[TOKEN_SCRIPT] = &Configparser::handle_on_script_file;
-	process_functions[TOKEN_LIT] = &Configparser::handle_on_lit_or_unlit_or_blink;
-	process_functions[TOKEN_UNLIT] = &Configparser::handle_on_lit_or_unlit_or_blink;
-	process_functions[TOKEN_BLINK] = &Configparser::handle_on_lit_or_unlit_or_blink;
-	process_functions[TOKEN_DYN_SPEED_MID] = &Configparser::handle_on_dynamic_speed;
-	process_functions[TOKEN_DYN_SPEED_HIGH] = &Configparser::handle_on_dynamic_speed;
-	process_functions[TOKEN_DISPLAY_LINE] = &Configparser::handle_on_line_add;
-	process_functions[TOKEN_BCD] = &Configparser::handle_on_set_bcd;
-	process_functions[TOKEN_ENCODER_INC] = &Configparser::handle_on_encoder_inc_or_dec;
-	process_functions[TOKEN_ENCODER_DEC] = &Configparser::handle_on_encoder_inc_or_dec;
-	process_functions[TOKEN_SERIAL] = &Configparser::handle_on_fip_serial;
-	process_functions[TOKEN_FIP_OFFSET_X] = &Configparser::handle_on_fip_offset;
-	process_functions[TOKEN_FIP_OFFSET_Y] = &Configparser::handle_on_fip_offset;
-	process_functions[TOKEN_FIP_ROTATION] = &Configparser::handle_on_fip_rotation;
-	process_functions[TOKEN_FIP_MASK] = &Configparser::handle_on_fip_mask;
-	process_functions[TOKEN_FIP_TEXT] = &Configparser::handle_on_fip_text;
+	process_functions[TOKEN_ON_PUSH] = &ConfigParser::handle_on_push_or_release;
+	process_functions[TOKEN_ON_RELEASE] = &ConfigParser::handle_on_push_or_release;
+	process_functions[TOKEN_VID] = &ConfigParser::handle_on_vid;
+	process_functions[TOKEN_PID] = &ConfigParser::handle_on_pid;
+	process_functions[TOKEN_LOG_LEVEL] = &ConfigParser::handle_on_log_level;
+	process_functions[TOKEN_ACF] = &ConfigParser::handle_on_acf_file;
+	process_functions[TOKEN_SCRIPT] = &ConfigParser::handle_on_script_file;
+	process_functions[TOKEN_LIT] = &ConfigParser::handle_on_lit_or_unlit_or_blink;
+	process_functions[TOKEN_UNLIT] = &ConfigParser::handle_on_lit_or_unlit_or_blink;
+	process_functions[TOKEN_BLINK] = &ConfigParser::handle_on_lit_or_unlit_or_blink;
+	process_functions[TOKEN_DYN_SPEED_MID] = &ConfigParser::handle_on_dynamic_speed;
+	process_functions[TOKEN_DYN_SPEED_HIGH] = &ConfigParser::handle_on_dynamic_speed;
+	process_functions[TOKEN_DISPLAY_LINE] = &ConfigParser::handle_on_line_add;
+	process_functions[TOKEN_BCD] = &ConfigParser::handle_on_set_bcd;
+	process_functions[TOKEN_ENCODER_INC] = &ConfigParser::handle_on_encoder_inc_or_dec;
+	process_functions[TOKEN_ENCODER_DEC] = &ConfigParser::handle_on_encoder_inc_or_dec;
+	process_functions[TOKEN_SERIAL] = &ConfigParser::handle_on_fip_serial;
+	process_functions[TOKEN_FIP_OFFSET_X] = &ConfigParser::handle_on_fip_offset;
+	process_functions[TOKEN_FIP_OFFSET_Y] = &ConfigParser::handle_on_fip_offset;
+	process_functions[TOKEN_FIP_ROTATION] = &ConfigParser::handle_on_fip_rotation;
+	process_functions[TOKEN_FIP_MASK] = &ConfigParser::handle_on_fip_mask;
+	process_functions[TOKEN_FIP_TEXT] = &ConfigParser::handle_on_fip_text;
 }
 
-Configparser::~Configparser()
+ConfigParser::~ConfigParser()
 {
 	process_functions.clear();
 }
 
-std::vector<std::string> Configparser::tokenize(std::string line)
+std::vector<std::string> ConfigParser::tokenize(std::string line)
 {
 	std::regex regex("[:|,]+");
 	std::sregex_token_iterator iter(line.begin(), line.end(), regex, -1);
@@ -58,7 +58,7 @@ std::vector<std::string> Configparser::tokenize(std::string line)
 	return tokens;
 }
 
-bool Configparser::get_and_remove_token_pair(std::vector<std::string>& tokens, std::string name, std::string& out_value)
+bool ConfigParser::get_and_remove_token_pair(std::vector<std::string>& tokens, std::string name, std::string& out_value)
 {
 	for (size_t i = 0; i < tokens.size(); i += 2)
 	{
@@ -72,7 +72,7 @@ bool Configparser::get_and_remove_token_pair(std::vector<std::string>& tokens, s
 	return false;
 }
 
-int Configparser::parse_file(std::string file_name, Configuration& config)
+int ConfigParser::parse_file(std::string file_name, Configuration& config)
 {
 	last_error_message = "";
 	std::ifstream input_file(file_name);
@@ -108,7 +108,7 @@ int Configparser::parse_file(std::string file_name, Configuration& config)
 	return (error_count == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
-int Configparser::process_ini_section(IniFileSection& section, Configuration& config)
+int ConfigParser::process_ini_section(IniFileSection& section, Configuration& config)
 {
 	if (section.header.name == TOKEN_SECTION_DEVICE)
 	{
@@ -220,7 +220,7 @@ int Configparser::process_ini_section(IniFileSection& section, Configuration& co
 	return EXIT_SUCCESS;
 }
 
-int Configparser::process_fip_layer_section(IniFileSection& section, Configuration& config)
+int ConfigParser::process_fip_layer_section(IniFileSection& section, Configuration& config)
 {
 	if (section.header.properties.count(TOKEN_IMAGE) > 0)
 	{
@@ -294,7 +294,7 @@ int Configparser::process_fip_layer_section(IniFileSection& section, Configurati
 	return EXIT_SUCCESS;
 }
 
-int Configparser::handle_on_vid(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_vid(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	(void)section_header;
 	(void)key;
@@ -306,7 +306,7 @@ int Configparser::handle_on_vid(IniFileSectionHeader section_header, std::string
 	return EXIT_SUCCESS;
 }
 
-int Configparser::handle_on_pid(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_pid(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	(void)section_header;
 	(void)key;
@@ -318,7 +318,7 @@ int Configparser::handle_on_pid(IniFileSectionHeader section_header, std::string
 	return EXIT_SUCCESS;
 }
 
-int Configparser::handle_on_log_level(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_log_level(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	(void)key;
 	(void)config;
@@ -347,7 +347,7 @@ int Configparser::handle_on_log_level(IniFileSectionHeader section_header, std::
 	return EXIT_SUCCESS;
 }
 
-int Configparser::handle_on_acf_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_acf_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	(void)key;
 	if (section_header.id != "")
@@ -359,7 +359,7 @@ int Configparser::handle_on_acf_file(IniFileSectionHeader section_header, std::s
 	return EXIT_SUCCESS;
 }
 
-int Configparser::handle_on_script_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_script_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	(void)key;
 	if (section_header.id != "")
@@ -374,7 +374,7 @@ int Configparser::handle_on_script_file(IniFileSectionHeader section_header, std
    from teh string and the parsed index is set in the index variable.
    If no index found index will be set to -1
 */
-void Configparser::check_and_get_array_index(std::string& dataref, int& index)
+void ConfigParser::check_and_get_array_index(std::string& dataref, int& index)
 {
 	std::cmatch m;
 	if (std::regex_match(dataref.c_str(), m, std::regex("(.+)\\[([0-9]+)\\]")))
@@ -388,7 +388,7 @@ void Configparser::check_and_get_array_index(std::string& dataref, int& index)
 	}
 }
 
-XPLMDataTypeID Configparser::normalize_dataref_type(XPLMDataTypeID data_ref_type)
+XPLMDataTypeID ConfigParser::normalize_dataref_type(XPLMDataTypeID data_ref_type)
 {
 	/* from xplane documenation:
 	   Data types each take a bit field; it is legal to have a single dataref 
@@ -407,7 +407,7 @@ XPLMDataTypeID Configparser::normalize_dataref_type(XPLMDataTypeID data_ref_type
 		return data_ref_type;
 }
 
-int Configparser::handle_on_push_or_release(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_push_or_release(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	Action* action;
 
@@ -551,7 +551,7 @@ int Configparser::handle_on_push_or_release(IniFileSectionHeader section_header,
 	return EXIT_SUCCESS;
 }
 
-int Configparser::handle_on_dynamic_speed(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_dynamic_speed(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	(void)section_header;
 	(void)config;
@@ -582,7 +582,7 @@ int Configparser::handle_on_dynamic_speed(IniFileSectionHeader section_header, s
 	}
 }
 
-int Configparser::handle_on_lit_or_unlit_or_blink(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_lit_or_unlit_or_blink(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	//trigger_unlit="dataref:sim/custom/lights/button/absu_zk:0"
 	//trigger_lit="lua:get_led_status():1"
@@ -636,7 +636,7 @@ int Configparser::handle_on_lit_or_unlit_or_blink(IniFileSectionHeader section_h
 	return EXIT_SUCCESS;
 }
 
-int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_line_add(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	(void)key;
 	//line="on_select:SW_ALT,dataref:sim/custom/gauges/compas/pkp_helper_course_L"
@@ -776,7 +776,7 @@ int Configparser::handle_on_line_add(IniFileSectionHeader section_header, std::s
 	return EXIT_FAILURE;
 }
 
-int Configparser::handle_on_set_bcd(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_set_bcd(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	(void)key;
 	if (section_header.name == TOKEN_SECTION_MULTI_DISPLAY)
@@ -792,7 +792,7 @@ int Configparser::handle_on_set_bcd(IniFileSectionHeader section_header, std::st
 	return EXIT_SUCCESS;
 }
 
-int Configparser::handle_on_encoder_inc_or_dec(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_encoder_inc_or_dec(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	//on_increment="commandref:sim/GPS/g1000n1_nav_inner_up:once"
 	//on_decrement = "commandref:sim/GPS/g1000n1_nav_inner_down:once"
@@ -885,7 +885,7 @@ int Configparser::handle_on_encoder_inc_or_dec(IniFileSectionHeader section_head
 	return EXIT_SUCCESS;
 }
 
-int Configparser::handle_on_fip_serial(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_fip_serial(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	(void)section_header;
 	(void)key;
@@ -894,7 +894,7 @@ int Configparser::handle_on_fip_serial(IniFileSectionHeader section_header, std:
 	return EXIT_SUCCESS;
 }
 
-int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_fip_offset(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	//offset_x="const:80"
 	//offset_y = "dataref::sim/cockpit2/radios/actuators/com1_frequency_hz"
@@ -959,7 +959,7 @@ int Configparser::handle_on_fip_offset(IniFileSectionHeader section_header, std:
 	return EXIT_SUCCESS;
 }
 
-int Configparser::handle_on_fip_rotation(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_fip_rotation(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	(void)key;
 	ScreenAction* action = new ScreenAction();
@@ -1008,7 +1008,7 @@ int Configparser::handle_on_fip_rotation(IniFileSectionHeader section_header, st
 	return EXIT_SUCCESS;
 }
 
-int Configparser::handle_on_fip_mask(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_fip_mask(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	(void)section_header;
 	(void)key;
@@ -1051,7 +1051,7 @@ int Configparser::handle_on_fip_mask(IniFileSectionHeader section_header, std::s
 	return EXIT_SUCCESS;
 }
 
-int Configparser::handle_on_fip_text(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+int ConfigParser::handle_on_fip_text(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
 {
 	(void)key;
 	int page_index = config.class_configs.back().fip_screens[last_device_id]->get_last_page_index();

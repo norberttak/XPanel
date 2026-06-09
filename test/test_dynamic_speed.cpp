@@ -50,7 +50,7 @@ namespace test
 	{
 	private:
 		Configuration config;
-		Configparser* p;
+		ConfigParser* p;
 		SaitekMultiPanel* device;
 		std::thread* t;
 		std::string dataref_str = "test/dynamic_speed_test";
@@ -59,7 +59,7 @@ namespace test
 		{
 			test_hid_mock_init();
 
-			p = new Configparser();
+			p = new ConfigParser();
 			int result = p->parse_file("../../test/test-dynamic-speed.ini", config);
 			Assert::AreEqual(0, result);
 
