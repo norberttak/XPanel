@@ -25,7 +25,13 @@ extern void XPLMSetGraphicsState(
 	int                  inEnableDepthTesting,
 	int                  inEnableDepthWriting)
 {
-
+	(void)inEnableFog;
+	(void)inNumberTexUnits;
+	(void)inEnableLighting;
+	(void)inEnableAlphaTesting;
+	(void)inEnableAlphaBlending;
+	(void)inEnableDepthTesting;
+	(void)inEnableDepthWriting;
 }
 
 extern void XPLMGetWindowGeometry(
@@ -35,7 +41,11 @@ extern void XPLMGetWindowGeometry(
 	int* outRight,    /* Can be NULL */
 	int* outBottom)
 {
-
+	(void)inWindowID;
+	(void)outLeft;
+	(void)outTop;
+	(void)outRight;
+	(void)outBottom;
 }
 
 extern void XPLMDrawString(
@@ -46,7 +56,12 @@ extern void XPLMDrawString(
 	int* inWordWrapWidth,    /* Can be NULL */
 	XPLMFontID           inFontID)
 {
-
+	(void)inColorRGB;
+	(void)inXOffset;
+	(void)inYOffset;
+	(void)inChar;
+	(void)inWordWrapWidth;
+	(void)inFontID;
 }
 
 extern void XPLMGetScreenBoundsGlobal(
@@ -55,12 +70,16 @@ extern void XPLMGetScreenBoundsGlobal(
 	int* outRight,    /* Can be NULL */
 	int* outBottom)
 {
-
+	(void)outLeft;
+	(void)outTop;
+	(void)outRight;
+	(void)outBottom;
 }
 
 extern XPLMWindowID XPLMCreateWindowEx(
 	XPLMCreateWindow_t* inParams)
 {
+	(void)inParams;
 	return NULL;
 }
 
@@ -69,7 +88,9 @@ extern void XPLMSetWindowPositioningMode(
 	XPLMWindowPositioningMode inPositioningMode,
 	int                  inMonitorIndex)
 {
-
+	(void)inWindowID;
+	(void)inPositioningMode;
+	(void)inMonitorIndex;
 }
 
 extern void       XPLMSetWindowResizingLimits(
@@ -79,20 +100,25 @@ extern void       XPLMSetWindowResizingLimits(
 	int                  inMaxWidthBoxels,
 	int                  inMaxHeightBoxels)
 {
-
+	(void)inWindowID;
+	(void)inMinWidthBoxels;
+	(void)inMinHeightBoxels;
+	(void)inMaxWidthBoxels;
+	(void)inMaxHeightBoxels;
 }
 
 extern void XPLMSetWindowTitle(
 	XPLMWindowID inWindowID,
 	const char* inWindowTitle)
 {
-
+	(void)inWindowID;
+	(void)inWindowTitle;
 }
 
 extern void XPLMDestroyWindow(
 	XPLMWindowID inWindowID)
 {
-
+	(void)inWindowID;
 }
 
 struct WidgetMock {
@@ -149,6 +175,15 @@ extern XPWidgetID XPCreateWidget(
 	XPWidgetID           inContainer,
 	XPWidgetClass        inClass)
 {
+	(void)inLeft;
+	(void)inTop;
+	(void)inRight;
+	(void)inBottom;
+	(void)inVisible;
+	(void)inDescriptor;
+	(void)inIsRoot;
+	(void)inContainer;
+	(void)inClass;
 	test_widgets.emplace_back();
 	return (XPWidgetID)&test_widgets.back();
 }
@@ -164,6 +199,14 @@ extern XPWidgetID XPCreateCustomWidget(
 	XPWidgetID           inContainer,
 	XPWidgetFunc_t       inCallback)
 {
+	(void)inLeft;
+	(void)inTop;
+	(void)inRight;
+	(void)inBottom;
+	(void)inVisible;
+	(void)inDescriptor;
+	(void)inIsRoot;
+	(void)inContainer;
 	test_widgets.emplace_back();
 	test_widgets.back().callback = inCallback;
 	
@@ -174,7 +217,8 @@ extern void XPDestroyWidget(
 	XPWidgetID           inWidget,
 	int                  inDestroyChildren)
 {
-
+	(void)inWidget;
+	(void)inDestroyChildren;
 }
 
 extern void XPShowWidget(XPWidgetID inWidget)
@@ -224,10 +268,11 @@ extern intptr_t XPGetWidgetProperty(
 
 extern void       XPLMGetFontDimensions(
 	XPLMFontID           inFontID,
-	int* outCharWidth,           /* Can be NULL */
-	int* outCharHeight,          /* Can be NULL */
+	int* outCharWidth,
+	int* outCharHeight,
 	int* outDigitsOnly)
 {
+	(void)inFontID;
 	if (outCharWidth)
 		*outCharWidth = 5;
 	
@@ -240,11 +285,12 @@ extern void       XPLMGetFontDimensions(
 
 extern void       XPGetWidgetGeometry(
 	XPWidgetID           inWidget,
-	int* outLeft,                /* Can be NULL */
-	int* outTop,                 /* Can be NULL */
-	int* outRight,               /* Can be NULL */
+	int* outLeft,
+	int* outTop,
+	int* outRight,
 	int* outBottom)
 {
+	(void)inWidget;
 	if (outLeft)
 		*outLeft = 10;
 

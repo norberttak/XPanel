@@ -152,7 +152,7 @@ namespace test
 
 		TEST_METHOD(TestEncoderRegisterOverflow_0_255)
 		{
-			unsigned char buffer[8] = { 0xC2, 1,0,0,0,0,0,0 };
+			unsigned char buffer[8] = { 0xC2, 0,0,0,0,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 

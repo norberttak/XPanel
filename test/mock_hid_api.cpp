@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#pragma once
 #include "hidapi.h"
 #include <map>
 #include <sstream>
@@ -33,8 +32,8 @@ extern struct hid_device_info HID_API_EXPORT* HID_API_CALL hid_enumerate(unsigne
 
 	dev_info->product_id = pid;
 	dev_info->vendor_id = vid;
-	dev_info->manufacturer_string = L"NorbiTest";
-	dev_info->serial_number = L"12345ABCD";
+	dev_info->manufacturer_string = const_cast<wchar_t*>(L"NorbiTest");
+	dev_info->serial_number = const_cast<wchar_t*>(L"12345ABCD");
 
 	std::stringstream ss;
 	ss << vid << ' ' << pid;
@@ -60,6 +59,7 @@ extern void HID_API_EXPORT HID_API_CALL hid_free_enumeration(struct hid_device_i
 
 extern HID_API_EXPORT hid_device* HID_API_CALL hid_open(unsigned short vendor_id, unsigned short product_id, const wchar_t* serial_number)
 {
+	(void)serial_number;
 	vid = vendor_id;
 	pid = product_id;
 	hid_device_open = true;
@@ -68,6 +68,7 @@ extern HID_API_EXPORT hid_device* HID_API_CALL hid_open(unsigned short vendor_id
 
 void HID_API_EXPORT HID_API_CALL hid_close(hid_device* device)
 {
+	(void)device;
 	hid_device_open = true;
 }
 
@@ -92,6 +93,7 @@ void test_hid_set_read_data(unsigned char* data, size_t length)
 
 extern int HID_API_EXPORT HID_API_CALL hid_read(hid_device* device, unsigned char* data, size_t length)
 {
+	(void)device;
 	if (!hid_device_open) {
 		memset(data, 0, length);
 		return -1;
@@ -109,6 +111,8 @@ extern int hid_read_timeout(hid_device* dev, unsigned char* data, size_t length,
 
 extern int HID_API_EXPORT HID_API_CALL hid_set_nonblocking(hid_device* device, int nonblock)
 {
+	(void)device;
+	(void)nonblock;
 	return hid_device_open?0:-1;
 }
 
@@ -116,6 +120,7 @@ unsigned char mock_write_buffer[256];
 
 extern int HID_API_EXPORT HID_API_CALL hid_send_feature_report(hid_device* device, const unsigned char* data, size_t length)
 {
+	(void)device;
 	if (!hid_device_open)
 		return -1;
 
@@ -130,6 +135,7 @@ extern int HID_API_EXPORT HID_API_CALL hid_write(hid_device* device, const unsig
 
 HID_API_EXPORT const wchar_t* HID_API_CALL hid_error(hid_device* device)
 {
+	(void)device;
 	return NULL;
 }
 
