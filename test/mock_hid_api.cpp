@@ -9,6 +9,11 @@
 #include <map>
 #include <sstream>
 #include <iostream>
+#include <cstring>
+
+#ifndef WIN32
+#define _strdup strdup
+#endif
 
 int device = 123;
 int vid = 0;

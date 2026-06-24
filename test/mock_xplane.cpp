@@ -22,6 +22,32 @@
 #include "fip/FIPScreen.h"
 #include "core/Logger.h"
 
+#ifndef WIN32
+#include <cstring>
+#include <algorithm>
+
+// Portable stand-ins for the MS CRT secure string functions used below.
+template <size_t N>
+static inline void strcpy_s(char (&dest)[N], const char* src)
+{
+	strncpy(dest, src, N - 1);
+	dest[N - 1] = '\0';
+}
+
+static inline void strcpy_s(char* dest, size_t dest_size, const char* src)
+{
+	strncpy(dest, src, dest_size - 1);
+	dest[dest_size - 1] = '\0';
+}
+
+static inline void strncpy_s(char* dest, size_t dest_size, const char* src, size_t count)
+{
+	size_t n = std::min(count, dest_size - 1);
+	strncpy(dest, src, n);
+	dest[n] = '\0';
+}
+#endif
+
 std::map<std::string, int> internal_dataref;
 std::map<std::string, int> internal_command_ref;
 
