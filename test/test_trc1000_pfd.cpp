@@ -156,7 +156,7 @@ namespace test
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 
-			buffer[1] = 255; // rotate encoder NAV_INNER by -1
+			buffer[1] = 255; // rotate encoder NAV_INNER by -2
 			test_hid_set_read_data(buffer, sizeof(buffer));
 			std::this_thread::sleep_for(150ms);
 
