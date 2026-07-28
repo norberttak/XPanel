@@ -23,6 +23,7 @@ include(CTest)
 add_subdirectory(3rdparty/LUA)
 add_subdirectory(3rdparty/SDK)
 add_subdirectory(3rdparty/FIP-SDK)
+add_subdirectory(3rdparty/doctest)
 
 add_subdirectory(src)
 add_subdirectory(test)

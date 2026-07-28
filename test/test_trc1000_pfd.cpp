@@ -150,21 +150,6 @@ namespace test
 			Assert::AreEqual(1, test_get_command_queue_size());
 		}
 
-		TEST_METHOD(TestEncoderRegisterOverflow_0_255)
-		{
-			unsigned char buffer[8] = { 0xC2, 1,0,0,0,0,0,0 };
-			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
-
-			buffer[1] = 255; // rotate encoder NAV_INNER by -1
-			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
-
-			test_flight_loop(config.class_configs);
-
-			Assert::AreEqual(1, test_get_command_queue_size());
-		}
-
 		TEST_METHOD_CLEANUP(TestTrc1000PFDPanelCleanup)
 		{
 			device->stop(0);

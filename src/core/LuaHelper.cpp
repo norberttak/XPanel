@@ -455,7 +455,7 @@ int LuaHelper::do_flight_loop()
 		Logger(TLogLevel::logERROR) << "Disable LUA module. fix error in lua script and reload the plugin" << std::endl;
 		return EXIT_FAILURE;
 	}
-	lua_pop(lua, 1);
+	//lua_pop(lua, 1);
 
 	return EXIT_SUCCESS;
 }

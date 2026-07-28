@@ -32,17 +32,12 @@ namespace test
 {
 	TEST_CLASS(test_plugin)
 	{
-	private:
-		std::vector<Configuration> config;
-		Configparser* p;
-		SaitekMultiPanel* device;
-		std::thread* t;
 	public:
 		TEST_METHOD_INITIALIZE(TestPluginInit)
 		{	
 			std::filesystem::path aircraft_path = std::filesystem::absolute("../../test/mock_airplane.acf");
 			
-			test_set_aircraft_path_and_filename("mock_airplane.acf", (char*)aircraft_path.string().c_str());
+			test_set_aircraft_path_and_filename(const_cast<char*>("mock_airplane.acf"), const_cast<char*>(aircraft_path.string().c_str()));
 
 			XPluginStart(outName, outSig, outDesc);
 			XPluginReceiveMessage(XPLM_PLUGIN_XPLANE, XPLM_MSG_AIRPORT_LOADED, NULL);

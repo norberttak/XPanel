@@ -81,6 +81,7 @@ namespace test
 		{
 			rotate_knob_plus(6, 50ms);
 
+			std::this_thread::sleep_for(150ms);
 			test_flight_loop(config.class_configs);
 
 			// it shall run on x4 speed
@@ -91,6 +92,7 @@ namespace test
 		{
 			rotate_knob_plus(2, 200ms);
 
+			std::this_thread::sleep_for(150ms);
 			test_flight_loop(config.class_configs);
 
 			// it shall run on x2 speed
@@ -101,6 +103,7 @@ namespace test
 		{
 			rotate_knob_plus(2, 500ms); // two rotations on the knob with normal speed
 
+			std::this_thread::sleep_for(150ms);
 			test_flight_loop(config.class_configs);
 
 			// // it shall run on x1 speed

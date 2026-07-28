@@ -22,6 +22,32 @@
 #include "fip/FIPScreen.h"
 #include "core/Logger.h"
 
+#ifndef WIN32
+#include <cstring>
+#include <algorithm>
+
+// Portable stand-ins for the MS CRT secure string functions used below.
+template <size_t N>
+static inline void strcpy_s(char (&dest)[N], const char* src)
+{
+	strncpy(dest, src, N - 1);
+	dest[N - 1] = '\0';
+}
+
+static inline void strcpy_s(char* dest, size_t dest_size, const char* src)
+{
+	strncpy(dest, src, dest_size - 1);
+	dest[dest_size - 1] = '\0';
+}
+
+static inline void strncpy_s(char* dest, size_t dest_size, const char* src, size_t count)
+{
+	size_t n = std::min(count, dest_size - 1);
+	strncpy(dest, src, n);
+	dest[n] = '\0';
+}
+#endif
+
 std::map<std::string, int> internal_dataref;
 std::map<std::string, int> internal_command_ref;
 
@@ -38,17 +64,20 @@ void test_set_aircraft_path_and_filename(char* file_name, char* path)
 
 extern void XPLMGetNthAircraftModel(int inIndex, char *outFileName, char *outPath)
 {
+	(void)inIndex;
 	strcpy_s(outFileName, 256, test_aircraft_file_name);
 	strcpy_s(outPath, 512, test_aircraft_path);
 }
 
 extern XPLMPluginID XPLMFindPluginBySignature(const char* inSignature)
 {
+	(void)inSignature;
 	return (XPLMPluginID)0;
 }
 
 extern void XPLMGetPluginInfo(XPLMPluginID inPlugin, char* outName, char* outFilePath, char* outSignature, char* outDescription)
 {
+	(void)inPlugin;
 	if (outName)
 		strcpy_s(outName, 16, "XPanel ver " PLUGIN_VERSION);
 	
@@ -69,28 +98,38 @@ extern XPLMMenuID XPLMFindPluginsMenu()
 
 extern int XPLMAppendMenuItem(XPLMMenuID inMenu, const char* inItemName, void* inItemRef, int inDeprecated)
 {
+	(void)inMenu;
+	(void)inItemName;
+	(void)inItemRef;
+	(void)inDeprecated;
 	return 0;
 }
 
 extern XPLMMenuID XPLMCreateMenu(const char* inName, XPLMMenuID inParentMenu, int inParentItem, XPLMMenuHandler_f inHandler, void* inMenuRef)
 {
+	(void)inName;
+	(void)inParentMenu;
+	(void)inParentItem;
+	(void)inMenuRef;
 	menu_handler = inHandler;
 	return 0;
 }
 
 extern void XPLMDestroyMenu(XPLMMenuID inMenuID)
 {
-
+	(void)inMenuID;
 }
 
 void test_call_menu_handler(XPLMMenuID inMenuID, void* menuRef, void* itemRef)
 {
+	(void)inMenuID;
 	if (menu_handler != NULL)
 		(*menu_handler)(menuRef, itemRef);
 }
 
 extern XPLMDataTypeID XPLMGetDataRefTypes(XPLMDataRef inDataRef)
 {
+	(void)inDataRef;
 	return xplmType_Int;
 }
 
@@ -112,7 +151,7 @@ extern XPLMDataRef XPLMFindDataRef(const char* datarefstr)
 
 extern void XPLMUnregisterDataAccessor(XPLMDataRef dataref)
 {
-	//
+	(void)dataref;
 }
 
 extern void XPLMSetDatai(XPLMDataRef dataref, int inValue)
@@ -149,6 +188,9 @@ extern double XPLMGetDatad(XPLMDataRef dataref)
 
 extern int XPLMGetDatavi(XPLMDataRef dataref, int* inValues, int inOffset, int inCount)
 {
+	(void)inValues;
+	(void)inOffset;
+	(void)inCount;
 	int val_int = *(int*)dataref;
 	Logger(TLogLevel::logTRACE) << "TEST " << "XPLMGetDatavi " << dataref << "=" << val_int << std::endl;
 	return (double)val_int;
@@ -156,6 +198,9 @@ extern int XPLMGetDatavi(XPLMDataRef dataref, int* inValues, int inOffset, int i
 
 extern int XPLMGetDatavd(XPLMDataRef dataref, double* inValues, int inOffset, int inCount)
 {
+	(void)inValues;
+	(void)inOffset;
+	(void)inCount;
 	int val_int = *(int*)dataref;
 	Logger(TLogLevel::logTRACE) << "TEST " << "XPLMGetDatavd " << dataref << "=" << val_int << std::endl;
 	return (double)val_int;
@@ -163,6 +208,9 @@ extern int XPLMGetDatavd(XPLMDataRef dataref, double* inValues, int inOffset, in
 
 extern int XPLMGetDatavf(XPLMDataRef dataref, float* inValues, int inOffset, int inCount)
 {
+	(void)inValues;
+	(void)inOffset;
+	(void)inCount;
 	int val_int = *(int*)dataref;
 	Logger(TLogLevel::logTRACE) << "TEST " << "XPLMGetDatavf " << dataref << "=" << val_int << std::endl;
 	return (double)val_int;
@@ -176,17 +224,22 @@ extern int XPLMGetDatai(XPLMDataRef dataref)
 
 extern int XPLMGetDatab(XPLMDataRef dataref, void* outValue, int inOffset, int inMaxBytes)
 {
+	(void)inOffset;
 	strncpy_s((char*)outValue, strlen((char*)dataref), (char*)dataref, inMaxBytes);
 	return 0;
 }
 
 extern void XPLMSetDatavi(XPLMDataRef dataref, int* inValues, int inOffset, int inCount)
 {
+	(void)inOffset;
+	(void)inCount;
 	*(int*)dataref = *inValues;
 }
 
 extern void XPLMSetDatavf(XPLMDataRef dataref, float* inValues, int inOffset, int inCount)
 {
+	(void)inOffset;
+	(void)inCount;
 	*(int*)dataref = (int)*inValues;
 }
 
@@ -282,11 +335,15 @@ extern void XPLMCommandOnce(XPLMCommandRef command_ref)
 
 extern void XPLMRegisterFlightLoopCallback(XPLMFlightLoop_f inFlightLoop, float inInterval, void* inRefcon)
 {
+	(void)inInterval;
+	(void)inRefcon;
 	registered_flight_loop = inFlightLoop;
 }
 
 extern void XPLMUnregisterFlightLoopCallback(XPLMFlightLoop_f inFlightLoop, void* inRefcon)
 {
+	(void)inFlightLoop;
+	(void)inRefcon;
 	registered_flight_loop = NULL;
 }
 

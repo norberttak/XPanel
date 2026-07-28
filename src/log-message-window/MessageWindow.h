@@ -40,7 +40,7 @@ public:
 	~MessageWindow();
 	int	on_window_event(XPWidgetMessage widget_message, XPWidgetID  widget_id, intptr_t  in_param1, intptr_t  in_param2);
 	void set_font(XPLMFontID _font);
-	void append_line(std::string& _text);
+	void append_line(const std::string& _text);
 	void append_multi_lines(std::list<std::string>& _lines);
 	void clear_text();
 	void show();

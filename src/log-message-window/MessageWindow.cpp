@@ -83,7 +83,7 @@ void MessageWindow::set_font(XPLMFontID _font)
 	Logger(TLogLevel::logTRACE) << "MessageWindow: font height:" << char_height << " font width:" << char_width << std::endl;
 }
 
-void MessageWindow::append_line(std::string& _text)
+void MessageWindow::append_line(const std::string& _text)
 {
 	messages.push_back(_text);
 }
