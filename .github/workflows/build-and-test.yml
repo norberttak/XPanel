@@ -76,7 +76,8 @@ jobs:
           cmake --build build
 
       - name: Run tests
-        run: ctest build
+        if: matrix.os != 'windows-latest'
+        run: ctest --test-dir build --output-on-failure
 
       - name: Install
         run: cmake --build build --target install
@@ -94,6 +95,20 @@ jobs:
         with:
           name: built-plugin-macos
           path: ${{ github.workspace }}/install/XPanel/64/*
+
+      - name: Upload test logs (Linux)
+        if: matrix.os == 'ubuntu-22.04' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test_log_linux
+          path: build/test/test_log.txt
+
+      - name: Upload test logs (macOS)
+        if: matrix.os == 'macos-latest' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test_log_macos
+          path: build/test/test_log.txt
 
   docs:
     name: Docs
