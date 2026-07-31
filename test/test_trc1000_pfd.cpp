@@ -29,7 +29,7 @@ int test_get_command_queue_size();
 void test_clear_command_queue();
 void test_hid_get_write_data(unsigned char* data, size_t length);
 void test_flight_loop(std::vector<ClassConfiguration> &config);
-
+bool test_hid_read_wait_for_event(int timeout_milliseconds);
 
 namespace test
 {
@@ -67,12 +67,12 @@ namespace test
 		{
 			unsigned char buffer[8] = { 0xC1, 0,0,0,0,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
-
+			test_hid_read_wait_for_event(300);
+			
 			buffer[1] = 0x40;
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
-
+			test_hid_read_wait_for_event(300);
+			
 			test_flight_loop(config.class_configs);
 			Assert::IsTrue(test_is_command_in_queue("sim/GPS/g1000n1_nav_ONCE"));
 		}
@@ -81,12 +81,12 @@ namespace test
 		{
 			unsigned char buffer[8] = { 0xC2, 127,0,0,0,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
-
+			test_hid_read_wait_for_event(300);
+			
 			buffer[1] = 129; // rotate encoder NAV_INNER by + 2
 			test_hid_set_read_data(buffer, sizeof(buffer));
-
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
+			
 			test_flight_loop(config.class_configs);
 			Assert::IsTrue(test_is_command_in_queue("sim/GPS/g1000n1_nav_inner_up_ONCE"));
 		}
@@ -95,12 +95,12 @@ namespace test
 		{
 			unsigned char buffer[8] = { 0xC2, 255,0,0,0,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
 
 			buffer[1] = 2; // rotate encoder NAV_INNER by + 2
 			test_hid_set_read_data(buffer, sizeof(buffer));
+			test_hid_read_wait_for_event(300);
 
-			std::this_thread::sleep_for(150ms);
 			test_flight_loop(config.class_configs);
 			Assert::IsTrue(test_is_command_in_queue("sim/GPS/g1000n1_nav_inner_up_ONCE"));
 		}
@@ -109,15 +109,14 @@ namespace test
 		{
 			unsigned char buffer[8] = { 0xC2, 0,0,0,0,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
 
 			buffer[1] = 1;
 			buffer[2] = 255;
 			test_hid_set_read_data(buffer, sizeof(buffer));
-
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
+			
 			test_flight_loop(config.class_configs);
-			std::this_thread::sleep_for(150ms);
 			Assert::IsFalse(test_is_command_in_queue("sim/GPS/g1000n1_nav_inner_up_ONCE"));
 		}
 
@@ -125,11 +124,11 @@ namespace test
 		{
 			unsigned char buffer[8] = { 0xC2, 2,0,0,0,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
 
 			buffer[1] = 0; // rotate encoder NAV_INNER by - 2
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
 
 			test_flight_loop(config.class_configs);
 			Assert::IsTrue(test_is_command_in_queue("sim/GPS/g1000n1_nav_inner_down_ONCE"));
@@ -139,11 +138,11 @@ namespace test
 		{
 			unsigned char buffer[8] = { 0xC2, 255,0,0,0,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
 
 			buffer[1] = 1; // rotate encoder NAV_INNER by +2
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
 
 			test_clear_command_queue();
 			test_flight_loop(config.class_configs);

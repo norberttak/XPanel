@@ -26,6 +26,7 @@ std::string test_get_last_command();
 void test_hid_get_write_data(unsigned char* data, size_t length);
 void test_flight_loop(Device* device);
 void test_hid_mock_init();
+bool test_hid_read_wait_for_event(int timeout_milliseconds);
 
 namespace test
 {
@@ -93,7 +94,7 @@ namespace test
 			// set rotation switch to SW_NAV_1 position
 			unsigned char buffer[4] = { 0x04,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
 
 			test_flight_loop(device);
 			std::this_thread::sleep_for(150ms);
@@ -112,7 +113,7 @@ namespace test
 			// set rotation switch to SW_COM_2 position
 			unsigned char buffer[4] = { 0x02,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
 
 			test_flight_loop(device);
 			std::this_thread::sleep_for(150ms);
@@ -132,7 +133,7 @@ namespace test
 			// set rotation switch to XPDR position
 			unsigned char buffer[4] = { 0x40,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
 
 			test_flight_loop(device);
 			std::this_thread::sleep_for(150ms);
@@ -151,7 +152,7 @@ namespace test
 			// set rotation switch to SW_UP_ADF position
 			unsigned char buffer[4] = { 0x10,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
 
 			test_flight_loop(device);
 			std::this_thread::sleep_for(150ms);
@@ -171,7 +172,7 @@ namespace test
 			// set rotation switch to SW_UP_DME position
 			unsigned char buffer[4] = { 0x20,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
 
 			test_flight_loop(device);
 			std::this_thread::sleep_for(150ms);
@@ -190,14 +191,15 @@ namespace test
 			// set rotation switch to SW_NAV_1 position
 			unsigned char buffer[4] = { 0x04,0,0,0 };
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
 
 			test_flight_loop(device);
 			std::this_thread::sleep_for(150ms);
 
 			buffer[2] |= 0x04; // set KNOB_UP_BIG_PLUS to 1
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
+
 			test_flight_loop(device);
 			Assert::AreEqual(11111 + 100, test_get_dataref_value(nav1_freq_dataref_str.c_str())); // nav1 freq shal be increased by +100
 			Assert::AreEqual(22222, test_get_dataref_value(nav2_freq_dataref_str.c_str())); // nav2 freq shall not change
@@ -206,7 +208,8 @@ namespace test
 
 			buffer[2] &= (~0x04); // set KNOB_UP_BIG_PLUS to 0
 			test_hid_set_read_data(buffer, sizeof(buffer));
-			std::this_thread::sleep_for(150ms);
+			test_hid_read_wait_for_event(300);
+
 			test_flight_loop(device);
 			Assert::AreEqual(11111 + 100, test_get_dataref_value(nav1_freq_dataref_str.c_str()));
 		}

@@ -9,18 +9,25 @@
 #include <sstream>
 #include <iostream>
 #include <cstring>
+#include <chrono>
 
 #ifndef WIN32
 #define _strdup strdup
 #endif
+#include <thread>
+
+using namespace std::literals;
 
 int device = 123;
 int vid = 0;
 int pid = 0;
 bool hid_device_open = false;
+std::atomic<bool> hid_read_event_done = false;
+std::atomic<bool> hid_write_event_done = false;
 
 extern int HID_API_EXPORT HID_API_CALL hid_init()
 {
+	hid_read_event_done.store(false);
 	hid_device_open = false;
 	return 0;
 }
@@ -84,11 +91,34 @@ unsigned char mock_read_buffer[256];
 void test_hid_mock_init()
 {
 	memset(mock_read_buffer, 0, sizeof(mock_read_buffer));
+	hid_read_event_done.store(false);
 }
 
+/// @brief Set the read data for the next call to hid_read(). This is used in the unit tests to simulate the data that would be read from the HID device.
+/// @param data 
+/// @param length 
 void test_hid_set_read_data(unsigned char* data, size_t length)
 {
 	memcpy(mock_read_buffer, data, length);
+	hid_read_event_done.store(false);
+}
+
+/// @brief Wait for the hid_read() to be called and the data to be read from the mock buffer. This is used in the unit tests to ensure that the data has been processed before checking the results.
+/// @param timeout_milliseconds
+/// @return true if the data has been read, false if the timeout has expired
+bool test_hid_read_wait_for_event(int timeout_milliseconds)
+{
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	timeout_milliseconds = timeout_milliseconds < 0 ? 0 : (int)timeout_milliseconds/10;
+
+	do
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		timeout_milliseconds--;
+	} while (!hid_read_event_done.load() && timeout_milliseconds > 0);
+
+	return hid_read_event_done.load();
 }
 
 extern int HID_API_EXPORT HID_API_CALL hid_read(hid_device* device, unsigned char* data, size_t length)
@@ -100,6 +130,7 @@ extern int HID_API_EXPORT HID_API_CALL hid_read(hid_device* device, unsigned cha
 	}
 
 	memcpy(data, mock_read_buffer, length);
+	hid_read_event_done.store(true);
 	return length;
 }
 
@@ -125,6 +156,8 @@ extern int HID_API_EXPORT HID_API_CALL hid_send_feature_report(hid_device* devic
 		return -1;
 
 	memcpy(mock_write_buffer, data, length);
+	hid_write_event_done.store(true);
+
 	return length;
 }
 
@@ -139,9 +172,28 @@ HID_API_EXPORT const wchar_t* HID_API_CALL hid_error(hid_device* device)
 	return NULL;
 }
 
+bool test_hid_write_wait_for_event(int timeout_milliseconds)
+{
+	timeout_milliseconds = timeout_milliseconds < 0 ? 0 : (int)timeout_milliseconds/10;
+
+	do
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		timeout_milliseconds--;
+	} while (!hid_write_event_done.load() && timeout_milliseconds > 0);
+
+	return hid_write_event_done.load();
+}
+
+/// @brief Read the data that was written to the mock HID device. This is used in the unit tests to verify that the correct data was sent to the device.
+/// @param data 
+/// @param length 
 void test_hid_get_write_data(unsigned char* data, size_t length)
 {
+	test_hid_write_wait_for_event(300);
+
 	memcpy(data, mock_write_buffer, length);
+	hid_write_event_done.store(false);
 }
 
 int test_hid_get_vid()
