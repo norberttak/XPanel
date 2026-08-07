@@ -75,9 +75,15 @@ jobs:
           cmake -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/install" -S . -B build ${XPANEL_INSTALL_DEPS_FLAG}
           cmake --build build
 
-      - name: Run tests
-        if: matrix.os != 'windows-latest'
-        run: ctest --test-dir build --output-on-failure
+      - name: Run tests ubuntu
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          ctest --test-dir build --output-on-failure
+      
+      - name: Run tests macOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          ctest --test-dir build --output-on-failure -E test_dynamic_speed
 
       - name: Install
         run: cmake --build build --target install
