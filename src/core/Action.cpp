@@ -12,7 +12,7 @@
 #include <cmath>
 #include <functional>
 
-Action::Action()
+void Action::init_all_fields()
 {
 	data = 0;
 	data_f = 0.0f;
@@ -34,8 +34,15 @@ Action::Action()
 	commandref = NULL;
 }
 
+Action::Action()
+{
+	init_all_fields();
+}
+
 Action::Action(Action* other)
 {
+	init_all_fields();
+
 	data = other->data;
 	data_f = other->data_f;
 	index = other->index;
@@ -58,116 +65,47 @@ Action::Action(Action* other)
 
 Action::Action(XPLMCommandRef cmd, CommandType type)
 {
-	data = 0;
-	data_f = 0.0f;
-	index = -1;
-	delta = 0;
-	tick_per_sec_mid = 0.0f;
-	tick_per_sec_high = 0.0f;
-	multi_low = 1;
-	multi_high = 1;
-	multi = 1;
-	max = 0.0f;
-	min = 0.0f;
-	lua_str = "";
-	condition = "";
-	active_conditions.clear();
-	dataref = NULL;
+	init_all_fields();
 	commandref = cmd;
 	command_type = type;
-	dataref_type = xplmType_Unknown;
 }
 
 Action::Action(XPLMDataRef dat, int d)
 {
+	init_all_fields();
 	data = d;
-	data_f = 0.0f;
-	index = -1; // dataref is not an array
-	delta = 0;
-	tick_per_sec_mid = 0.0f;
-	tick_per_sec_high = 0.0f;
-	multi_low = 1;
-	multi_high = 1;
-	multi = 1;
-	max = 0.0f;
-	min = 0.0f;
-	lua_str = "";
-	condition = "";
-	active_conditions.clear();
 	dataref = dat;
 	dataref_type = xplmType_Int;
-	command_type = CommandType::NONE;
-	commandref = NULL;
 }
 
 Action::Action(XPLMDataRef dat, float d)
 {
-	data = 0;
+	init_all_fields();
 	data_f = d;
-	index = -1; // dataref is not an array
-	delta = 0;
-	tick_per_sec_mid = 0.0f;
-	tick_per_sec_high = 0.0f;
-	multi_low = 1;
-	multi_high = 1;
-	multi = 1;
-	max = 0.0f;
-	min = 0.0f;
-	lua_str = "";
-	condition = "";
-	active_conditions.clear();
 	dataref = dat;
 	dataref_type = xplmType_Float;
-	command_type = CommandType::NONE;
-	commandref = NULL;
 }
 
 Action::Action(XPLMDataRef dat, double d)
 {
-	data = 0;
-	data_f = (float)d;
-	index = -1; // dataref is not an array
-	delta = 0;
-	tick_per_sec_mid = 0.0f;
-	tick_per_sec_high = 0.0f;
-	multi_low = 1;
-	multi_high = 1;
-	multi = 1;
-	max = 0.0f;
-	min = 0.0f;
-	lua_str = "";
-	condition = "";
-	active_conditions.clear();
+	init_all_fields();
 	dataref = dat;
 	dataref_type = xplmType_Double;
-	command_type = CommandType::NONE;
-	commandref = NULL;
+	data_f = (float)d;
 }
 
 Action::Action(XPLMDataRef dat, int array_index, int d)
 {
-	data = d;
-	data_f = 0.0f;
-	index = array_index;
-	delta = 0;
-	tick_per_sec_mid = 0.0f;
-	tick_per_sec_high = 0.0f;
-	multi_low = 1;
-	multi_high = 1;
-	multi = 1;
-	max = 0.0f;
-	min = 0.0f;
-	lua_str = "";
-	condition = "";
-	active_conditions.clear();
+	init_all_fields();
 	dataref = dat;
 	dataref_type = xplmType_IntArray;
-	command_type = CommandType::NONE;
-	commandref = NULL;
+	data = d;
+	index = array_index;
 }
 
 Action::Action(XPLMDataRef dat, int array_index, float d)
 {
+	init_all_fields();
 	dataref = dat;
 	data_f = d;
 	index = array_index;
@@ -176,6 +114,7 @@ Action::Action(XPLMDataRef dat, int array_index, float d)
 
 Action::Action(XPLMDataRef dat, float _delta, float _max, float _min)
 {
+	init_all_fields();
 	dataref = dat;
 	delta = _delta;
 	max = _max;
@@ -188,6 +127,7 @@ Action::Action(XPLMDataRef dat, float _delta, float _max, float _min)
 
 Action::Action(std::string _lua_str)
 {
+	init_all_fields();
 	lua_str = _lua_str;
 }
 
@@ -370,7 +310,7 @@ void Action::activate()
 	if (!lua_str.empty())
 	{
 		Logger(TLogLevel::logTRACE) << "activate lua action: " << lua_str << std::endl;;
-		LuaHelper::get_instace()->do_string(lua_str);
+		LuaHelper::get_instance()->do_string(lua_str);
 	}
 }
 
@@ -397,7 +337,8 @@ void ActionQueue::push(Action* action)
 	int multi_mid, multi_high;
 	action->get_dynamic_speed_params(&tick_per_sec_mid, &multi_mid, &tick_per_sec_high, &multi_high);
 	
-	guard.lock();
+	std::lock_guard<std::mutex> lock(guard);
+
 	if (tick_per_sec_mid != 0 || tick_per_sec_high != 0)
 	{		
 		if (action_ageing_counters.count(action->get_hash()) == 0) {
@@ -421,12 +362,11 @@ void ActionQueue::push(Action* action)
 	}
 
 	action_queue.push_back(action);
-	guard.unlock();
 }
 
 void ActionQueue::activate_actions_in_queue()
 {
-	guard.lock();
+	std::lock_guard<std::mutex> lock(guard);
 
 	while (!action_queue.empty())
 	{
@@ -437,18 +377,15 @@ void ActionQueue::activate_actions_in_queue()
 
 		action_queue.pop_front();
 	}
-
-	guard.unlock();
 }
 
 void ActionQueue::clear_all_actions()
 {
-	guard.lock();
+	std::lock_guard<std::mutex> lock(guard);
 	action_queue.clear();
 	for (auto it = action_ageing_counters.begin(); it != action_ageing_counters.end(); ++it)
 	{
 		delete(it->second);
 	}
 	action_ageing_counters.clear();
-	guard.unlock();
 }

@@ -17,6 +17,7 @@
 #include "core/Logger.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std::literals;
 
 void test_hid_set_read_data(unsigned char* data, size_t length);
 int test_get_dataref_value(const char* datarefstr);
@@ -31,7 +32,7 @@ namespace test
 	{
 	private:
 		Configuration config;
-		Configparser* p;
+		ConfigParser* p;
 		ArduinoHomeCockpit* device;
 		std::thread* t;
 	public:
@@ -39,7 +40,7 @@ namespace test
 		{
 			if (p == NULL) 
 			{
-				p = new Configparser();
+				p = new ConfigParser();
 				int result = p->parse_file("../../test/test-arduino-home.ini", config);
 				Assert::AreEqual(0, result);
 				device = new ArduinoHomeCockpit(config.class_configs[0]);

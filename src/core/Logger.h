@@ -33,19 +33,17 @@ public:
 
 	static std::size_t number_of_stored_messages()
 	{
-		guard.lock();
+		std::lock_guard<std::mutex> lock(guard);
 		std::size_t number_of_messages = saved_errors_and_warnings.size();
-		guard.unlock();
 
 		return number_of_messages;
 	}
 
 	static std::list<std::string> get_and_clear_stored_messages()
 	{
-		guard.lock();
+		std::lock_guard<std::mutex> lock(guard);
 		std::list<std::string> messages = saved_errors_and_warnings;
 		saved_errors_and_warnings.clear();
-		guard.unlock();
 
 		return messages;
 	}
@@ -85,9 +83,8 @@ public:
 
 			if (last_message_log_level == TLogLevel::logERROR || last_message_log_level == TLogLevel::logWARNING)
 			{
-				guard.lock();
+				std::lock_guard<std::mutex> lock(guard);
 				Logger::saved_errors_and_warnings.push_back(log_level_str + str());
-				guard.unlock();
 			}
 		}
 	}

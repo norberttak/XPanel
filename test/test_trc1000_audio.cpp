@@ -16,6 +16,7 @@
 #include "core/ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std::literals;
 
 void test_hid_set_read_data(unsigned char* data, size_t length);
 void test_hid_get_write_data(unsigned char* data, size_t length);
@@ -34,24 +35,24 @@ namespace test
 	{
 	private:
 		Configuration config;
-		Configparser* p;
+		ConfigParser* p;
 		TRC1000Audio* device;
 		std::thread* t;
 	public:
 		TEST_METHOD_INITIALIZE(TestTrc1000AudioPanelInit)
 		{
-			p = new Configparser();
+			p = new ConfigParser();
 			int result = p->parse_file("../../test/test-trc1000-audio.ini", config);
 			Assert::AreEqual(0, result);
 
-			LuaHelper::get_instace()->init();
-			LuaHelper::get_instace()->load_script_file("../../test/" + config.script_file);
+			LuaHelper::get_instance()->init();
+			LuaHelper::get_instance()->load_script_file("../../test/" + config.script_file);
 
 			device = new TRC1000Audio(config.class_configs[0]);
 			device->connect();
 			device->start();
 			t = new std::thread(&TRC1000Audio::thread_func, (TRC1000Audio*)device);
-			LuaHelper::get_instace()->register_hid_device(device);
+			LuaHelper::get_instance()->register_hid_device(device);
 		}
 
 		TEST_METHOD(Test_VID_PID)

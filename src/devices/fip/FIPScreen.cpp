@@ -60,12 +60,12 @@ void FIPScreen::evaluate_and_store_screen_action()
 		{
 			if (action->type == SC_SET_TEXT)
 			{
-				LuaHelper::get_instace()->do_string("return " + action->lua_str, action_value_str);
+				LuaHelper::get_instance()->do_string("return " + action->lua_str, action_value_str);
 			}
 			else
 			{
 				double ret_value = 0;
-				LuaHelper::get_instace()->do_string("return " + action->lua_str, ret_value);
+				LuaHelper::get_instance()->do_string("return " + action->lua_str, ret_value);
 				action_value = (int)ret_value;
 			}
 		}
@@ -87,7 +87,7 @@ void FIPScreen::evaluate_and_store_screen_action()
 
 		//Logger(logTRACE) << "FIP screen: value changed (page " << action->page_index << " layer " << action->layer_index << "): " << action_value << std::endl;
 
-		guard.lock();
+		std::lock_guard<std::mutex> lock(guard);
 		switch (action->type) {
 		case SC_ROTATION:
 			rotate_layer(action->page_index, action->layer_index, action_value);
@@ -104,7 +104,6 @@ void FIPScreen::evaluate_and_store_screen_action()
 		default:
 			Logger(logERROR) << "FIP screen: unknown action type" << std::endl;
 		}
-		guard.unlock();
 	}
 }
 
@@ -201,8 +200,7 @@ void FIPScreen::render_page(int page_index, void** byte_buffer)
 	if (pages.count(page_index) == 0)
 		return;
 
-	guard.lock();
+	std::lock_guard<std::mutex> lock(guard);
 	pages[page_index]->render_page();
 	*byte_buffer = pages[page_index]->get_raw_buffer();
-	guard.unlock();
 }

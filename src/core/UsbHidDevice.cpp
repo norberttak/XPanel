@@ -10,6 +10,8 @@
 #include "UsbHidDevice.h"
 #include "Logger.h"
 
+using namespace std::literals;
+
 int UsbHidDevice::ref_count = 0;
 bool UsbHidDevice::hid_api_initialized = false;
 

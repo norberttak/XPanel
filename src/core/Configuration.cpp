@@ -89,6 +89,8 @@ ClassConfiguration& ClassConfiguration::operator=(const ClassConfiguration& othe
 	if (this == &other)
 		return *this;
 
+	clear();
+
 	device_class_type = other.device_class_type;
 	pid = other.pid;
 	vid = other.vid;
@@ -129,23 +131,28 @@ ClassConfiguration& ClassConfiguration::operator=(const ClassConfiguration& othe
 void ClassConfiguration::clear()
 {
 	for (auto &act : push_actions)
-		act.second.clear();
+    	for (auto *a : act.second)
+        	delete a;
 	push_actions.clear();
 
 	for (auto &act : release_actions)
-		act.second.clear();
+		for (auto *a : act.second)
+			delete a;
 	release_actions.clear();
 
 	for (auto &act : encoder_inc_actions)
-		act.second.clear();
+		for (auto *a : act.second)
+			delete a;
 	encoder_inc_actions.clear();
 
 	for (auto &act : encoder_dec_actions)
-		act.second.clear();
+		for (auto *a : act.second)
+			delete a;
 	encoder_dec_actions.clear();
 
 	for (auto &act : light_triggers)
-		act.second.clear();
+		for (auto *a : act.second)
+			delete a;
 	light_triggers.clear();
 
 	for (auto& scr : fip_screens)

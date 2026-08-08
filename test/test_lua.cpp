@@ -29,30 +29,30 @@ namespace test
 	public:
 		TEST_METHOD_INITIALIZE(TestLuaInit)
 		{
-			LuaHelper::get_instace()->init();
+			LuaHelper::get_instance()->init();
 		}
 
 		TEST_METHOD(TestLuaDoString)
 		{
-			LuaHelper::get_instace()->do_string("command_once(\"/sim/test\")");
+			LuaHelper::get_instance()->do_string("command_once(\"/sim/test\")");
 			Assert::AreEqual("/sim/test_ONCE", test_get_last_command().c_str());
 
-			LuaHelper::get_instace()->do_string("command_begin(\"/sim/test\")");
+			LuaHelper::get_instance()->do_string("command_begin(\"/sim/test\")");
 			Assert::AreEqual("/sim/test_BEGIN", test_get_last_command().c_str());
 
-			LuaHelper::get_instace()->do_string("command_end(\"/sim/test\")");
+			LuaHelper::get_instance()->do_string("command_end(\"/sim/test\")");
 			Assert::AreEqual("/sim/test_END", test_get_last_command().c_str());
 
-			LuaHelper::get_instace()->do_string("set_dataref(\"/sim/test2\",123)");
+			LuaHelper::get_instance()->do_string("set_dataref(\"/sim/test2\",123)");
 			Assert::AreEqual(123, test_get_dataref_value("/sim/test2"));
 
 			test_set_dataref_value("/sim/test3", 321);
-			LuaHelper::get_instace()->do_string("get_dataref(\"/sim/test3\")");
+			LuaHelper::get_instance()->do_string("get_dataref(\"/sim/test3\")");
 		}
 
 		TEST_METHOD(TestLuaLoadScript)
 		{
-			int res = LuaHelper::get_instace()->load_script_file("../../test/test-script.lua");
+			int res = LuaHelper::get_instance()->load_script_file("../../test/test-script.lua");
 			
 			Assert::AreEqual(EXIT_SUCCESS, res);
 
@@ -62,15 +62,15 @@ namespace test
 
 		TEST_METHOD(TestLuaFlightLoop)
 		{
-			LuaHelper::get_instace()->load_script_file("../../test/test-script.lua");
+			LuaHelper::get_instance()->load_script_file("../../test/test-script.lua");
 
-			LuaHelper::get_instace()->do_flight_loop();
+			LuaHelper::get_instance()->do_flight_loop();
 			Assert::AreEqual(12345, test_get_dataref_value("/sim/test/lua_flight_loop"));
 		}
 
 		TEST_METHOD_CLEANUP(TestLuaCleanup)
 		{
-			LuaHelper::get_instace()->close();
+			LuaHelper::get_instance()->close();
 		}
 	};
 }

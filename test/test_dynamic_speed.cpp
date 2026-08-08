@@ -16,6 +16,7 @@
 #include "core/ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std::literals;
 
 void test_hid_set_read_data(unsigned char* data, size_t length);
 int test_get_dataref_value(const char* datarefstr);
@@ -49,7 +50,7 @@ namespace test
 	{
 	private:
 		Configuration config;
-		Configparser* p;
+		ConfigParser* p;
 		SaitekMultiPanel* device;
 		std::thread* t;
 		std::string dataref_str = "test/dynamic_speed_test";
@@ -58,11 +59,11 @@ namespace test
 		{
 			test_hid_mock_init();
 
-			p = new Configparser();
+			p = new ConfigParser();
 			int result = p->parse_file("../../test/test-dynamic-speed.ini", config);
 			Assert::AreEqual(0, result);
 
-			LuaHelper::get_instace()->init();
+			LuaHelper::get_instance()->init();
 
 			device = new SaitekMultiPanel(config.class_configs[0]);
 			device->connect();

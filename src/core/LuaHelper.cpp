@@ -81,7 +81,7 @@ extern "C" {
 		}
 
 		std::string dataref_str = lua_tostring(L, 1);
-		XPLMDataRef dataref = LuaHelper::get_instace()->get_dataref(dataref_str);
+		XPLMDataRef dataref = LuaHelper::get_instance()->get_dataref(dataref_str);
 		if (dataref == NULL)
 		{
 			Logger(TLogLevel::logERROR) << "Lua get: invalid dataref :" << dataref_str << std::endl;
@@ -93,7 +93,7 @@ extern "C" {
 			dataref_array_index = lua_tointeger(L, 2);
 		}
 
-		XPLMDataTypeID dataref_type = LuaHelper::get_instace()->get_dataref_type(dataref);
+		XPLMDataTypeID dataref_type = LuaHelper::get_instance()->get_dataref_type(dataref);
 		int value_ia = 0;
 		float value_fa = 0;
 
@@ -138,14 +138,14 @@ extern "C" {
 		}
 
 		std::string dataref_str = lua_tostring(L, 1);
-		XPLMDataRef dataref = LuaHelper::get_instace()->get_dataref(dataref_str);
+		XPLMDataRef dataref = LuaHelper::get_instance()->get_dataref(dataref_str);
 		if (dataref == NULL)
 		{
 			Logger(TLogLevel::logERROR) << "lua set: invalid dataref: " << dataref_str << std::endl;
 			return 0;
 		}
 
-		XPLMDataTypeID dataref_type = LuaHelper::get_instace()->get_dataref_type(dataref);
+		XPLMDataTypeID dataref_type = LuaHelper::get_instance()->get_dataref_type(dataref);
 		switch (dataref_type)
 		{
 		case xplmType_Int:
@@ -217,7 +217,7 @@ extern "C" {
 		int pid = (int)lua_tonumber(L, 2);
 		std::string button_name = lua_tostring(L, 3);
 
-		int state = LuaHelper::get_instace()->get_button_state(vid, pid, button_name);
+		int state = LuaHelper::get_instance()->get_button_state(vid, pid, button_name);
 
 		std::string button_state_str = "";
 
@@ -253,7 +253,7 @@ extern "C" {
 		int pid = (int)lua_tonumber(L, 2);
 		std::string light_name = lua_tostring(L, 3);
 
-		TriggerType state = LuaHelper::get_instace()->get_light_state(vid, pid, light_name);
+		TriggerType state = LuaHelper::get_instance()->get_light_state(vid, pid, light_name);
 
 		if (state == TriggerType::UNKNOWN)
 		{
@@ -287,7 +287,7 @@ LuaHelper::LuaHelper()
 	lua_enabled = false;
 }
 
-LuaHelper* LuaHelper::get_instace()
+LuaHelper* LuaHelper::get_instance()
 {
 	if (instance == NULL)
 		instance = new LuaHelper();

@@ -16,6 +16,7 @@
 #include "core/ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std::literals;
 
 void test_set_aircraft_path_and_filename(char* file_name, char* path);
 void test_call_registered_flight_loop();

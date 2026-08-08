@@ -11,9 +11,11 @@
 #include "core/LuaHelper.h"
 #include "CppUnitTest.h"
 #include "fip/FIPDevice.h"
-#include "core/Configparser.h"
+#include "core/ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std::literals;
+
 void test_set_aircraft_path_and_filename(char* file_name, char* path);
 int test_fip_get_led_state(int led_index);
 void test_fip_set_button_states(uint16_t _button_states);
@@ -27,7 +29,7 @@ namespace test
 	{
 	private:
 		Configuration config;
-		Configparser* p;
+		ConfigParser* p;
 		FIPDevice* fip_device;
 		std::thread* t;
 		std::string airspeed_dataref_str = "sim/cockpit2/gauges/indicators/airspeed_kts_pilot";
@@ -37,12 +39,12 @@ namespace test
 		{
 			test_set_aircraft_path_and_filename("test.acf", "./");
 
-			p = new Configparser();
+			p = new ConfigParser();
 			int result = p->parse_file("../../test/test-fip-screen-config.ini", config);
 			Assert::AreEqual(0, result);
 
-			LuaHelper::get_instace()->init();
-			LuaHelper::get_instace()->load_script_file("../../test/" + config.script_file);
+			LuaHelper::get_instance()->init();
+			LuaHelper::get_instance()->load_script_file("../../test/" + config.script_file);
 
 			fip_device = new FIPDevice(config.class_configs[0]);
 			fip_device->connect();

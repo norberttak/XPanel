@@ -9,13 +9,11 @@
 #include <map>
 #include <list>
 #include <thread>
-#include "Action.h"
 #include "Configuration.h"
 #include <queue>
 #include "Action.h"
 #include <thread>
 #include <chrono>
-using namespace std::literals;
 
 struct PanelButton
 {

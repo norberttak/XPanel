@@ -16,6 +16,7 @@
 #include "core/ConfigParser.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std::literals;
 
 void test_hid_set_read_data(unsigned char* data, size_t length);
 int test_get_dataref_value(const char* datarefstr);
@@ -30,19 +31,19 @@ namespace test
 	TEST_CLASS(test_generic_display)
 	{
 	private:		
-		Configparser* p;
+		ConfigParser* p;
 		ArduinoHomeCockpit* device;
 		std::thread* t;
 	public:
 		TEST_METHOD_INITIALIZE(TestGenericDisplayInit)
 		{
 			Configuration config;
-			p = new Configparser();
+			p = new ConfigParser();
 			int result = p->parse_file("../../test/test-arduino-home.ini", config);
 			Assert::AreEqual(0, result);
 
-			LuaHelper::get_instace()->init();
-			LuaHelper::get_instace()->load_script_file("../../test/" + config.script_file);
+			LuaHelper::get_instance()->init();
+			LuaHelper::get_instance()->load_script_file("../../test/" + config.script_file);
 
 			device = new ArduinoHomeCockpit(config.class_configs[0]);
 			device->connect();
