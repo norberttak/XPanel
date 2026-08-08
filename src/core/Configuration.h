@@ -30,6 +30,7 @@ public:
 	std::string script_file = "";
 	std::string aircraft_path = "";
 	std::string plugin_path = "";
+	std::string wait_for_available = "";
 
 	std::vector<ClassConfiguration> class_configs;
 };

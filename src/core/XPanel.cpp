@@ -237,14 +237,10 @@ std::filesystem::path find_config_file(const std::string& aircraft_file_name, co
 			if (entry.is_regular_file() && entry.path().extension() == ".ini")
 			{
 				ConfigParser temp_parser;
-				Configuration temp_config;
-				if (temp_parser.parse_file(entry.path().string(), temp_config) == EXIT_SUCCESS)
+				if (temp_parser.pre_parse_for_acf_file_name(entry.path().string()) == aircraft_file_name)
 				{
-					if (temp_config.aircraft_acf == aircraft_file_name)
-					{
-						Logger(TLogLevel::logINFO) << "Found config by aircraft_acf match: " << entry.path().string() << std::endl;
-						return entry.path();
-					}
+					Logger(TLogLevel::logINFO) << "Found config by aircraft_acf match: " << entry.path().string() << std::endl;
+					return entry.path();
 				}
 			}
 		}
@@ -342,6 +338,21 @@ int init_and_start_xpanel_plugin(void)
 	if (config.aircraft_acf.compare(aircraft_file_name))
 	{
 		Logger(TLogLevel::logWARNING) << "Config was created for another aircraft (" << config.aircraft_acf << "). Current is " << aircraft_file_name << std::endl;
+	}
+
+	if (config.wait_for_available != "")
+	{
+		int timeout_ms = 5000; // 5 seconds timeout
+		while (XPLMFindDataRef(config.wait_for_available.c_str()) == NULL && XPLMFindCommand(config.wait_for_available.c_str()) == NULL)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			timeout_ms -= 100;
+			if (timeout_ms < 0)
+			{
+				Logger(TLogLevel::logERROR) << "timeout waiting for dataref/commandref to become available: " << config.wait_for_available << " timeout" << std::endl;
+				break;
+			}
+		}
 	}
 
 	LuaHelper::get_instance()->init();
