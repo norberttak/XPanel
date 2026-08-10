@@ -118,6 +118,16 @@ script_file="TU154-arduino-home-cockpit.lua"
 ```
 The details of the LUA script files are in the [lua config description](lua.md) document.
 
+### Wait for available dataref/commandref
+
+If your configuration (or its Lua script) depends on a dataref or commandref that is registered by another plugin, that other plugin may not have loaded yet by the time XPanel starts up, since plugin load order is not guaranteed. You can tell XPanel to delay finishing its own initialization until a specific dataref or commandref becomes available:
+```ini
+wait_for_available="1-sim/command/APPed"
+```
+XPanel checks every 100ms whether the given name exists as either a dataref or a commandref, for up to 20 seconds. This check does not block or freeze the simulator - X-Plane keeps running normally while XPanel waits in the background. Once the dataref/commandref is found (or the timeout is reached), XPanel continues with the rest of its initialization (loading the Lua script, connecting to the panel hardware, etc.). If the timeout is reached without the dataref/commandref appearing, an error is logged but the plugin still starts up with the rest of the configuration.
+
+If you use this option, it must be set in the common (unnamed) part of the configuration file, not inside a `[device:...]` section - a warning is logged otherwise and the option will be ignored
+
 ## Devices
 Devices can be defined by a new section in the configuration file. Currently, it supports these types of devices: XSaintek's Multi Panel and a homemade custom USB-HID IO board.
 ```ini
