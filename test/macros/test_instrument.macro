@@ -1,0 +1,26 @@
+; Copyright (C) 2026  Norbert Takacs <norberttak@gmail.com>
+; SPDX-License-Identifier: GPL-3.0-or-later
+;
+; Test macro fixture for the FIP macro expansion unit tests.
+
+[macro_info]
+name="test_instrument"
+description="Test instrument macro"
+device="fip"
+version="1.0"
+
+[page:id="HSI"]
+    [layer:image="fip-images/bmp_test_padding.bmp,ref_x:0,ref_y:0,base_rot:0"]
+    rotation="@{course}"
+    offset_x="const:200"
+    offset_y="const:120"
+
+    [layer:type="text"]
+    offset_x="const:38"
+    offset_y="const:218"
+    text="@{baro}"
+
+[page:id="STATIC"]
+    [layer:image="fip-images/bmp_test_padding.bmp,ref_x:0,ref_y:0,base_rot:0"]
+    offset_x="const:0"
+    offset_y="const:0"

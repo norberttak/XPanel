@@ -36,6 +36,9 @@
     <ClCompile Include="test_xpanel_plugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test_fip_macro.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="test_lua.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
