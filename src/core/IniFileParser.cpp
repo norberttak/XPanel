@@ -137,7 +137,7 @@ IniFileParser::Token IniFileParser::lex_token(std::string& value)
 	case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R':
 	case 'S': case 'T': case 'U': case 'V': case 'W': case 'X':
 	case 'Y': case 'Z':
-	case '_': case '.':
+	case '_': case '.': case '@':
 		value.push_back(c);
 		return lex_identifier(value);
 	case '"':
@@ -248,7 +248,7 @@ IniFileParser::Token IniFileParser::lex_identifier(std::string& value)
 		case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R':
 		case 'S': case 'T': case 'U': case 'V': case 'W': case 'X':
 		case 'Y': case 'Z':
-		case '_': case '-':
+		case '_': case '-': case '@':
 			value.push_back(c);
 			break;
 		default:

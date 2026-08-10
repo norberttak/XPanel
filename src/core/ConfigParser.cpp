@@ -91,6 +91,14 @@ int ConfigParser::parse_file(std::string file_name, Configuration& config)
 
 	IniFile ini_file = ini_parser.get_parsed_ini_file();
 
+	// Expand FIP macros (@use / [@page] / @parameter) into concrete [page]/[layer]
+	// sections before the normal section processing below runs on them.
+	if (expand_macros(ini_file, config) != EXIT_SUCCESS)
+	{
+		Logger(TLogLevel::logERROR) << "parser: error while expanding macros in config file: " << file_name << std::endl;
+		return EXIT_FAILURE;
+	}
+
 	int error_count = 0;
 	for (auto& ini_section : ini_file.sections)
 	{
@@ -236,7 +244,14 @@ int ConfigParser::process_fip_layer_section(IniFileSection& section, Configurati
 		//fip-images/Adf_Kompass_Ring.bmp,ref_x:0,ref_y:0,base_rot:0
 		if (m.size() >= 7)
 		{
-			std::filesystem::path bmp_file_absolute_path = std::filesystem::path(config.aircraft_path);
+			// Macro-expanded layers carry an explicit base dir (the macro folder) so their
+			// bmp assets resolve there instead of the aircraft folder. The base dir travels
+			// as a header property (not through tokenize) so a Windows path's drive-letter
+			// colon can't be mistaken for a token separator.
+			std::filesystem::path bmp_base_dir = section.header.properties.count(MACRO_BASE_DIR_PROPERTY) > 0
+				? std::filesystem::path(section.header.properties[MACRO_BASE_DIR_PROPERTY])
+				: std::filesystem::path(config.aircraft_path);
+			std::filesystem::path bmp_file_absolute_path = bmp_base_dir;
 			bmp_file_absolute_path /= std::string(m[0]);
 
 			int ref_x = 0; 
@@ -291,6 +306,244 @@ int ConfigParser::process_fip_layer_section(IniFileSection& section, Configurati
 		return EXIT_FAILURE;
 	}
 
+	return EXIT_SUCCESS;
+}
+
+// Replace every @{name} occurrence in s with its bound value. Returns false and sets
+// 'missing' if a placeholder has no binding (or is malformed), leaving s partially expanded.
+static bool substitute_in_string(std::string& s, const std::map<std::string, std::string>& bindings, std::string& missing)
+{
+	size_t pos = 0;
+	while ((pos = s.find("@{", pos)) != std::string::npos)
+	{
+		size_t end = s.find('}', pos + 2);
+		if (end == std::string::npos)
+		{
+			missing = s.substr(pos);
+			return false;
+		}
+		std::string name = s.substr(pos + 2, end - (pos + 2));
+		auto it = bindings.find(name);
+		if (it == bindings.end())
+		{
+			missing = name;
+			return false;
+		}
+		s.replace(pos, end - pos + 1, it->second);
+		pos += it->second.size();
+	}
+	return true;
+}
+
+// Parse an @parameter value of the form "name:<n>,value:<v>" into its name and value parts.
+// The value part is taken verbatim (everything after ",value:") so its own ':'/',' survive.
+bool ConfigParser::parse_macro_parameter(const std::string& raw, std::string& out_name, std::string& out_value)
+{
+	const std::string name_prefix = "name:";
+	const std::string value_delim = ",value:";
+
+	if (raw.rfind(name_prefix, 0) != 0)
+		return false;
+
+	size_t vpos = raw.find(value_delim);
+	if (vpos == std::string::npos || vpos < name_prefix.size())
+		return false;
+
+	out_name = raw.substr(name_prefix.size(), vpos - name_prefix.size());
+	out_value = raw.substr(vpos + value_delim.size());
+
+	return !out_name.empty() && !out_value.empty();
+}
+
+int ConfigParser::substitute_placeholders_in_section(IniFileSection& section,
+	const std::map<std::string, std::string>& bindings,
+	const std::string& macro_name, const std::string& page_id)
+{
+	std::string missing;
+	for (auto& key_value : section.key_value_pairs)
+	{
+		if (!substitute_in_string(key_value.second, bindings, missing))
+		{
+			Logger(logERROR) << "parser: macro '" << macro_name << "' page '" << page_id << "': unbound parameter '" << missing << "'" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	for (auto& prop : section.header.properties)
+	{
+		if (!substitute_in_string(prop.second, bindings, missing))
+		{
+			Logger(logERROR) << "parser: macro '" << macro_name << "' page '" << page_id << "': unbound parameter '" << missing << "'" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+
+// Load <plugin>/macros/<macro_name>.macro, and for each [page] it defines emit a cloned
+// [page] section followed by its [layer] sections with @{...} placeholders substituted from
+// the matching [@page] binding block. The concrete sections are appended to 'output'.
+int ConfigParser::load_and_expand_macro(const std::string& macro_name,
+	const std::map<std::string, std::map<std::string, std::string>>& page_bindings,
+	Configuration& config, std::vector<IniFileSection>& output)
+{
+	std::filesystem::path macro_dir = std::filesystem::path(config.plugin_path) / "macros";
+	std::filesystem::path macro_file = macro_dir / (macro_name + ".macro");
+
+	std::ifstream input_file(macro_file);
+	if (!input_file.is_open())
+	{
+		Logger(logERROR) << "parser: cannot open macro file: " << macro_file.string() << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	IniFileParser macro_parser;
+	macro_parser.parse(input_file, macro_file.string());
+	input_file.close();
+
+	if (macro_parser.get_number_of_errors() > 0)
+	{
+		Logger(logERROR) << "parser: error parsing macro file: " << macro_file.string() << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	IniFile macro_ini = macro_parser.get_parsed_ini_file();
+
+	std::string current_page_id = "";
+	bool have_page = false;
+	const std::map<std::string, std::string> empty_bindings;
+	const std::map<std::string, std::string>* active_bindings = &empty_bindings;
+
+	for (auto& section : macro_ini.sections)
+	{
+		if (section.header.name == TOKEN_SECTION_MACRO_INFO)
+		{
+			for (auto& key_value : section.key_value_pairs)
+			{
+				if (key_value.first == TOKEN_MACRO_DEVICE && key_value.second != "fip")
+				{
+					Logger(logERROR) << "parser: macro '" << macro_name << "' targets device '" << key_value.second << "'. Only 'fip' macros are supported" << std::endl;
+					return EXIT_FAILURE;
+				}
+			}
+		}
+		else if (section.header.name == TOKEN_FIP_PAGE)
+		{
+			current_page_id = section.header.id;
+			have_page = true;
+			auto it = page_bindings.find(current_page_id);
+			active_bindings = (it != page_bindings.end()) ? &it->second : &empty_bindings;
+
+			IniFileSection page_section = section;
+			if (substitute_placeholders_in_section(page_section, *active_bindings, macro_name, current_page_id) != EXIT_SUCCESS)
+				return EXIT_FAILURE;
+			output.push_back(page_section);
+		}
+		else if (section.header.name == TOKEN_FIP_LAYER)
+		{
+			if (!have_page)
+			{
+				Logger(logERROR) << "parser: macro '" << macro_name << "' has a [layer] before any [page]" << std::endl;
+				return EXIT_FAILURE;
+			}
+
+			IniFileSection layer_section = section;
+			if (substitute_placeholders_in_section(layer_section, *active_bindings, macro_name, current_page_id) != EXIT_SUCCESS)
+				return EXIT_FAILURE;
+
+			// tell process_fip_layer_section to resolve this layer's bmp against the macro folder
+			layer_section.header.properties[MACRO_BASE_DIR_PROPERTY] = macro_dir.string();
+			output.push_back(layer_section);
+		}
+		else if (section.header.name == "")
+		{
+			// synthetic root section of the macro file - nothing to emit
+			continue;
+		}
+		else
+		{
+			Logger(logERROR) << "parser: unsupported section '" << section.header.name << "' in macro '" << macro_name << "'" << std::endl;
+			return EXIT_FAILURE;
+		}
+	}
+
+	return EXIT_SUCCESS;
+}
+
+// Rewrite ini_file.sections in place: expand any '@use' referenced macro inside a [screen]
+// section (bound by the following [@page]/@parameter blocks) into concrete [page]/[layer]
+// sections. Non-macro sections pass through unchanged.
+int ConfigParser::expand_macros(IniFile& ini_file, Configuration& config)
+{
+	std::vector<IniFileSection> output;
+	std::vector<IniFileSection>& sections = ini_file.sections;
+
+	for (size_t i = 0; i < sections.size(); )
+	{
+		IniFileSection& section = sections[i];
+
+		if (section.header.name == TOKEN_SECTION_MACRO_PAGE)
+		{
+			Logger(logERROR) << "parser: [@page:...] binding block without a preceding [screen] that uses a macro. section at line " << section.header.line << std::endl;
+			return EXIT_FAILURE;
+		}
+
+		if (section.header.name == TOKEN_SECTION_FIP_SCREEN)
+		{
+			// pull the @use macro names out of the screen section, keep the rest
+			std::vector<std::string> macro_names;
+			std::vector<std::pair<std::string, std::string>> kept_key_values;
+			for (auto& key_value : section.key_value_pairs)
+			{
+				if (key_value.first == TOKEN_MACRO_USE)
+					macro_names.push_back(key_value.second);
+				else
+					kept_key_values.push_back(key_value);
+			}
+			section.key_value_pairs = kept_key_values;
+			output.push_back(section);
+			i++;
+
+			if (macro_names.empty())
+				continue;
+
+			// gather the following [@page:...] binding blocks: page id -> (param name -> value)
+			std::map<std::string, std::map<std::string, std::string>> page_bindings;
+			while (i < sections.size() && sections[i].header.name == TOKEN_SECTION_MACRO_PAGE)
+			{
+				IniFileSection& binding = sections[i];
+				std::map<std::string, std::string> params;
+				for (auto& key_value : binding.key_value_pairs)
+				{
+					if (key_value.first != TOKEN_MACRO_PARAMETER)
+					{
+						Logger(logERROR) << "parser: unexpected key '" << key_value.first << "' in [@page] binding block at line " << binding.header.line << std::endl;
+						return EXIT_FAILURE;
+					}
+					std::string param_name, param_value;
+					if (!parse_macro_parameter(key_value.second, param_name, param_value))
+					{
+						Logger(logERROR) << "parser: invalid @parameter syntax at line " << binding.header.line << ": " << key_value.second << std::endl;
+						return EXIT_FAILURE;
+					}
+					params[param_name] = param_value;
+				}
+				page_bindings[binding.header.id] = params;
+				i++;
+			}
+
+			for (auto& macro_name : macro_names)
+			{
+				if (load_and_expand_macro(macro_name, page_bindings, config, output) != EXIT_SUCCESS)
+					return EXIT_FAILURE;
+			}
+			continue;
+		}
+
+		output.push_back(section);
+		i++;
+	}
+
+	sections = output;
 	return EXIT_SUCCESS;
 }
 

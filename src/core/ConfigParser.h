@@ -23,6 +23,15 @@ private:
 
 	int process_fip_layer_section(IniFileSection& section, Configuration& config);
 
+	int expand_macros(IniFile& ini_file, Configuration& config);
+	int load_and_expand_macro(const std::string& macro_name,
+		const std::map<std::string, std::map<std::string, std::string>>& page_bindings,
+		Configuration& config, std::vector<IniFileSection>& output);
+	int substitute_placeholders_in_section(IniFileSection& section,
+		const std::map<std::string, std::string>& bindings,
+		const std::string& macro_name, const std::string& page_id);
+	bool parse_macro_parameter(const std::string& raw, std::string& out_name, std::string& out_value);
+
 	int handle_on_push_or_release(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_lit_or_unlit_or_blink(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_dynamic_speed(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
@@ -68,6 +77,13 @@ private:
 	const std::string TOKEN_FIP_OFFSET_X = "offset_x";
 	const std::string TOKEN_FIP_OFFSET_Y = "offset_y";
 	const std::string TOKEN_FIP_ROTATION = "rotation";
+
+	const std::string TOKEN_MACRO_USE = "@use";
+	const std::string TOKEN_SECTION_MACRO_PAGE = "@page";
+	const std::string TOKEN_MACRO_PARAMETER = "@parameter";
+	const std::string TOKEN_SECTION_MACRO_INFO = "macro_info";
+	const std::string TOKEN_MACRO_DEVICE = "device";
+	const std::string MACRO_BASE_DIR_PROPERTY = "macro_base_dir";
 
 	const std::string DEVICE_TYPE_SAITEK_MULTI = "saitek_multi";
 	const std::string DEVICE_TYPE_SAITEK_RADIO = "saitek_radio";
