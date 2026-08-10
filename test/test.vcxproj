@@ -231,6 +231,7 @@ xcopy /y /d "$(SolutionDir)3rdparty\FIP-SDK\fonts\fip-fonts.bmp" "$(OutDir)"
     <ClCompile Include="test_trc1000_audio.cpp" />
     <ClCompile Include="test_trc1000_pfd.cpp" />
     <ClCompile Include="test_xpanel_plugin.cpp" />
+    <ClCompile Include="test_wait_for_available.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\XPanel.vcxproj">

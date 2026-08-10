@@ -18,6 +18,7 @@
 #include <map>
 #include <queue>
 #include <list>
+#include <set>
 #include "core/Configuration.h"
 #include "fip/FIPScreen.h"
 #include "core/Logger.h"
@@ -50,6 +51,21 @@ static inline void strncpy_s(char* dest, size_t dest_size, const char* src, size
 
 std::map<std::string, int> internal_dataref;
 std::map<std::string, int> internal_command_ref;
+
+// Names in this set make XPLMFindDataRef/XPLMFindCommand report "not found" (NULL)
+// regardless of whether they were previously looked up, so tests can simulate a
+// dataref/commandref that hasn't appeared yet.
+std::set<std::string> test_unavailable_names;
+
+void test_set_name_unavailable(const std::string& name)
+{
+	test_unavailable_names.insert(name);
+}
+
+void test_set_name_available(const std::string& name)
+{
+	test_unavailable_names.erase(name);
+}
 
 XPLMFlightLoop_f registered_flight_loop;
 XPLMMenuHandler_f menu_handler = NULL;
@@ -142,6 +158,9 @@ extern void XPLMDebugString(const char* inString)
 
 extern XPLMDataRef XPLMFindDataRef(const char* datarefstr)
 {
+	if (test_unavailable_names.count(datarefstr) > 0)
+		return NULL;
+
 	if (internal_dataref.find(datarefstr) == internal_dataref.end())
 		internal_dataref[datarefstr] = 0;
 
@@ -255,6 +274,9 @@ void test_set_dataref_value(const char* datarefstr, int value)
 
 extern XPLMCommandRef XPLMFindCommand(const char* commandref)
 {
+	if (test_unavailable_names.count(commandref) > 0)
+		return NULL;
+
 	if (internal_command_ref.find(commandref) == internal_command_ref.end())
 		internal_command_ref[commandref] = 0;
 
@@ -342,9 +364,13 @@ extern void XPLMRegisterFlightLoopCallback(XPLMFlightLoop_f inFlightLoop, float 
 
 extern void XPLMUnregisterFlightLoopCallback(XPLMFlightLoop_f inFlightLoop, void* inRefcon)
 {
-	(void)inFlightLoop;
 	(void)inRefcon;
-	registered_flight_loop = NULL;
+	// Only clear the tracked callback if it's the one being unregistered - otherwise
+	// unregistering a short-lived callback (e.g. wait_for_available_callback) after a
+	// different, still-active callback (e.g. flight_loop_callback) has already been
+	// registered would incorrectly wipe out that still-active registration.
+	if (registered_flight_loop == inFlightLoop)
+		registered_flight_loop = NULL;
 }
 
 void test_call_registered_flight_loop()

@@ -44,6 +44,7 @@ set(XPANEL_TEST_SRCS
     test_trc1000_audio.cpp
     test_trc1000_pfd.cpp
     test_xpanel_plugin.cpp
+    test_wait_for_available.cpp
 )
 
 add_executable(xpanel_tests ${XPANEL_TEST_SRCS})
@@ -102,3 +103,4 @@ add_test(NAME test_radio_panel       COMMAND xpanel_tests --test-suite=test_radi
 add_test(NAME test_trc1000_audio     COMMAND xpanel_tests --test-suite=test_trc1000_audio_panel   WORKING_DIRECTORY ${_test_wd})
 add_test(NAME test_trc1000_pfd       COMMAND xpanel_tests --test-suite=test_trc1000_pfd_panel     WORKING_DIRECTORY ${_test_wd})
 add_test(NAME test_xpanel_plugin     COMMAND xpanel_tests --test-suite=test_plugin                WORKING_DIRECTORY ${_test_wd})
+add_test(NAME test_wait_for_available COMMAND xpanel_tests --test-suite=test_wait_for_available   WORKING_DIRECTORY ${_test_wd})
