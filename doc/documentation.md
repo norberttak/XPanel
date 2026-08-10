@@ -758,6 +758,72 @@ text="lua:fip_text_test()"
 
 ```
 
+## FIP macros
+Defining a FIP page layer by layer (as described above) is flexible but verbose, and it has to be
+repeated for every aircraft even when the instrument is the same - only the datarefs differ. Macros
+let you describe an instrument (for example a Garmin G5) **once** as a reusable template with named
+parameters, and then use it from any aircraft config by binding those parameters to the aircraft's
+datarefs, lua functions or constants.
+
+### Where macros live
+Macro files are placed in a `macros` subfolder next to the plugin, i.e.
+`.../resources/plugins/xpanel/64/macros/`. Each macro is a single file named `<name>.macro`. Any bmp
+assets a macro references are resolved **relative to the `macros` folder** (e.g.
+`macros/fip-images/...`), so a macro is fully self-contained and does not depend on files in the
+aircraft folder.
+
+### The macro file format
+A `.macro` file uses the same syntax as a normal FIP `[screen]`/`[page]`/`[layer]` definition, with
+one addition: any value may be written as a parameter placeholder `"@{name}"`. The optional
+`[macro_info]` section carries metadata; `device` must be `fip`.
+
+```ini
+[macro_info]
+name="garmin_g5"
+description="Garmin G5 Electronic Flight Instrument created for General Aviation"
+device="fip"
+version="1.0"
+
+[page:id="HSI"]
+    [layer:image="fip-images/HSIb_card_hdg.bmp,ref_x:90,ref_y:90,base_rot:0"]
+    rotation="@{hsi_course}"
+    offset_x="const:200"
+    offset_y="const:120"
+
+    [layer:type="text"]
+    offset_x="const:38"
+    offset_y="const:218"
+    text="@{current_baro_hpa}"
+```
+
+A macro can define several pages. Any value that is not a placeholder (`const:`, `dataref:`, `lua:`)
+is used as-is, so a page can mix fixed and parameterized values, or be fully static.
+
+### Using a macro from an aircraft config
+Add `@use="<macro_name>"` inside a `[screen:...]` section to pull in all of the macro's pages. For
+each page that has placeholders, add a `[@page:id="<page_id>"]` block and bind every placeholder with
+an `@parameter` line of the form `name:<placeholder>,value:<source>`. The `<source>` is exactly what
+you would otherwise write for that field (`dataref:...`, `lua:...` or `const:...`).
+
+```ini
+[device:id="saitek_fip_screen"]
+serial="MZB05779E2"
+
+    [screen:id="fip-screen"]
+    @use="garmin_g5"
+
+    [@page:id="HSI"]
+    @parameter="name:hsi_course,value:dataref:AirbusFBW/HSICourse,scale:-1.0"
+    @parameter="name:current_baro_hpa,value:lua:get_current_baro_hpa()"
+```
+
+Notes:
+* Every `@{name}` used on a page must be bound by an `@parameter` in that page's `[@page]` block;
+  an unbound parameter is a configuration error.
+* Pages that contain no placeholders need no `[@page]` block.
+* You may `@use` more than one macro in the same screen; page ids must be unique across them.
+* A macro shipped with the plugin, `macros/garmin_g5.macro`, is installed as a working example.
+
 ## Generate new fonts for text layers##
 The plugin has been released with a simple font set (fip-fonts.bmp). If you'd like to generate a new font collection you can use [bmfont](http://www.angelcode.com/products/bmfont/) tool.
 
