@@ -42,6 +42,8 @@ private:
 	int handle_on_fip_mask(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_fip_text(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 
+	std::string pre_parse_for_key_value_pair(std::string file_name, std::string key);
+	
 	XPLMDataTypeID normalize_dataref_type(XPLMDataTypeID data_ref_type);
 
 	const std::string TOKEN_VID = "vid";
@@ -112,5 +114,6 @@ public:
 	ConfigParser();
 	~ConfigParser();
 	std::string pre_parse_for_acf_file_name(std::string file_name);
+	std::string pre_parse_for_wait_for_available(std::string file_name);
 	int parse_file(std::string file_name, Configuration& config);
 };

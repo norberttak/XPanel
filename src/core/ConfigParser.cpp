@@ -73,10 +73,20 @@ bool ConfigParser::get_and_remove_token_pair(std::vector<std::string>& tokens, s
 	return false;
 }
 
-/* This function parses the ini file to get the ACF file name only. This can be used to quick check the
- config file without binding to datarefs.
- Return: the ACF file name or empty string if not found */
 std::string ConfigParser::pre_parse_for_acf_file_name(std::string file_name)
+{
+	return pre_parse_for_key_value_pair(file_name, TOKEN_ACF);
+}
+
+std::string ConfigParser::pre_parse_for_wait_for_available(std::string file_name)
+{
+	return pre_parse_for_key_value_pair(file_name, TOKEN_WAIT_FOR_AVAILABLE);
+}
+
+/* This function parses the ini file to get a key-value only. This can be used to quick check the
+ config file without binding to datarefs.
+ Return: the value of the key-value pair or empty string if not found */
+std::string ConfigParser::pre_parse_for_key_value_pair(std::string file_name, std::string key)
 {
 	std::ifstream input_file(file_name);
 	Logger(TLogLevel::logINFO) << "pre-parse config file: " << file_name << std::endl;
@@ -101,7 +111,7 @@ std::string ConfigParser::pre_parse_for_acf_file_name(std::string file_name)
 
 		for (auto& key_value_pair : ini_section.key_value_pairs)
 		{
-			if (key_value_pair.first == TOKEN_ACF)
+			if (key_value_pair.first == key)
 				return key_value_pair.second;
 		}
 	}
