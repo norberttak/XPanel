@@ -44,6 +44,7 @@ set(XPANEL_TEST_SRCS
     test_trc1000_audio.cpp
     test_trc1000_pfd.cpp
     test_xpanel_plugin.cpp
+    test_fip_macro.cpp
 )
 
 add_executable(xpanel_tests ${XPANEL_TEST_SRCS})
@@ -86,6 +87,7 @@ target_link_libraries(xpanel_tests PRIVATE Lua::Lua doctest::doctest)
 # this directory's fixture files.
 file(COPY ${CMAKE_SOURCE_DIR}/sample-config/board-config.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_SOURCE_DIR}/test/fip-images/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/fip-images)
+file(COPY ${CMAKE_SOURCE_DIR}/test/macros/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/macros)
 file(COPY ${CMAKE_SOURCE_DIR}/3rdparty/FIP-SDK/fonts/fip-fonts.bmp DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 set(_test_wd ${CMAKE_CURRENT_BINARY_DIR})
@@ -102,3 +104,4 @@ add_test(NAME test_radio_panel       COMMAND xpanel_tests --test-suite=test_radi
 add_test(NAME test_trc1000_audio     COMMAND xpanel_tests --test-suite=test_trc1000_audio_panel   WORKING_DIRECTORY ${_test_wd})
 add_test(NAME test_trc1000_pfd       COMMAND xpanel_tests --test-suite=test_trc1000_pfd_panel     WORKING_DIRECTORY ${_test_wd})
 add_test(NAME test_xpanel_plugin     COMMAND xpanel_tests --test-suite=test_plugin                WORKING_DIRECTORY ${_test_wd})
+add_test(NAME test_fip_macro         COMMAND xpanel_tests --test-suite=test_fip_macro             WORKING_DIRECTORY ${_test_wd})

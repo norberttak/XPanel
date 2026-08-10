@@ -30,5 +30,6 @@ add_subdirectory(test)
 
 install(DIRECTORY sample-config/ DESTINATION sample_configs)
 install(DIRECTORY doc/ DESTINATION doc)
+install(DIRECTORY macros/ DESTINATION ${PLUGIN_INSTALL_DIR}/macros)
 install(FILES sample-config/board-config.ini DESTINATION ${PLUGIN_INSTALL_DIR})
 install(FILES 3rdparty/FIP-SDK/fonts/fip-fonts.bmp DESTINATION ${PLUGIN_INSTALL_DIR})

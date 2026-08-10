@@ -238,6 +238,11 @@ std::filesystem::path find_config_file(const std::string& aircraft_file_name, co
 			{
 				ConfigParser temp_parser;
 				Configuration temp_config;
+				// Provide the same paths the real parse gets so configs that reference
+				// bmp assets or FIP macros parse successfully during aircraft matching
+				// instead of being skipped.
+				temp_config.plugin_path = plugin_path.string();
+				temp_config.aircraft_path = aircraft_file_path;
 				if (temp_parser.parse_file(entry.path().string(), temp_config) == EXIT_SUCCESS)
 				{
 					if (temp_config.aircraft_acf == aircraft_file_name)

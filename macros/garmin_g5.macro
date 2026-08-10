@@ -1,0 +1,53 @@
+; Copyright (C) 2026  Norbert Takacs <norberttak@gmail.com>
+; SPDX-License-Identifier: GPL-3.0-or-later
+;
+; Example FIP macro: a Garmin G5 style HSI page.
+;
+; A macro describes a reusable instrument once. Values written as "@{name}" are
+; parameters that the aircraft config binds to a dataref / lua / constant with
+; @parameter lines. The bmp assets referenced below live next to this file, under
+; <plugin>/macros/fip-images/.
+;
+; To use it from an aircraft config:
+;
+;   [device:id="saitek_fip_screen"]
+;   serial="YOUR_DEVICE_SERIAL"
+;       [screen:id="fip-screen"]
+;       @use="garmin_g5"
+;
+;       [@page:id="HSI"]
+;       @parameter="name:hsi_course,value:dataref:AirbusFBW/HSICourse,scale:-1.0"
+;       @parameter="name:hsi_course_rotation,value:lua:hsi_course_rotation()"
+;       @parameter="name:current_baro_hpa,value:lua:get_current_baro_hpa()"
+
+[macro_info]
+name="garmin_g5"
+description="Garmin G5 Electronic Flight Instrument created for General Aviation"
+device="fip"
+version="1.0"
+
+[page:id="HSI"]
+    [layer:image="fip-images/HSIb_card_hdg.bmp,ref_x:90,ref_y:90,base_rot:0"]
+    rotation="@{hsi_course}"
+    offset_x="const:200"
+    offset_y="const:120"
+
+    [layer:image="fip-images/HSIb_pointer_crs_tf.bmp,ref_x:70,ref_y:71,base_rot:0"]
+    rotation="@{hsi_course_rotation}"
+    offset_x="const:200"
+    offset_y="const:120"
+
+    [layer:image="fip-images/HSIb_mask_front.bmp,ref_x:120,ref_y:120,base_rot:0"]
+    rotation="const:0"
+    offset_x="const:200"
+    offset_y="const:120"
+
+    [layer:type="text"]
+    offset_x="const:3"
+    offset_y="const:218"
+    text="const:QNH"
+
+    [layer:type="text"]
+    offset_x="const:38"
+    offset_y="const:218"
+    text="@{current_baro_hpa}"
