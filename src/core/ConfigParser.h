@@ -29,6 +29,7 @@ private:
 	int handle_on_vid(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_pid(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_log_level(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
+	int handle_on_wait_for_available(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_acf_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_script_file(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_line_add(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
@@ -41,6 +42,8 @@ private:
 	int handle_on_fip_mask(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 	int handle_on_fip_text(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config);
 
+	std::string pre_parse_for_key_value_pair(std::string file_name, std::string key);
+	
 	XPLMDataTypeID normalize_dataref_type(XPLMDataTypeID data_ref_type);
 
 	const std::string TOKEN_VID = "vid";
@@ -49,6 +52,7 @@ private:
 	const std::string TOKEN_SCRIPT = "script_file";
 	const std::string TOKEN_ACF = "aircraft_acf";
 	const std::string TOKEN_LOG_LEVEL = "log_level";
+	const std::string TOKEN_WAIT_FOR_AVAILABLE = "wait_for_available";
 
 	const std::string TOKEN_DYN_SPEED_MID = "dynamic_speed_mid";
 	const std::string TOKEN_DYN_SPEED_HIGH = "dynamic_speed_high";
@@ -109,5 +113,7 @@ private:
 public:
 	ConfigParser();
 	~ConfigParser();
+	std::string pre_parse_for_acf_file_name(std::string file_name);
+	std::string pre_parse_for_wait_for_available(std::string file_name);
 	int parse_file(std::string file_name, Configuration& config);
 };

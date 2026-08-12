@@ -58,15 +58,33 @@ BOOL APIENTRY DllMain(HANDLE hModule,
 
 float flight_loop_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon);
 float error_display_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon);
+float wait_for_available_callback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop, int inCounter, void* inRefcon);
 
 void stop_and_clear_xpanel_plugin();
 int init_and_start_xpanel_plugin();
+int finish_plugin_init(Configuration& config, const std::string& aircraft_file_name, const std::string& aircraft_file_path, const std::filesystem::path& init_path);
 std::filesystem::path find_config_file(const std::string& aircraft_file_name, const std::string& aircraft_file_path, const std::filesystem::path& plugin_path);
 
 std::vector<Device*> devices;
 bool plugin_already_initialized = false;
 const float FLIGHT_LOOP_TIME_PERIOD = 0.2f;
 const float ERROR_DISPLAY_TIME_PERIOD = 2.0f;
+
+/* Holds the parsed config and related paths while we wait (asynchronously, via
+ * wait_for_available_callback) for a dataref/commandref named by wait_for_available
+ * to become available. Non-null only while such a wait is in flight. */
+struct PendingInit
+{
+	Configuration config;
+	std::string aircraft_file_name;
+	std::string aircraft_file_path;
+	std::filesystem::path init_path;
+	int elapsed_ms = 0;
+};
+
+PendingInit* g_pending_init = nullptr;
+const int WAIT_FOR_AVAILABLE_TIMEOUT_MS = 20000; // 20 seconds
+const float WAIT_FOR_AVAILABLE_POLL_INTERVAL = 0.1f; // seconds
 
 int g_menu_container_idx;
 XPLMMenuID g_menu_id;
@@ -180,6 +198,13 @@ float error_display_callback(float, float, int, void*)
 
 void stop_and_clear_xpanel_plugin()
 {
+	XPLMUnregisterFlightLoopCallback(wait_for_available_callback, NULL);
+	if (g_pending_init != nullptr)
+	{
+		delete g_pending_init;
+		g_pending_init = nullptr;
+	}
+
 	XPLMUnregisterFlightLoopCallback(flight_loop_callback, NULL);
 	LuaHelper::get_instance()->close();
 
@@ -237,14 +262,10 @@ std::filesystem::path find_config_file(const std::string& aircraft_file_name, co
 			if (entry.is_regular_file() && entry.path().extension() == ".ini")
 			{
 				ConfigParser temp_parser;
-				Configuration temp_config;
-				if (temp_parser.parse_file(entry.path().string(), temp_config) == EXIT_SUCCESS)
+				if (temp_parser.pre_parse_for_acf_file_name(entry.path().string()) == aircraft_file_name)
 				{
-					if (temp_config.aircraft_acf == aircraft_file_name)
-					{
-						Logger(TLogLevel::logINFO) << "Found config by aircraft_acf match: " << entry.path().string() << std::endl;
-						return entry.path();
-					}
+					Logger(TLogLevel::logINFO) << "Found config by aircraft_acf match: " << entry.path().string() << std::endl;
+					return entry.path();
 				}
 			}
 		}
@@ -331,6 +352,59 @@ int init_and_start_xpanel_plugin(void)
 	Logger(TLogLevel::logINFO) << "aircraft path: " << config.aircraft_path << std::endl;
 
 	ConfigParser p;
+	config.wait_for_available = p.pre_parse_for_wait_for_available(init_path.string()); // pre-parse for wait_for_available key to avoid waiting for dataref/commandref that is not defined in the config file
+
+	if (config.wait_for_available != "")
+	{
+		bool already_available = XPLMFindDataRef(config.wait_for_available.c_str()) != NULL
+			|| XPLMFindCommand(config.wait_for_available.c_str()) != NULL;
+
+		if (!already_available)
+		{
+			g_pending_init = new PendingInit{ config, aircraft_file_name, aircraft_file_path, init_path };
+			XPLMRegisterFlightLoopCallback(wait_for_available_callback, WAIT_FOR_AVAILABLE_POLL_INTERVAL, NULL);
+			Logger(TLogLevel::logINFO) << "waiting for dataref/commandref to become available: " << config.wait_for_available << std::endl;
+			return EXIT_SUCCESS; // the rest of init completes asynchronously in wait_for_available_callback
+		}
+	}
+
+	return finish_plugin_init(config, aircraft_file_name, aircraft_file_path, init_path);
+}
+
+float wait_for_available_callback(float, float, int, void*)
+{
+	bool available = XPLMFindDataRef(g_pending_init->config.wait_for_available.c_str()) != NULL
+		|| XPLMFindCommand(g_pending_init->config.wait_for_available.c_str()) != NULL;
+
+	if (!available)
+	{
+		g_pending_init->elapsed_ms += (int)(WAIT_FOR_AVAILABLE_POLL_INTERVAL * 1000.0f);
+		if (g_pending_init->elapsed_ms < WAIT_FOR_AVAILABLE_TIMEOUT_MS)
+			return WAIT_FOR_AVAILABLE_POLL_INTERVAL; // reschedule, keep waiting
+
+		Logger(TLogLevel::logERROR) << "timeout waiting for dataref/commandref to become available: " << g_pending_init->config.wait_for_available << std::endl;
+		// fall through: proceed with init anyway, same as the previous blocking behavior
+	}
+	else
+	{
+		Logger(TLogLevel::logDEBUG) << "dataref/commandref now available: " << g_pending_init->config.wait_for_available << std::endl;
+	}
+
+	PendingInit* pending = g_pending_init;
+	g_pending_init = nullptr;
+
+	if (finish_plugin_init(pending->config, pending->aircraft_file_name, pending->aircraft_file_path, pending->init_path) != EXIT_SUCCESS)
+		Logger(TLogLevel::logERROR) << "error during deferred plugin init and start" << std::endl;
+
+	delete pending;
+	XPLMUnregisterFlightLoopCallback(wait_for_available_callback, NULL);
+	return 0;
+}
+
+int finish_plugin_init(Configuration& config, const std::string& aircraft_file_name, const std::string& aircraft_file_path, const std::filesystem::path& init_path)
+{
+	ConfigParser p;
+
 	int result = p.parse_file(init_path.string(), config);
 	if (result != EXIT_SUCCESS)
 	{
@@ -452,7 +526,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void*)
 		case XPLM_MSG_AIRPORT_LOADED:
 			Logger(TLogLevel::logTRACE) << "XPLM_MSG_AIRPORT_LOADED: message received" << std::endl;
 
-			if (plugin_already_initialized)
+			if (plugin_already_initialized || g_pending_init != nullptr)
 				stop_and_clear_xpanel_plugin();
 
 			if (init_and_start_xpanel_plugin() != EXIT_SUCCESS)

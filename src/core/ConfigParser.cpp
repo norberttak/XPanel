@@ -23,6 +23,7 @@ ConfigParser::ConfigParser()
 	process_functions[TOKEN_VID] = &ConfigParser::handle_on_vid;
 	process_functions[TOKEN_PID] = &ConfigParser::handle_on_pid;
 	process_functions[TOKEN_LOG_LEVEL] = &ConfigParser::handle_on_log_level;
+	process_functions[TOKEN_WAIT_FOR_AVAILABLE] = &ConfigParser::handle_on_wait_for_available;
 	process_functions[TOKEN_ACF] = &ConfigParser::handle_on_acf_file;
 	process_functions[TOKEN_SCRIPT] = &ConfigParser::handle_on_script_file;
 	process_functions[TOKEN_LIT] = &ConfigParser::handle_on_lit_or_unlit_or_blink;
@@ -70,6 +71,52 @@ bool ConfigParser::get_and_remove_token_pair(std::vector<std::string>& tokens, s
 		}
 	}
 	return false;
+}
+
+std::string ConfigParser::pre_parse_for_acf_file_name(std::string file_name)
+{
+	return pre_parse_for_key_value_pair(file_name, TOKEN_ACF);
+}
+
+std::string ConfigParser::pre_parse_for_wait_for_available(std::string file_name)
+{
+	return pre_parse_for_key_value_pair(file_name, TOKEN_WAIT_FOR_AVAILABLE);
+}
+
+/* This function parses the ini file to get a key-value only. This can be used to quick check the
+ config file without binding to datarefs.
+ Return: the value of the key-value pair or empty string if not found */
+std::string ConfigParser::pre_parse_for_key_value_pair(std::string file_name, std::string key)
+{
+	std::ifstream input_file(file_name);
+	Logger(TLogLevel::logINFO) << "pre-parse config file: " << file_name << std::endl;
+	if (!input_file.is_open()) {
+		Logger(TLogLevel::logERROR) << "parser: error open config file: " << file_name << std::endl;
+		return "";
+	}
+
+	IniFileParser ini_parser;
+	ini_parser.parse(input_file, file_name);
+	input_file.close();
+
+	if (ini_parser.get_number_of_errors() > 0)
+		return "";
+
+	IniFile ini_file = ini_parser.get_parsed_ini_file();
+
+	for (auto& ini_section : ini_file.sections)
+	{
+		if (ini_section.header.name != "")
+			continue;
+
+		for (auto& key_value_pair : ini_section.key_value_pairs)
+		{
+			if (key_value_pair.first == key)
+				return key_value_pair.second;
+		}
+	}
+
+	return "";
 }
 
 int ConfigParser::parse_file(std::string file_name, Configuration& config)
@@ -343,6 +390,25 @@ int ConfigParser::handle_on_log_level(IniFileSectionHeader section_header, std::
 
 	Logger::set_log_level(level);
 	Logger(TLogLevel::logDEBUG) << "parser: log level set to " << level << std::endl;
+
+	return EXIT_SUCCESS;
+}
+
+/* Handle the wait_for_available option in the config file.
+ * This option is used to control whether the plugin should wait for dataref or command ref to become available before starting.
+ * Waring: This function will block the plugin initialization until the dataref/commandref is available or the maximum wait time is reached.
+ * The maximum wait time is defined in the plugin code and can be adjusted as needed. This timeout now is set to 5 seconds.
+ */
+int ConfigParser::handle_on_wait_for_available(IniFileSectionHeader section_header, std::string key, std::string value, Configuration& config)
+{
+	(void)key;
+	(void)config;
+	if (section_header.id != "")
+		Logger(TLogLevel::logWARNING) << "Wait for dataref/commandref available shall be defined in the common part of the config file!" << std::endl;
+
+	config.wait_for_available = value;
+
+	Logger(TLogLevel::logDEBUG) << "parser: wait_for_available dataref/commandref=" << value << " added" << std::endl;
 
 	return EXIT_SUCCESS;
 }
