@@ -20,21 +20,16 @@ MultiPurposeDisplay::MultiPurposeDisplay():
 	nr_of_bytes = 5;
 }
 
-MultiPurposeDisplay::MultiPurposeDisplay(MultiPurposeDisplay* other)
+MultiPurposeDisplay::MultiPurposeDisplay(MultiPurposeDisplay* other):
+	GenericDisplay(other)
 {
 	active_condition = other->active_condition;
-	display_value = other->display_value;
-	display_value_old = other->display_value_old;
-	display_value_changed = other->display_value_changed;
-	nr_of_bytes = other->nr_of_bytes;
 	turn_off = other->turn_off;
 
 	conditions = other->conditions;
 	const_values = other->const_values;
 	lua_functions = other->lua_functions;
 	data_ref_types = other->data_ref_types;
-	minimum_number_of_digits = other->minimum_number_of_digits;
-	blank_leading_zeros = other->blank_leading_zeros;
 	minimum_number_of_digits_for_condtions = other->minimum_number_of_digits_for_condtions;
 	dot_positions_for_conditions = other->dot_positions_for_conditions;
 }
@@ -169,9 +164,4 @@ void MultiPurposeDisplay::evaluate_and_store_dataref_value()
 	guard.unlock();
 
 	GenericDisplay::evaluate_and_store_dataref_value();
-
-	if (abs(display_value - display_value_old) >= 0.001)
-		display_value_changed = true;
-
-	display_value_old = display_value;
 }

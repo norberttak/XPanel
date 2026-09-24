@@ -43,9 +43,5 @@ private:
 	std::map<std::string, int> dot_positions_for_conditions;
 
 	std::string active_condition;
-	double	display_value;
-	double	display_value_old;
-	bool display_value_changed;	
-	std::mutex guard;
 	bool turn_off;
 };
