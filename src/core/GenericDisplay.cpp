@@ -24,6 +24,7 @@ GenericDisplay::GenericDisplay(bool _use_bcd)
 	blank_leading_zeros = true;
 	minimum_number_of_digits = 1;
 	dot_position = -1; //no dot display
+	nr_of_bytes = 0;
 }
 
 GenericDisplay::GenericDisplay(GenericDisplay* other)
@@ -228,10 +229,12 @@ bool GenericDisplay::get_binary_components(int number, unsigned char* buffer)
 // called from UsbHidDevice worker thread
 bool GenericDisplay::get_display_value(unsigned char* buffer, int _minimum_number_of_digits, int _dot_position)
 {
-	if (!display_value_changed)
-		return false;
-
 	guard.lock();
+	if (!display_value_changed)
+	{
+		guard.unlock();
+		return false;
+	}
 	double _val = display_value;
 	display_value_changed = false;
 	guard.unlock();
