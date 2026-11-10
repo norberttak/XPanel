@@ -217,6 +217,67 @@ namespace test
 			Assert::AreEqual(0, (int)write_buffer[5]);
 		}
 
+		// Regression test for https://github.com/norberttak/XPanel/issues/124:
+		// MULTI_DISPLAY_UP in test-valid-config.ini registers the same dataref
+		// under three different selector conditions (SW_ALT, SW_VS, SW_HDG).
+		// The display must keep refreshing after switching from one of those
+		// conditions to another, not just on the first one that was activated.
+		TEST_METHOD(TestMultiDisplayDuplicateDatarefKeepsRefreshingAfterSelectorSwitch)
+		{
+			XPLMDataRef dataref = XPLMFindDataRef("sim/custom/gauges/compas/pkp_helper_course_L");
+
+			// Establish a known "no selector active" baseline first. The mock HID
+			// read buffer is process-global and a previous test may have left it
+			// at SW_ALT already, which would make the next line a no-op (no bit
+			// change => no selector-switch event) instead of a real 0->1 transition.
+			unsigned char buffer[4] = { 0,0,0,0 };
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			test_hid_read_wait_for_event(300);
+
+			// set rotation switch to SW_ALT position
+			buffer[0] = 0x01;
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			test_hid_read_wait_for_event(300);
+
+			XPLMSetDatai(dataref, 11111);
+			test_flight_loop(device);
+			std::this_thread::sleep_for(150ms);
+
+			unsigned char write_buffer[13];
+			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
+			Assert::AreEqual(1, (int)write_buffer[1]);
+			Assert::AreEqual(1, (int)write_buffer[2]);
+			Assert::AreEqual(1, (int)write_buffer[3]);
+			Assert::AreEqual(1, (int)write_buffer[4]);
+			Assert::AreEqual(1, (int)write_buffer[5]);
+
+			// switch rotation switch to SW_VS - registered against the SAME dataref
+			buffer[0] = 0x02;
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			test_hid_read_wait_for_event(300);
+
+			XPLMSetDatai(dataref, 22222);
+			test_flight_loop(device);
+			std::this_thread::sleep_for(150ms);
+
+			test_hid_get_write_data(write_buffer, sizeof(write_buffer));
+			Assert::AreEqual(2, (int)write_buffer[1]);
+			Assert::AreEqual(2, (int)write_buffer[2]);
+			Assert::AreEqual(2, (int)write_buffer[3]);
+			Assert::AreEqual(2, (int)write_buffer[4]);
+			Assert::AreEqual(2, (int)write_buffer[5]);
+
+			// This dataref and the HID read buffer are process-global mock state
+			// shared with other tests in this fixture (e.g. TestRotationKnobHdg,
+			// which does relative +/-1 adjustments and expects to start near 0) -
+			// reset them so this test doesn't leak state into whichever test runs
+			// next.
+			XPLMSetDatai(dataref, 0);
+			buffer[0] = 0;
+			test_hid_set_read_data(buffer, sizeof(buffer));
+			test_hid_read_wait_for_event(300);
+		}
+
 		TEST_METHOD(TestRotationKnobHdg)
 		{
 			std::string dataref_str = "sim/custom/gauges/compas/pkp_helper_course_L";

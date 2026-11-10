@@ -30,6 +30,9 @@
     <ClCompile Include="test_multi_panel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test_multi_panel_plain_display.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="test_arduino_home.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

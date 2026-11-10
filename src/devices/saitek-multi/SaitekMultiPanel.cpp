@@ -70,6 +70,11 @@ SaitekMultiPanel::SaitekMultiPanel(ClassConfiguration& config) :UsbHidDevice(con
 			if (!config_display.second->is_registered_selector(selector.config_name))
 				config_display.second->add_condition(selector.config_name, GenericDisplay::MAX_VALUE + 1);
 	}
+
+	for (auto& config_display : get_config().generic_displays)
+	{
+		config_display.second->set_nr_bytes(display_width);
+	}
 }
 
 int SaitekMultiPanel::connect(hid_device* _device_handle)

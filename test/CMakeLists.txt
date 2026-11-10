@@ -40,6 +40,7 @@ set(XPANEL_TEST_SRCS
     test_log_window.cpp
     test_lua.cpp
     test_multi_panel.cpp
+    test_multi_panel_plain_display.cpp
     test_radio_panel.cpp
     test_trc1000_audio.cpp
     test_trc1000_pfd.cpp
@@ -99,6 +100,7 @@ add_test(NAME test_generic_display   COMMAND xpanel_tests --test-suite=test_gene
 add_test(NAME test_log_window        COMMAND xpanel_tests --test-suite=TestLogWindow              WORKING_DIRECTORY ${_test_wd})
 add_test(NAME test_lua               COMMAND xpanel_tests --test-suite=test_lua                  WORKING_DIRECTORY ${_test_wd})
 add_test(NAME test_multi_panel       COMMAND xpanel_tests --test-suite=test_multi_panel           WORKING_DIRECTORY ${_test_wd})
+add_test(NAME test_multi_panel_generic_display COMMAND xpanel_tests --test-suite=test_multi_panel_generic_display WORKING_DIRECTORY ${_test_wd})
 add_test(NAME test_radio_panel       COMMAND xpanel_tests --test-suite=test_radio_panel           WORKING_DIRECTORY ${_test_wd})
 add_test(NAME test_trc1000_audio     COMMAND xpanel_tests --test-suite=test_trc1000_audio_panel   WORKING_DIRECTORY ${_test_wd})
 add_test(NAME test_trc1000_pfd       COMMAND xpanel_tests --test-suite=test_trc1000_pfd_panel     WORKING_DIRECTORY ${_test_wd})

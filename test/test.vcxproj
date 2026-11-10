@@ -227,6 +227,7 @@ xcopy /y /d "$(SolutionDir)3rdparty\FIP-SDK\fonts\fip-fonts.bmp" "$(OutDir)"
     <ClCompile Include="test_log_window.cpp" />
     <ClCompile Include="test_lua.cpp" />
     <ClCompile Include="test_multi_panel.cpp" />
+    <ClCompile Include="test_multi_panel_plain_display.cpp" />
     <ClCompile Include="test_radio_panel.cpp" />
     <ClCompile Include="test_trc1000_audio.cpp" />
     <ClCompile Include="test_trc1000_pfd.cpp" />
