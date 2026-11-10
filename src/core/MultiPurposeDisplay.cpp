@@ -24,7 +24,6 @@ MultiPurposeDisplay::MultiPurposeDisplay(MultiPurposeDisplay* other):
 	GenericDisplay(other)
 {
 	active_condition = other->active_condition;
-	turn_off = other->turn_off;
 
 	conditions = other->conditions;
 	const_values = other->const_values;

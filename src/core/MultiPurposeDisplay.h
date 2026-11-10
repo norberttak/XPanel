@@ -43,5 +43,4 @@ private:
 	std::map<std::string, int> dot_positions_for_conditions;
 
 	std::string active_condition;
-	bool turn_off;
 };

@@ -239,6 +239,9 @@ bool GenericDisplay::get_display_value(unsigned char* buffer, int _minimum_numbe
 	display_value_changed = false;
 	guard.unlock();
 
+	if (nr_of_bytes == 0)
+		Logger(TLogLevel::logWARNING) << "GenericDisplay: nr_of_bytes is 0, display will never refresh (missing set_nr_bytes() call for this device class)" << std::endl;
+
 	bool buffer_changed = false;
 	if (_val > MAX_VALUE) // display shall be turned off
 	{
